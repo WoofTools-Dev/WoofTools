@@ -1,0 +1,66 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model DailyWinner {
+  id               Int      @id @default(autoincrement())
+  username         String
+  date             DateTime @default(now())
+  walletAddress    String? // Optional wallet address for the winner
+  price            Float? // Single price associated with the winner
+  previousPrices   Float[] // Array of previous prices
+  growthPercentage Float? // Growth percentage for the winner
+
+  // Add other relevant fields as needed
+}
+
+model DailyLoser {
+  id               Int      @id @default(autoincrement())
+  username         String
+  date             DateTime @default(now())
+  walletAddress    String? // Optional wallet address for the loser
+  price            Float? // Single price associated with the loser
+  previousPrices   Float[] // Array of previous prices
+  growthPercentage Float? // Growth percentage for the loser
+
+  // Add other relevant fields as needed
+}
+
+model UpdatedRRSS {
+  id               Int      @id @default(autoincrement())
+  profileName      String
+  lastUpdated      DateTime @default(now())
+  walletAddress    String? // Optional wallet address for the RRSS
+  price            Float? // Single price associated with the RRSS
+  previousPrices   Float[] // Array of previous prices
+  growthPercentage Float? // Growth percentage for the RRSS
+
+  // Add other relevant fields as needed
+}
+
+model HotPair {
+  id               Int     @id @default(autoincrement())
+  pairName         String
+  popularity       Int // You can use this field to represent the popularity of the pair
+  walletAddress    String? // Optional wallet address for the pair
+  price            Float? // Single price associated with the pair
+  previousPrices   Float[] // Array of previous prices
+  growthPercentage Float? // Growth percentage for the pair
+
+  // Add other relevant fields as needed
+}
+
+model User {
+  id       Int    @id @default(autoincrement())
+  username String @unique
+  email    String @unique
+  password String
+}
