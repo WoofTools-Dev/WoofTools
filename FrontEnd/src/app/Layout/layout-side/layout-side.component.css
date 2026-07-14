@@ -1,0 +1,54 @@
+* {
+  padding: 0;
+  margin: 0;
+  text-decoration: none;
+}
+
+.box {
+  display: block;
+  height: 40px;
+  width: 100%;
+  position: relative;
+  transition: 0.3s;
+  color: rgb(160, 160, 175);
+}
+.title {
+  display: block;
+  height: 64px;
+}
+.box i,
+mat-icon {
+  font-size: 26px;
+  position: absolute;
+  margin: 7px 0 0 20px;
+}
+.box span {
+  font-family: Poppins, Roboto, sans-serif;
+  font-weight: 400;
+  position: relative;
+  top: 10px;
+  left: 80px;
+  font: 400 14px Arial;
+  opacity: 1;
+  transition: 0.1s;
+}
+.box.title span {
+  top: 25px;
+}
+.box:hover {
+  background-color: rgb(55, 65, 81);
+}
+.box:hover {
+  color: #fff;
+}
+
+img {
+  height: 64px;
+  width: 64px;
+  position: absolute;
+  margin: 0px 0 0 0px;
+}
+
+.building {
+  color: blanchedalmond;
+}

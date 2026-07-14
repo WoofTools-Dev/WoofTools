@@ -1,0 +1,27 @@
+html,
+body {
+  margin: 0;
+  width: 100%;
+}
+* {
+  overflow: clip;
+  font-family: Poppins, sans-serif;
+}
+::-webkit-scrollbar {
+  width: 5px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+  background: #0b1217;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #131f26;
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #1f333f;
+}

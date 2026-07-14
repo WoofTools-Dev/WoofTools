@@ -1,0 +1,66 @@
+<div>
+    <div class="row align-content-center">
+        <div class="col-2">
+            <div class="select-menu active">
+                <div class="select-btn" (click)="toggleButton()">
+                  <span class="sBtn-text">
+                    <img src="../../../assets/ether.png" width="20" height="20" *ngIf="selectedBlockChain == 'Ethereum'; else otherImage">
+
+                    <ng-template #otherImage>
+                        <img src="../../../assets/shib.png" width="20" height="20" >
+                    </ng-template>
+
+
+                     {{selectedBlockChain}}
+                </span>
+                    <i class="material-icons" *ngIf="isToggledBlockChainButton == false; else downarrow">keyboard_arrow_up</i>
+                    <ng-template #downarrow>
+                        <i class="material-icons" >keyboard_arrow_down</i>
+                    </ng-template>
+                </div>
+              
+                <div  *ngIf="isToggledBlockChainButton == false; else openOptionBox">
+
+                </div>
+
+
+                <ng-template #openOptionBox>
+                    <ul class="options">
+                        <li class="option" (click)="selectChain('Ethereum')">
+                          <span class="option-text">
+                            <img src="../../../assets/ether.png" width="20" height="20" > 
+                            Ethereum
+                        </span>
+                        </li>
+                        <li class="option" (click)="selectChain('Shibarium')">
+                        <span class="option-text">
+                            <img src="../../../assets/shib.png" width="20" height="20" >
+                            Shibarium
+                        </span>
+                        </li>
+                    </ul>
+                </ng-template>
+              </div>
+        </div>
+        <div class="col-8">
+            <div class="input-group" style="border-color: #3a4956;margin: 0;">
+                <span class="input-group-text" style="height: 65%;background-color: #3a4956;">
+                    <mat-icon matSuffix style="color:white">search</mat-icon> </span>
+                <input type="text" class="form-control" placeholder=" Search pair by simbol, name, contract or token"
+                    style="height: 65%;background-color: #23323c;color: white;">
+            </div>
+        </div>
+        <div class="col-2">
+            
+
+            <div *ngIf="wallet.isWalletConnected(); else elseBlock">
+                <button  mat-raised-button style="background-color: #00b8d8;" 
+                >{{(walletAddress)}}</button>
+            </div>
+              <ng-template #elseBlock>
+                <button  (click)="connectWallet()" mat-raised-button style="background-color: #00b8d8;" 
+                >Connect</button>
+              </ng-template>            
+        </div>
+    </div>
+</div>

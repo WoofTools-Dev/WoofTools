@@ -1,0 +1,157 @@
+<body>
+    <img src="/assets/WoofTools-LogoText.png">
+    <br>
+    <br>
+    <div class="row mx-2">
+        <div class="col-12">
+            <h1 class="heading-primary">Live New Pairs</h1>
+
+            <div  class="subtitle subtitle-container">
+                <p class="ether">New pairs listed on <span>Ethereum</span> exchanges with pool variation in real time</p>
+                <input
+                class="top-search"
+                apprestrictinput="^[A-Za-z0-9:.<>\-\s]*$"
+                type="text"
+                (keyup)="search($event)"
+                placeholder="Find by symbol, name, token contract or pair address"
+                maxlength="128"
+              >
+            </div>
+            <div class="mt-5">
+
+                <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+                    <ng-container matColumnDef="pairInfo">
+                        <th mat-header-cell *matHeaderCellDef> Pair Info </th>
+                        <td mat-cell *matCellDef="let element">
+                            <div class="pair-info">
+                                <div class="pair-info-inner">
+                                    <div class="avatar">
+                                        <p>{{ generateAvatarInitials(element.pairInfo.token0Name) }}</p>
+                                    </div>
+                                    <img src="../../../assets/uniswap.png" width="20px" height="20" alt="text">
+                                </div>
+
+                                <div>
+                                    <div>
+                                        {{element.pairInfo.token0Name}} / {{element.pairInfo.token1Name}}
+                                    </div>
+                                    <div>
+                                        {{element.pairInfo.pairAddress}}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- {{ element.pairInfo.token0Name }}   -->
+                        </td>
+                      </ng-container>
+                    
+                      <!-- Listed Since Column -->
+                      <ng-container matColumnDef="listedSince">
+                        <th mat-header-cell *matHeaderCellDef> Listed Since </th>
+                        <!-- {{  }} -->
+                        <td mat-cell *matCellDef="let element"> <app-time-counter startTime={{element.listedSince}}></app-time-counter>  </td>
+                      </ng-container>
+                    
+                      <!-- Listed Since Column -->
+                      <ng-container matColumnDef="tokenPriceUSD">
+                        <th mat-header-cell *matHeaderCellDef> Token Price USD </th>
+                        <td mat-cell *matCellDef="let element"> {{ element.tokenPriceUSD }} </td>
+                      </ng-container>
+                       <!-- Listed Since Column -->
+                       <ng-container matColumnDef="initialLiquidity">
+                        <th mat-header-cell *matHeaderCellDef>  Initial Liquidity </th>
+                        <td mat-cell *matCellDef="let element"> {{ element.initialLiquidity }} </td>
+                      </ng-container>
+
+                       <!-- Listed Since Column -->
+                       <ng-container matColumnDef="totalLiquidity">
+                        <th mat-header-cell *matHeaderCellDef> Total Liquidity </th>
+                        <td mat-cell *matCellDef="let element"> {{ element.totalLiquidity }} </td>
+                      </ng-container>
+
+
+                       <!-- Listed Since Column -->
+                       <ng-container matColumnDef="poolAmount">
+                        <th mat-header-cell *matHeaderCellDef> Pool Amount </th>
+                        <td mat-cell *matCellDef="let element"> {{ element.poolAmount }} </td>
+                      </ng-container>
+
+
+                       <!-- Listed Since Column -->
+                       <ng-container matColumnDef="poolVariation">
+                        <th mat-header-cell *matHeaderCellDef>  Pool Variation </th>
+                        <td mat-cell *matCellDef="let element">
+                            <div class="pool-variations">
+                                <a  target="_blank" rel="noopener"  [ngClass]="{
+                                    'badge': true,
+                                    'custom-badge-size' : true, 
+                                    'p-1' : true,
+                                    'bg-danger': element.poolVariation <= 30,
+                                    'bg-primary': element.poolVariation > 30 && element.poolVariation < 70,
+                                    'bg-success': element.poolVariation >= 70
+                                  }" href="https://v2.info.uniswap.org/pair//pair/0x4d1754b0c5d6c433a87f8331e290c84e85990576">{{ element.poolVariation }} %</a>
+                            </div>
+                             </td>
+                      </ng-container>
+
+
+                       <!-- Listed Since Column -->
+                       <ng-container matColumnDef="poolRemaining">
+                        <th mat-header-cell *matHeaderCellDef> Pool Remaining </th>
+                        <td mat-cell *matCellDef="let element"> {{ element.poolRemaining }} </td>
+                      </ng-container>
+
+
+                      <ng-container matColumnDef="contract">
+                        <th mat-header-cell *matHeaderCellDef> Contract </th>
+                        <td mat-cell *matCellDef="let element"> {{ element.contract }} </td>
+                      </ng-container>
+
+                    
+                      <!-- Actions Column -->
+                      <ng-container matColumnDef="actions">
+                        <th mat-header-cell *matHeaderCellDef> Actions </th>
+                        <td mat-cell *matCellDef="let element">
+                         <div class="d-flex">
+                            <div class="actions-images">
+                                <img src="../../../assets/uniswap.png"  alt="icon" width="20" height="20">
+                            </div>
+                           
+                            <div class="actions-images">
+                                <img src="../../../assets/ether-scan.png"  alt="icon" width="20" height="20">
+                            </div>
+                           
+
+                            <div class="actions-images">
+                                <img src="../../../assets/uncx.svg"  alt="icon" width="20" height="20">
+                            </div>
+                           
+
+                         </div>
+                        </td>
+                      </ng-container>
+
+
+                      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                  </table>
+
+                <!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+
+         
+                    <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
+                      <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
+                      <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
+                    </ng-container>
+                  
+               
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                  </table> -->
+                  <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>                  
+            </div>
+            
+        </div>
+    </div>
+</body>

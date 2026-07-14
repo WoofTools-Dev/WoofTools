@@ -1,0 +1,32 @@
+mat-drawer {
+  width: 64px;
+  height: 100%;
+  align-items: center;
+  flex-direction: column;
+  background-color: #142028;
+  transition: 0.3s;
+}
+
+mat-drawer:hover {
+  width: 220px;
+}
+
+mat-drawer:hover span {
+  opacity: 1;
+}
+mat-drawer-content {
+  height: 100%;
+  background-color: #0b1217;
+}
+mat-drawer-container {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  bottom: 0;
+  color: #ffffff;
+}
+body {
+  background-color: #0b1217;
+  align-content: center;
+  text-align: center;
+}
