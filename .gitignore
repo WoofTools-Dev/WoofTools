@@ -1,0 +1,93 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage
+*.lcov
+.nyc_output
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# TypeScript
+*.tsbuildinfo
+typings/
+
+# Build output
+dist/
+tmp
+out-tsc
+bazel-out
+
+# Cache
+.eslintcache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+.cache
+.cache/
+.npm
+.yarn-integrity
+.sass-cache/
+/.angular/cache
+
+# Environment files
+.env
+.env.test
+
+# IDE and editor
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Miscellaneous
+.grunt
+bower_components
+.lock-wscript
+build/Release
+*.tgz
+.serverless/
+.fusebox/
+.dynamodb/
+.tern-port
+/connect.lock
+/libpeerconnection.log
+testem.log
+
+# Database
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+*.db
+*.db-journal
+*.sqlite3*
