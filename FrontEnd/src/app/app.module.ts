@@ -19,8 +19,13 @@ import { MatTableModule } from '@angular/material/table';
 import { TimeCounterComponent } from './app/time-counter/time-counter.component';
 import { LivePairsComponent } from './app/live-pairs/live-pairs.component';
 import { BigSwapExplorerComponent } from './app/big-swap-explorer/big-swap-explorer.component';
+import { PairExplorerComponent } from './app/pair-explorer/pair-explorer.component';
+import { MultiChartComponent } from './app/multichart/multichart.component';
+import { StatsComponent } from './app/stats/stats.component';
+import { WalletInfoComponent } from './app/wallet-info/wallet-info.component';
+import { ProductsComponent } from './app/products/products.component';
 @NgModule({
-  declarations: [AppComponent, AppViewComponent, AppLayoutComponent, SwapComponent, SwapWrapperComponent, TimeCounterComponent, LivePairsComponent, BigSwapExplorerComponent],
+  declarations: [AppComponent, AppViewComponent, AppLayoutComponent, SwapComponent, SwapWrapperComponent, TimeCounterComponent, LivePairsComponent, BigSwapExplorerComponent, PairExplorerComponent, MultiChartComponent, StatsComponent, WalletInfoComponent, ProductsComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
