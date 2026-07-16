@@ -12,8 +12,8 @@ const routes: Routes = [
     component: AppViewRouter.WalletConnect,
   },
   {
-    path: 'pair_explorer',
-    component: AppViewRouter.PairExplorerComponent,
+    path: 'multiswap',
+    component: AppViewRouter.SwapWrapperComponent,
   },
   {
     path: 'live-pair',
@@ -23,26 +23,7 @@ const routes: Routes = [
     path: 'big_swap_explorer',
     component: AppViewRouter.BigSwapExplorerComponent,
   },
-  {
-    path: 'multichart',
-    component: AppViewRouter.MultiChartComponent,
-  },
-  {
-    path: 'multiswap',
-    component: AppViewRouter.SwapWrapperComponent,
-  },
-  {
-    path: 'stats',
-    component: AppViewRouter.StatsComponent,
-  },
-  {
-    path: 'wallet_info',
-    component: AppViewRouter.WalletInfoComponent,
-  },
-  {
-    path: 'products',
-    component: AppViewRouter.ProductsComponent,
-  },
+
   {
     path: '**',
     redirectTo: 'woofboard',
