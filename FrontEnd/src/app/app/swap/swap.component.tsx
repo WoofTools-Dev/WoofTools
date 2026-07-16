@@ -3,23 +3,19 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges,
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import { TestButton } from "../Test/TestComponent";
-
 import { Widget } from "@kyberswap/widgets";
+import { WalletService } from "src/app/provider/walletprovider";
 
 const containerElementRef = "customReactComponentContainer";
-
-
 
 @Component({
   selector: 'app-swap-wrapper',
   template: `<span #${containerElementRef}></span>`,
-  // styleUrls: [""],
   encapsulation: ViewEncapsulation.None,
-  // templateUrl: './swap.component.html',
   styleUrls: ['./swap.component.css'],
 })
 export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
-  
+
    MY_TOKEN_LIST = [
     {
     "name": "KNC",
@@ -53,7 +49,9 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
   @Input() public counter = 10;
   @Output() public componentClick = new EventEmitter<void>();
 
-  constructor() {
+  constructor(
+    private wallet: WalletService
+  ) {
     this.handleClick = this.handleClick.bind(this);
   }
 
@@ -76,8 +74,18 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     ReactDOM.unmountComponentAtNode(this.containerRef.nativeElement);
   }
 
+  private getProvider() {
+    // @ts-ignore
+    if (typeof window !== "undefined" && typeof window.ethereum !== "undefined") {
+      // @ts-ignore
+      return window.ethereum;
+    }
+    return null;
+  }
+
   private render() {
     const { counter } = this;
+    const provider = this.getProvider();
 
     ReactDOM.render(
       <React.StrictMode>
@@ -87,7 +95,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
             tokenList={this.MY_TOKEN_LIST}
             enableRoute = {true}
             enableDexes="kyberswap-elastic,uniswapv3,uniswap"
-            provider={null}
+            provider={provider}
             title={<div>Swap</div>}
             feeSetting={{
               feeAmount: 100,
