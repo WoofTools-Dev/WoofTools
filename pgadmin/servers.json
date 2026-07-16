@@ -1,0 +1,15 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Wooftools DB",
+      "Group": "Servers",
+      "Host": "woof-postgres",
+      "Port": 5432,
+      "Username": "postgres",
+      "Password": "admin123",
+      "SSLMode": "prefer",
+      "MaintenanceDB": "wooftools",
+      "PassFile": "/tmp/pgpassfile"
+    }
+  }
+}

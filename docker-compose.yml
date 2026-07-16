@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: woof-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+      POSTGRES_DB: wooftools
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - woof-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: woof-pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@wooftools.com
+      PGADMIN_DEFAULT_PASSWORD: admin123
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    volumes:
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
+      - ./pgadmin/pgpass:/tmp/pgpassfile
+    depends_on:
+      - postgres
+    networks:
+      - woof-network
+
+networks:
+  woof-network:
+    driver: bridge
+
+volumes:
+  pgdata:

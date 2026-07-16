@@ -91,3 +91,6 @@ testem.log
 *.db
 *.db-journal
 *.sqlite3*
+
+# infra
+pgpass
