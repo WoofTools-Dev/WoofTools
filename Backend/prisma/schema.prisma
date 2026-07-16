@@ -58,6 +58,55 @@ model HotPair {
   // Add other relevant fields as needed
 }
 
+model DashboardData {
+  id            Int      @id @default(autoincrement())
+  token0Name    String
+  token1Name    String
+  pairAddress   String
+  price         Float
+  percentage24H Float
+  score         Int
+  contracts     String
+  created       DateTime
+  volume        String
+  swaps         String
+  liquidity     String
+  marketCap     String
+  dex           String[]
+  createdAt     DateTime @default(now())
+}
+
+model LivePair {
+  id               Int      @id @default(autoincrement())
+  token0Name       String
+  token1Name       String
+  pairAddress      String
+  listedSince      DateTime
+  tokenPriceUSD    Float
+  initialLiquidity String
+  totalLiquidity   String
+  poolAmount       String
+  poolVariation    Float
+  poolRemaining    String
+  contract         String
+  createdAt        DateTime @default(now())
+}
+
+model SwapTransaction {
+  id            Int      @id @default(autoincrement())
+  token0Name    String
+  token1Name    String
+  pairAddress   String
+  executionTime DateTime
+  type          String
+  quantity      Float
+  totalETH      Float
+  totalUSD      Float
+  variation     Float
+  maker         String
+  createdAt     DateTime @default(now())
+}
+
 model User {
   id       Int    @id @default(autoincrement())
   username String @unique

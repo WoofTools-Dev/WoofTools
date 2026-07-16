@@ -8,7 +8,11 @@
     "start": "npx tsc && node dist/index.js",
     "dev": "concurrently \"npx tsc --watch\" \"nodemon -q dist/index.js\"",
     "swagger": "node scripts/swaggerGen.mjs",
-    "test": "jest --detectOpenHandles --coverage"
+    "test": "jest --detectOpenHandles --coverage",
+    "seed": "npx ts-node prisma/seed.ts"
+  },
+  "prisma": {
+    "seed": "npx ts-node prisma/seed.ts"
   },
   "devDependencies": {
     "@truffle/hdwallet-provider": "^2.1.15",

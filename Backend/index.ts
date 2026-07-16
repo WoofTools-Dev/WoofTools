@@ -9,6 +9,9 @@ import dailyWinnerRoute from "./routes/dailyWinner.routes";
 import dailyLoserrRoute from "./routes/dailyLoser.routes";
 import updatedRRSSRoute from "./routes/updatedRRSS.routes";
 import hotpairRoutes from "./routes/hotPair.routes";
+import dashboardDataRoutes from "./routes/dashboardData.routes";
+import livePairRoutes from "./routes/livePair.routes";
+import swapTransactionRoutes from "./routes/swapTransaction.routes";
 
 import swaggerFile from "./swagger/swagger.json";
 
@@ -34,6 +37,9 @@ app.use("/dailyWinner", dailyWinnerRoute);
 app.use("/dailyLoser", dailyLoserrRoute);
 app.use("/updatedRRSS", updatedRRSSRoute);
 app.use("/hotpair", hotpairRoutes);
+app.use("/api", dashboardDataRoutes);
+app.use("/api", livePairRoutes);
+app.use("/api", swapTransactionRoutes);
 
 app.use("*", (_: Request, res: Response) => {
   return wrappedResponse(res, "Not Found", 404, null);
