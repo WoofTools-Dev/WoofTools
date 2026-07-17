@@ -36,7 +36,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install --no-optional --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Verify ts-jest installed
         run: node -e "require('ts-jest'); console.log('ts-jest OK')"
@@ -53,7 +53,7 @@ jobs:
           DATABASE_URL: postgresql://woof:woof123@localhost:5432/woof_db
 
       - name: Run tests
-        run: npx jest --detectOpenHandles --forceExit
+        run: ./node_modules/.bin/jest --detectOpenHandles --forceExit
         env:
           DATABASE_URL: postgresql://woof:woof123@localhost:5432/woof_db
 
@@ -71,10 +71,10 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install --no-optional --legacy-peer-deps
+        run: npm install --legacy-peer-deps
 
       - name: Build
-        run: npx ng build --configuration production
+        run: ./node_modules/.bin/ng build --configuration production
 
       - name: Run tests
-        run: npx ng test --watch=false --browsers=ChromeHeadless
+        run: ./node_modules/.bin/ng test --watch=false --browsers=ChromeHeadless
