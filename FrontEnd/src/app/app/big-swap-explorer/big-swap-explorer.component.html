@@ -100,7 +100,7 @@
                                     'bg-danger': element.variation <= 30,
                                     'bg-primary': element.variation > 30 && element.variation < 70,
                                     'bg-success': element.variation >= 70
-                                  }" href="https://v2.info.uniswap.org/pair//pair/0x4d1754b0c5d6c433a87f8331e290c84e85990576">{{ element.variation }} %</a>
+                                  }" href="https://v2.info.uniswap.org/pair//pair/{{ element.pairInfo.pairAddress }}">{{ element.variation }} %</a>
                             </div>
                              </td>
                       </ng-container>
@@ -137,18 +137,6 @@
                       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                   </table>
 
-                <!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
-
-         
-                    <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-                      <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
-                      <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-                    </ng-container>
-                  
-               
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                  </table> -->
                   <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>                  
             </div>
             

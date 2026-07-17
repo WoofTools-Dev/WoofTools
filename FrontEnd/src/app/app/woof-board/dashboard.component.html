@@ -20,8 +20,8 @@
                                             <p>{{ winner.username }}</p>
                                         </div>
                                         <div class="list-item-right">
-                                            <div class="numbers text-success">${{ winner.price }}</div>
-                                            <div class="numbers text-success">{{ winner.growthPercentage }}%</div>
+                                            <div class="numbers" [class.text-success]="winner.growthPercentage && winner.growthPercentage >= 0" [class.text-danger]="winner.growthPercentage && winner.growthPercentage < 0">${{ winner.price }}</div>
+                                            <div class="numbers" [class.text-success]="winner.growthPercentage && winner.growthPercentage >= 0" [class.text-danger]="winner.growthPercentage && winner.growthPercentage < 0">{{ winner.growthPercentage }}%</div>
                                         </div>
                                     </div>
                                 </li>
@@ -40,8 +40,8 @@
                                             <p>{{ loser.username }}</p>
                                         </div>
                                         <div class="list-item-right">
-                                            <div class="numbers text-danger">${{ loser.price }}</div>
-                                            <div class="numbers text-danger">{{ loser.growthPercentage }}%</div>
+                                            <div class="numbers" [class.text-success]="loser.growthPercentage && loser.growthPercentage >= 0" [class.text-danger]="loser.growthPercentage && loser.growthPercentage < 0">${{ loser.price }}</div>
+                                            <div class="numbers" [class.text-success]="loser.growthPercentage && loser.growthPercentage >= 0" [class.text-danger]="loser.growthPercentage && loser.growthPercentage < 0">{{ loser.growthPercentage }}%</div>
                                         </div>
                                     </div>
                                 </li>
@@ -60,8 +60,8 @@
                                             <p>{{ hp.pairName }}</p>
                                         </div>
                                         <div class="list-item-right">
-                                            <div class="numbers text-success">${{ hp.price }}</div>
-                                            <div class="numbers text-success">{{ hp.growthPercentage }}%</div>
+                                            <div class="numbers" [class.text-success]="hp.growthPercentage && hp.growthPercentage >= 0" [class.text-danger]="hp.growthPercentage && hp.growthPercentage < 0">${{ hp.price }}</div>
+                                            <div class="numbers" [class.text-success]="hp.growthPercentage && hp.growthPercentage >= 0" [class.text-danger]="hp.growthPercentage && hp.growthPercentage < 0">{{ hp.growthPercentage }}%</div>
                                         </div>
                                     </div>
                                 </li>
@@ -204,15 +204,8 @@
                       <ng-container matColumnDef="Dex">
                         <th mat-header-cell *matHeaderCellDef> Dex </th>
                         <td mat-cell *matCellDef="let element">
-
                             <div class="dex-info">
-                                <div class="dex-info-inner">
-                                    <img src="../../../assets/uniswap.png" alt="" width="35" height="35">
-                                </div>
-
-                                <div class="dex-exchange">
-                                    <img src="../../../assets//ether.png" alt="" width="20" height="20">
-                                </div>
+                                <span *ngFor="let d of element.Dex" class="badge bg-secondary me-1">{{ d }}</span>
                             </div>
                         </td>
                       </ng-container>
@@ -236,18 +229,7 @@
                       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                   </table>
 
-                <!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
-         
-                    <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-                      <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
-                      <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-                    </ng-container>
-                  
-               
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                  </table> -->
                   <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>                  
             </div>
             
