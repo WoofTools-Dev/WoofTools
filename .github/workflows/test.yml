@@ -36,7 +36,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm ci --omit=optional
+        run: npm ci
 
       - name: Create test database
         run: |
@@ -68,7 +68,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm ci --omit=optional
+        run: npm ci
 
       - name: Build
         run: npx ng build --configuration production
