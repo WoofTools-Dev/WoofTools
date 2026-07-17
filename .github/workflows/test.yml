@@ -40,7 +40,7 @@ jobs:
 
       - name: Create test database
         run: |
-          PGPASSWORD=woof123 psql -h localhost -U woof -c "CREATE DATABASE wooftools_test;"
+          PGPASSWORD=woof123 psql -h localhost -U woof -d woof_db -c "CREATE DATABASE wooftools_test;"
         env:
           DATABASE_URL: postgresql://woof:woof123@localhost:5432/woof_db
 
@@ -52,7 +52,7 @@ jobs:
       - name: Run tests
         run: npx jest --detectOpenHandles --forceExit
         env:
-          DATABASE_URL: postgresql://woof:woof123@localhost:5432/wooftools_test
+          DATABASE_URL: postgresql://woof:woof123@localhost:5432/woof_db
 
   frontend:
     runs-on: ubuntu-latest
