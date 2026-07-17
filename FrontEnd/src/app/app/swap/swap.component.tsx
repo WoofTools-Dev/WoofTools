@@ -1,10 +1,10 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges,
   OnDestroy, Output, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
 import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { TestButton } from "../Test/TestComponent";
+import { createRoot, Root } from "react-dom/client";
 import { Widget } from "@kyberswap/widgets";
 import { WalletService } from "src/app/provider/walletprovider";
+import { Web3Provider } from "@ethersproject/providers";
 
 const containerElementRef = "customReactComponentContainer";
 
@@ -16,33 +16,8 @@ const containerElementRef = "customReactComponentContainer";
 })
 export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
 
-   MY_TOKEN_LIST = [
-    {
-    "name": "KNC",
-    "address": "0x1C954E8fe737F99f68Fa1CCda3e51ebDB291948C",
-    "symbol": "KNC",
-    "decimals": 18,
-    "chainId": 1,
-    "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png"
-  },
-    {
-    "name": "Tether USD",
-    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    "symbol": "USDT",
-    "decimals": 6,
-    "chainId": 1,
-    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
-  },
-  {
-    "name": "USD Coin",
-    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    "symbol": "USDC",
-    "decimals": 6,
-    "chainId": 1,
-    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
-  },
-  ]
-
+  private root: Root | null = null;
+  private cachedProvider: any = null;
 
   @ViewChild(containerElementRef, { static: true }) containerRef!: ElementRef;
 
@@ -51,16 +26,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
 
   constructor(
     private wallet: WalletService
-  ) {
-    this.handleClick = this.handleClick.bind(this);
-  }
-
-  public handleClick() {
-    if (this.componentClick) {
-      this.componentClick.emit();
-      this.render();
-    }
-  }
+  ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     this.render();
@@ -71,29 +37,37 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy() {
-    ReactDOM.unmountComponentAtNode(this.containerRef.nativeElement);
+    if (this.root) {
+      this.root.unmount();
+      this.root = null;
+    }
+    this.cachedProvider = null;
   }
 
   private getProvider() {
-    // @ts-ignore
-    if (typeof window !== "undefined" && typeof window.ethereum !== "undefined") {
-      // @ts-ignore
-      return window.ethereum;
+    if (this.cachedProvider) {
+      return this.cachedProvider;
+    }
+    if (typeof window !== "undefined" && typeof (window as any).ethereum !== "undefined") {
+      this.cachedProvider = new Web3Provider((window as any).ethereum, 'any');
+      return this.cachedProvider;
     }
     return null;
   }
 
   private render() {
-    const { counter } = this;
     const provider = this.getProvider();
 
-    ReactDOM.render(
+    if (!this.root) {
+      this.root = createRoot(this.containerRef.nativeElement);
+    }
+
+    this.root.render(
       <React.StrictMode>
         <div style={{display : "flex" , alignContent: "center" , justifyContent:"center"}}>
         <Widget
-            client="yourCompanyNameHere"
-            tokenList={this.MY_TOKEN_LIST}
-            enableRoute = {true}
+            client="WoofTools"
+            enableRoute={true}
             enableDexes="kyberswap-elastic,uniswapv3,uniswap"
             provider={provider}
             title={<div>Swap</div>}
@@ -105,8 +79,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
           }}
         />
         </div>
-      </React.StrictMode>,
-      this.containerRef.nativeElement
+      </React.StrictMode>
     );
   }
 }
