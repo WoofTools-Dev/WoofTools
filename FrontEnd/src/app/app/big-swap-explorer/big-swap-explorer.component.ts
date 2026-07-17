@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { interval, Subscription, switchMap, startWith } from 'rxjs';
 import { ApiService } from 'src/app/Service/api.service';
 import { SwapTransaction } from 'src/app/Interface/api.interfaces';
 
@@ -28,10 +29,12 @@ export interface TokenInfo {
   templateUrl: './big-swap-explorer.component.html',
   styleUrls: ['./big-swap-explorer.component.css']
 })
-export class BigSwapExplorerComponent implements OnInit {
+export class BigSwapExplorerComponent implements OnInit, OnDestroy {
   pairList: TokenInfo[] = [];
   filteredPairs: any[] = [];
   dataSource: any = null;
+
+  private pollingSub!: Subscription;
 
   constructor(
     private api: ApiService
@@ -60,7 +63,10 @@ export class BigSwapExplorerComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.api.getSwaps().subscribe({
+    this.pollingSub = interval(30000).pipe(
+      startWith(0),
+      switchMap(() => this.api.getSwaps())
+    ).subscribe({
       next: (data: SwapTransaction[]) => {
         this.pairList = data.map((item) => ({
           pairInfo: {
@@ -96,6 +102,12 @@ export class BigSwapExplorerComponent implements OnInit {
     if (this.dataSource && this.sort && this.paginator) {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
     }
   }
 

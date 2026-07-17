@@ -46,3 +46,47 @@ export interface SwapTransaction {
   maker: string;
   createdAt: string;
 }
+
+export interface DailyWinner {
+  id: number;
+  username: string;
+  date: string;
+  walletAddress?: string;
+  price?: number;
+  previousPrices: number[];
+  growthPercentage?: number;
+  createdAt: string;
+}
+
+export interface DailyLoser {
+  id: number;
+  username: string;
+  date: string;
+  walletAddress?: string;
+  price?: number;
+  previousPrices: number[];
+  growthPercentage?: number;
+  createdAt: string;
+}
+
+export interface HotPair {
+  id: number;
+  pairName: string;
+  popularity: number;
+  walletAddress?: string;
+  price?: number;
+  previousPrices: number[];
+  growthPercentage?: number;
+  createdAt: string;
+}
+
+export interface UpdatedRRSS {
+  id: number;
+  profileName: string;
+  lastUpdated: string;
+  walletAddress?: string;
+  price?: number;
+  previousPrices: number[];
+  growthPercentage?: number;
+  createdAt: string;
+}

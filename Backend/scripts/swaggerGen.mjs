@@ -11,11 +11,7 @@ const doc = {
   schemes: ["http"],
 };
 
-const outputFile = "../swagger/swagger.json";
-const endpointsFiles = ["../index.ts"];
-
-/* NOTE: if you use the express Router, you must pass in the 
-   'endpointsFiles' only the root file where the route starts,
-   such as index.js, app.js, routes.js, ... */
+const outputFile = "./swagger/swagger.json";
+const endpointsFiles = ["./index.ts"];
 
 swaggerAutogen(outputFile, endpointsFiles, doc);

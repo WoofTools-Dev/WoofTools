@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { interval, Subscription, switchMap, startWith } from 'rxjs';
 import { ApiService } from 'src/app/Service/api.service';
 import { LivePair } from 'src/app/Interface/api.interfaces';
 
@@ -29,10 +30,12 @@ export interface TokenInfo {
   templateUrl: './live-pairs.component.html',
   styleUrls: ['./live-pairs.component.css'],
 })
-export class LivePairsComponent implements OnInit {
+export class LivePairsComponent implements OnInit, OnDestroy {
   pairList: TokenInfo[] = [];
   filteredPairs: any[] = [];
   dataSource: any = null;
+
+  private pollingSub!: Subscription;
 
   constructor(
     private api: ApiService
@@ -63,7 +66,10 @@ export class LivePairsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.api.getLivePairs().subscribe({
+    this.pollingSub = interval(30000).pipe(
+      startWith(0),
+      switchMap(() => this.api.getLivePairs())
+    ).subscribe({
       next: (data: LivePair[]) => {
         this.pairList = data.map((item) => ({
           pairInfo: {
@@ -100,6 +106,12 @@ export class LivePairsComponent implements OnInit {
     if (this.dataSource && this.sort && this.paginator) {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
     }
   }
 

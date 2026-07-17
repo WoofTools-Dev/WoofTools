@@ -2,379 +2,192 @@
   "swagger": "2.0",
   "info": {
     "title": "Wooftools APIs",
-    "description": "Wooftools Backend API services",
+    "description": "Wooftools Backend API services — Full CRUD for all entities",
     "version": "1.0.0"
   },
   "host": "localhost:8000",
   "basePath": "/",
-  "schemes": [
-    "http"
-  ],
+  "schemes": ["http"],
   "paths": {
     "/": {
       "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          }
-        }
+        "summary": "Health check",
+        "description": "Returns Hello World",
+        "responses": { "200": { "description": "OK" } }
+      }
+    },
+    "/api/dashboard/data": {
+      "post": {
+        "summary": "Create DashboardData",
+        "responses": { "201": { "description": "Created" }, "500": { "description": "Internal Server Error" } }
+      },
+      "get": {
+        "summary": "List all DashboardData",
+        "responses": { "200": { "description": "OK" }, "500": { "description": "Internal Server Error" } }
+      }
+    },
+    "/api/dashboard/data/{id}": {
+      "get": {
+        "summary": "Get DashboardData by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
+      },
+      "delete": {
+        "summary": "Delete DashboardData",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/api/live-pairs": {
+      "post": {
+        "summary": "Create LivePair",
+        "responses": { "201": { "description": "Created" }, "500": { "description": "Internal Server Error" } }
+      },
+      "get": {
+        "summary": "List all LivePairs",
+        "responses": { "200": { "description": "OK" }, "500": { "description": "Internal Server Error" } }
+      }
+    },
+    "/api/live-pairs/{id}": {
+      "get": {
+        "summary": "Get LivePair by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
+      },
+      "delete": {
+        "summary": "Delete LivePair",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/api/swaps": {
+      "post": {
+        "summary": "Create SwapTransaction",
+        "responses": { "201": { "description": "Created" }, "500": { "description": "Internal Server Error" } }
+      },
+      "get": {
+        "summary": "List all SwapTransactions",
+        "responses": { "200": { "description": "OK" }, "500": { "description": "Internal Server Error" } }
+      }
+    },
+    "/api/swaps/{id}": {
+      "get": {
+        "summary": "Get SwapTransaction by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
+      },
+      "delete": {
+        "summary": "Delete SwapTransaction",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "204": { "description": "No Content" } }
       }
     },
     "/dailyWinner/daily-winners": {
       "post": {
-        "description": "",
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Create DailyWinner",
+        "responses": { "201": { "description": "Created" }, "500": { "description": "Internal Server Error" } }
       },
       "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "List all DailyWinners",
+        "responses": { "200": { "description": "OK" }, "500": { "description": "Internal Server Error" } }
       }
     },
     "/dailyWinner/daily-winners/{id}": {
       "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Get DailyWinner by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
       },
       "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Update DailyWinner",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
       },
       "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Delete DailyWinner",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "204": { "description": "No Content" } }
       }
     },
     "/dailyLoser/daily-losers": {
       "post": {
-        "description": "",
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Create DailyLoser",
+        "responses": { "201": { "description": "Created" }, "500": { "description": "Internal Server Error" } }
       },
       "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "List all DailyLosers",
+        "responses": { "200": { "description": "OK" }, "500": { "description": "Internal Server Error" } }
       }
     },
     "/dailyLoser/daily-losers/{id}": {
       "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Get DailyLoser by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
       },
       "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Update DailyLoser",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
       },
       "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/updatedRRSS/updated-rrss": {
-      "post": {
-        "description": "",
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/updatedRRSS/updated-rrss/{id}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      },
-      "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Delete DailyLoser",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "204": { "description": "No Content" } }
       }
     },
     "/hotpair/hot-pairs": {
       "post": {
-        "description": "",
-        "responses": {
-          "201": {
-            "description": "Created"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Create HotPair",
+        "responses": { "201": { "description": "Created" }, "500": { "description": "Internal Server Error" } }
       },
       "get": {
-        "description": "",
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "List all HotPairs",
+        "responses": { "200": { "description": "OK" }, "500": { "description": "Internal Server Error" } }
       }
     },
     "/hotpair/hot-pairs/{id}": {
       "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Get HotPair by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
       },
       "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Update HotPair",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
       },
       "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
+        "summary": "Delete HotPair",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "204": { "description": "No Content" } }
+      }
+    },
+    "/updatedRRSS/updated-rrss": {
+      "post": {
+        "summary": "Create UpdatedRRSS",
+        "responses": { "201": { "description": "Created" }, "500": { "description": "Internal Server Error" } }
+      },
+      "get": {
+        "summary": "List all UpdatedRRSS",
+        "responses": { "200": { "description": "OK" }, "500": { "description": "Internal Server Error" } }
+      }
+    },
+    "/updatedRRSS/updated-rrss/{id}": {
+      "get": {
+        "summary": "Get UpdatedRRSS by ID",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
+      },
+      "put": {
+        "summary": "Update UpdatedRRSS",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "200": { "description": "OK" }, "404": { "description": "Not Found" } }
+      },
+      "delete": {
+        "summary": "Delete UpdatedRRSS",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "type": "integer" }],
+        "responses": { "204": { "description": "No Content" } }
       }
     }
   }

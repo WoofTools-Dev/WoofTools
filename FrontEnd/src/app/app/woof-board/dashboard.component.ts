@@ -1,10 +1,11 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { interval, Subscription, switchMap, startWith } from 'rxjs';
 import { ApiService } from 'src/app/Service/api.service';
-import { DashboardData } from 'src/app/Interface/api.interfaces';
+import { DashboardData, HotPair, DailyWinner, DailyLoser } from 'src/app/Interface/api.interfaces';
 
 export interface TokenInfo {
   pairInfo: {
@@ -32,10 +33,16 @@ export interface TokenInfo {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   tokensList: TokenInfo[] = [];
   filteredPairs: any[] = [];
   dataSource: any = null;
+
+  hotPairs: HotPair[] = [];
+  dailyWinners: DailyWinner[] = [];
+  dailyLosers: DailyLoser[] = [];
+
+  private pollingSub!: Subscription;
 
   constructor(
     private router: Router,
@@ -67,7 +74,10 @@ export class DashboardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.api.getDashboardData().subscribe({
+    this.pollingSub = interval(30000).pipe(
+      startWith(0),
+      switchMap(() => this.api.getDashboardData())
+    ).subscribe({
       next: (data: DashboardData[]) => {
         this.tokensList = data.map((item) => ({
           pairInfo: {
@@ -100,12 +110,22 @@ export class DashboardComponent implements OnInit {
         this.dataSource = new MatTableDataSource<TokenInfo>([]);
       },
     });
+
+    this.api.getHotPairs().subscribe(data => this.hotPairs = data);
+    this.api.getDailyWinners().subscribe(data => this.dailyWinners = data);
+    this.api.getDailyLosers().subscribe(data => this.dailyLosers = data);
   }
 
   ngAfterViewInit() {
     if (this.dataSource && this.sort && this.paginator) {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
+    }
+  }
+
+  ngOnDestroy() {
+    if (this.pollingSub) {
+      this.pollingSub.unsubscribe();
     }
   }
 

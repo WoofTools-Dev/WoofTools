@@ -23,7 +23,38 @@ const routes: Routes = [
     path: 'big_swap_explorer',
     component: AppViewRouter.BigSwapExplorerComponent,
   },
-
+  {
+    path: 'daily-winners',
+    component: AppViewRouter.DailyWinnersComponent,
+  },
+  {
+    path: 'daily-losers',
+    component: AppViewRouter.DailyLosersComponent,
+  },
+  {
+    path: 'updated-rrss',
+    component: AppViewRouter.UpdatedRRSSComponent,
+  },
+  {
+    path: 'pair_explorer',
+    component: AppViewRouter.PairExplorerComponent,
+  },
+  {
+    path: 'multichart',
+    component: AppViewRouter.MultiChartComponent,
+  },
+  {
+    path: 'stats',
+    component: AppViewRouter.StatsComponent,
+  },
+  {
+    path: 'wallet_info',
+    component: AppViewRouter.WalletInfoComponent,
+  },
+  {
+    path: 'products',
+    component: AppViewRouter.ProductsComponent,
+  },
   {
     path: '**',
     redirectTo: 'woofboard',
