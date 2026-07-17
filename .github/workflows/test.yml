@@ -36,7 +36,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-optional --legacy-peer-deps
 
       - name: Create test database
         run: |
@@ -68,7 +68,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-optional --legacy-peer-deps
 
       - name: Build
         run: npx ng build --configuration production
