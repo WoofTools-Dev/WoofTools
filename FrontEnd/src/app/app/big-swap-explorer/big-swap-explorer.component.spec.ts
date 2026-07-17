@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 import { BigSwapExplorerComponent } from './big-swap-explorer.component';
 
@@ -8,7 +9,8 @@ describe('BigSwapExplorerComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [BigSwapExplorerComponent]
+      declarations: [BigSwapExplorerComponent],
+      imports: [HttpClientTestingModule]
     });
     fixture = TestBed.createComponent(BigSwapExplorerComponent);
     component = fixture.componentInstance;
