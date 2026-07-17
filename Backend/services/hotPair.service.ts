@@ -29,11 +29,16 @@ export const updateHotPair = async (
   id: number,
   data: Partial<HotPairType>
 ): Promise<HotPairType | null> => {
-  const hotPair = await prisma.hotPair.update({
-    where: { id },
-    data,
-  });
-  return hotPair;
+  try {
+    const hotPair = await prisma.hotPair.update({
+      where: { id },
+      data,
+    });
+    return hotPair;
+  } catch (err: any) {
+    if (err?.code === "P2025") return null;
+    throw err;
+  }
 };
 
 export const deleteHotPair = async (id: number): Promise<void> => {
