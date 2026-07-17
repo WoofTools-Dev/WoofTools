@@ -17,7 +17,8 @@ const containerElementRef = "customReactComponentContainer";
 export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
 
   private root: Root | null = null;
-  private cachedProvider: any = null;
+  private provider: any = null;
+  private connecting = false;
 
   @ViewChild(containerElementRef, { static: true }) containerRef!: ElementRef;
 
@@ -29,11 +30,15 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.render();
+    if (this.root) {
+      this.render();
+    }
   }
 
-  ngAfterViewInit() {
+  async ngAfterViewInit() {
+    this.root = createRoot(this.containerRef.nativeElement);
     this.render();
+    await this.connectWallet();
   }
 
   ngOnDestroy() {
@@ -41,35 +46,62 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
       this.root.unmount();
       this.root = null;
     }
-    this.cachedProvider = null;
+    this.provider = null;
   }
 
-  private getProvider() {
-    if (this.cachedProvider) {
-      return this.cachedProvider;
+  private async connectWallet() {
+    if (typeof window === "undefined" || typeof (window as any).ethereum === "undefined") {
+      this.connecting = false;
+      this.render();
+      return;
     }
-    if (typeof window !== "undefined" && typeof (window as any).ethereum !== "undefined") {
-      this.cachedProvider = new Web3Provider((window as any).ethereum, 'any');
-      return this.cachedProvider;
+    if (this.connecting) return;
+    this.connecting = true;
+    this.render();
+    try {
+      const web3Provider = new Web3Provider((window as any).ethereum, 'any');
+      await web3Provider.send("eth_requestAccounts", []);
+      this.provider = web3Provider;
+    } catch (e) {
+      console.warn('MetaMask connection failed or rejected', e);
+      this.provider = null;
     }
-    return null;
+    this.connecting = false;
+    this.render();
   }
 
   private render() {
-    const provider = this.getProvider();
+    if (!this.root) return;
 
-    if (!this.root) {
-      this.root = createRoot(this.containerRef.nativeElement);
-    }
-
-    this.root.render(
-      <React.StrictMode>
-        <div style={{display : "flex" , alignContent: "center" , justifyContent:"center"}}>
+    const content = this.connecting ? (
+      <div style={{display: "flex", alignItems: "center", justifyContent: "center", padding: "40px"}}>
+        <p>Connecting to MetaMask...</p>
+      </div>
+    ) : !this.provider ? (
+      <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px"}}>
+        <p>Connect MetaMask to swap</p>
+        <button
+          onClick={() => this.connectWallet()}
+          style={{
+            padding: "12px 24px",
+            background: "#F6851B",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            cursor: "pointer",
+            fontSize: "16px"
+          }}
+        >
+          Connect Wallet
+        </button>
+      </div>
+    ) : (
+      <div style={{display : "flex" , alignContent: "center" , justifyContent:"center"}}>
         <Widget
             client="WoofTools"
             enableRoute={true}
             enableDexes="kyberswap-elastic,uniswapv3,uniswap"
-            provider={provider}
+            provider={this.provider}
             title={<div>Swap</div>}
             feeSetting={{
               feeAmount: 100,
@@ -78,7 +110,12 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
               isInBps: true,
           }}
         />
-        </div>
+      </div>
+    );
+
+    this.root.render(
+      <React.StrictMode>
+        {content}
       </React.StrictMode>
     );
   }
