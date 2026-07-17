@@ -1,5 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSortModule } from '@angular/material/sort';
+import { MatTableModule } from '@angular/material/table';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 
 import { BigSwapExplorerComponent } from './big-swap-explorer.component';
 
@@ -10,7 +14,13 @@ describe('BigSwapExplorerComponent', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       declarations: [BigSwapExplorerComponent],
-      imports: [HttpClientTestingModule]
+      imports: [
+        HttpClientTestingModule,
+        MatPaginatorModule,
+        MatSortModule,
+        MatTableModule,
+        NoopAnimationsModule,
+      ]
     });
     fixture = TestBed.createComponent(BigSwapExplorerComponent);
     component = fixture.componentInstance;
