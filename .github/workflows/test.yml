@@ -36,7 +36,7 @@ jobs:
           node-version: 18
 
       - name: Install dependencies
-        run: npm install --no-optional --legacy-peer-deps
+        run: npm ci
 
       - name: Create test database
         run: |
