@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { MatIconModule } from '@angular/material/icon';
 
 import { TimeCounterComponent } from './time-counter.component';
 
@@ -8,7 +9,8 @@ describe('TimeCounterComponent', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [TimeCounterComponent]
+      declarations: [TimeCounterComponent],
+      imports: [MatIconModule]
     });
     fixture = TestBed.createComponent(TimeCounterComponent);
     component = fixture.componentInstance;

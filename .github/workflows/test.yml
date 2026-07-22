@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [master, feature/*]
+  pull_request:
+    branches: [master]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Backend
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: woof
+          POSTGRES_PASSWORD: woof123
+          POSTGRES_DB: woof_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Verify ts-jest installed
+        run: node -e "require('ts-jest'); console.log('ts-jest OK')"
+
+      - name: Create test database
+        run: |
+          PGPASSWORD=woof123 psql -h localhost -U woof -d woof_db -c "CREATE DATABASE wooftools_test;"
+        env:
+          DATABASE_URL: postgresql://woof:woof123@localhost:5432/woof_db
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://woof:woof123@localhost:5432/woof_db
+
+      - name: Run tests
+        run: ./node_modules/.bin/jest --detectOpenHandles --forceExit
+        env:
+          DATABASE_URL: postgresql://woof:woof123@localhost:5432/woof_db
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: FrontEnd
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Build
+        run: ./node_modules/.bin/ng build --configuration production
+
+      - name: Run tests
+        run: ./node_modules/.bin/ng test --watch=false --browsers=ChromeHeadless
