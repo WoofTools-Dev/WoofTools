@@ -29,11 +29,16 @@ export const updateDailyWinner = async (
   id: number,
   data: Partial<DailyWinnerType>
 ): Promise<DailyWinnerType | null> => {
-  const dailyWinner = await prisma.dailyWinner.update({
-    where: { id },
-    data,
-  });
-  return dailyWinner;
+  try {
+    const dailyWinner = await prisma.dailyWinner.update({
+      where: { id },
+      data,
+    });
+    return dailyWinner;
+  } catch (err: any) {
+    if (err?.code === "P2025") return null;
+    throw err;
+  }
 };
 
 export const deleteDailyWinner = async (id: number): Promise<void> => {
