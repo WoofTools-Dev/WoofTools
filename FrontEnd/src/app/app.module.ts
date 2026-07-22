@@ -8,7 +8,8 @@ import { AngularMaterialModule } from './Module/app.angular.material.component';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AngularUIModule } from './Module/app.angular.ui.component';
-import { AppViewComponent } from './Module/app.angular.view.component';
+import { DashboardComponent } from './app/woof-board/dashboard.component';
+import { WalletConnectComponent } from './app/wallet-connect/wallet-connect.component';
 import { AppLayoutComponent } from './Module/app.angular.layout.component';
 import { SwapComponent } from './app/swap/swap.component';
 import { SwapWrapperComponent } from './app/swap/swap-wrapper/swap-wrapper.component';
@@ -20,7 +21,7 @@ import { TimeCounterComponent } from './app/time-counter/time-counter.component'
 import { LivePairsComponent } from './app/live-pairs/live-pairs.component';
 import { BigSwapExplorerComponent } from './app/big-swap-explorer/big-swap-explorer.component';
 @NgModule({
-  declarations: [AppComponent, AppViewComponent, AppLayoutComponent, SwapComponent, SwapWrapperComponent, TimeCounterComponent, LivePairsComponent, BigSwapExplorerComponent],
+  declarations: [AppComponent, DashboardComponent, WalletConnectComponent, AppLayoutComponent, SwapComponent, SwapWrapperComponent, TimeCounterComponent, LivePairsComponent, BigSwapExplorerComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

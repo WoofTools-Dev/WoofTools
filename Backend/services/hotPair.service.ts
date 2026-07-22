@@ -1,6 +1,5 @@
-import { PrismaClient, HotPair as HotPairType } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { HotPair as HotPairType } from "@prisma/client";
+import prisma from "../configs/prisma.config";
 
 export const createHotPair = async (
   data: Omit<HotPairType, "id">

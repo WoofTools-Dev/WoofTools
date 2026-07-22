@@ -1,6 +1,5 @@
-import { PrismaClient, DashboardData as DashboardDataType } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { DashboardData as DashboardDataType } from "@prisma/client";
+import prisma from "../configs/prisma.config";
 
 export const createDashboardData = async (
   data: Omit<DashboardDataType, "id" | "createdAt">

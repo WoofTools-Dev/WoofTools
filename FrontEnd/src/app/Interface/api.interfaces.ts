@@ -16,6 +16,16 @@ export interface DashboardData {
   createdAt: string;
 }
 
+export interface HotPair {
+  id: number;
+  pairName: string;
+  popularity: number;
+  walletAddress?: string;
+  price?: number;
+  previousPrices: number[];
+  growthPercentage?: number;
+}
+
 export interface LivePair {
   id: number;
   token0Name: string;

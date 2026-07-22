@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { ApiService } from 'src/app/Service/api.service';
-import { DashboardData } from 'src/app/Interface/api.interfaces';
+import { DashboardData, HotPair } from 'src/app/Interface/api.interfaces';
 
 export interface TokenInfo {
   pairInfo: {
@@ -27,6 +27,14 @@ export interface TokenInfo {
   actions: string[];
 }
 
+export interface RankingItem {
+  rank: number;
+  name: string;
+  price: string;
+  percentage: number;
+  isPositive: boolean;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
@@ -36,6 +44,9 @@ export class DashboardComponent implements OnInit {
   tokensList: TokenInfo[] = [];
   filteredPairs: any[] = [];
   dataSource: any = null;
+
+  rankings: RankingItem[] = [];
+  hotPairsList: HotPair[] = [];
 
   constructor(
     private router: Router,
@@ -69,6 +80,15 @@ export class DashboardComponent implements OnInit {
   ngOnInit(): void {
     this.api.getDashboardData().subscribe({
       next: (data: DashboardData[]) => {
+        const sorted = [...data].sort((a, b) => b.score - a.score);
+        this.rankings = sorted.slice(0, 10).map((item, i) => ({
+          rank: i + 1,
+          name: item.token0Name,
+          price: `$${item.price}`,
+          percentage: item.percentage24H,
+          isPositive: item.percentage24H >= 0,
+        }));
+
         this.tokensList = data.map((item) => ({
           pairInfo: {
             swapIcon: '',
@@ -98,6 +118,15 @@ export class DashboardComponent implements OnInit {
       },
       error: () => {
         this.dataSource = new MatTableDataSource<TokenInfo>([]);
+      },
+    });
+
+    this.api.getHotPairs().subscribe({
+      next: (data: HotPair[]) => {
+        this.hotPairsList = data;
+      },
+      error: () => {
+        this.hotPairsList = [];
       },
     });
   }

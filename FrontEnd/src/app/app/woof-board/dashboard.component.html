@@ -11,228 +11,57 @@
                     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
                         <div class="custom-card">
                             <ul class="tokens-list">
-                                <li>
+                                <li *ngFor="let item of rankings.slice(0, 5); let i = index">
                                     <div class="list-items-custom">
                                         <div class="list-item-left">
-                                            <div class="active number-tag">#1</div>
+                                            <div class="number-tag" [class.active]="i === 0">#{{ item.rank }}</div>
                                             <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
+                                            <p>{{ item.name }}</p>
                                         </div>
                                         <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
+                                            <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.price }}</div>
+                                            <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.percentage }}%</div>
                                         </div>
                                     </div>
                                 </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#2</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-danger"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#3</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#4</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#5</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
                             </ul>
                         </div>
                     </div>
                     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4 ">
                         <div class="custom-card">
                             <ul class="tokens-list">
-                                <li>
+                                <li *ngFor="let item of rankings.slice(5, 10); let i = index">
                                     <div class="list-items-custom">
                                         <div class="list-item-left">
-                                            <div class="active number-tag">#6</div>
+                                            <div class="number-tag" [class.active]="i === 5">#{{ item.rank }}</div>
                                             <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
+                                            <p>{{ item.name }}</p>
                                         </div>
                                         <div class="list-item-right">
-                                            <div class="numbers text-danger">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
+                                            <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.price }}</div>
+                                            <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.percentage }}%</div>
                                         </div>
                                     </div>
                                 </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#7</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#8</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-danger"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#9</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#10</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
                             </ul>
                         </div>
                     </div>
                     <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4 ">
                         <div class="custom-card">
                             <ul class="tokens-list">
-                                <li>
+                                <li *ngFor="let item of hotPairsList.slice(0, 5); let i = index">
                                     <div class="list-items-custom">
                                         <div class="list-item-left">
-                                            <div class="active number-tag">#1</div>
+                                            <div class="number-tag" [class.active]="i === 0">#{{ i + 1 }}</div>
                                             <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
+                                            <p>{{ item.pairName }}</p>
                                         </div>
                                         <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
+                                            <div class="numbers text-success">${{ item.price || 0 }}</div>
+                                            <div class="numbers" [class.text-success]="(item.growthPercentage || 0) >= 0" [class.text-danger]="(item.growthPercentage || 0) < 0">{{ item.growthPercentage || 0 }}%</div>
                                         </div>
                                     </div>
                                 </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#2</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-danger"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#3</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#4</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
-                                <li>
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag">#5</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>Eth</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">$0.006940</div>
-                                            <div class="numbers text-success"> 795.02% </div>
-                                        </div>
-                                    </div>
-                                </li>
-
                             </ul>
                         </div>
                     </div>
@@ -243,218 +72,19 @@
                 <div class="row gx-3 gy-3">
                     <h2 class="heading-primary">Hot Pairs</h2>
                     <ul class="tokens-list hot-pairs-token-list">
-                       
-                        <li>
+                        <li *ngFor="let item of hotPairsList; let i = index">
                             <div class="list-items-custom">
                                 <div class="list-item-left">
-                                    <div class="active number-tag">#6</div>
+                                    <div class="number-tag" [class.active]="i < 5">#{{ i + 1 }}</div>
                                     <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
+                                    <p>{{ item.pairName }}</p>
                                 </div>
                                 <div class="list-item-right">
-                                    <div class="numbers text-danger">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
+                                    <div class="numbers" [class.text-success]="(item.growthPercentage || 0) >= 0" [class.text-danger]="(item.growthPercentage || 0) < 0">${{ item.price || 0 }}</div>
+                                    <div class="numbers" [class.text-success]="(item.growthPercentage || 0) >= 0" [class.text-danger]="(item.growthPercentage || 0) < 0">{{ item.growthPercentage || 0 }}%</div>
                                 </div>
                             </div>
                         </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#7</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#8</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-danger"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#9</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#10</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="active number-tag">#6</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-danger">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#7</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#8</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-danger"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#9</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#10</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="active number-tag">#6</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-danger">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#7</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#8</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-danger"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#9</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
-                        <li>
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag">#10</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                    <p>Eth</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers text-success">$0.006940</div>
-                                    <div class="numbers text-success"> 795.02% </div>
-                                </div>
-                            </div>
-                        </li>
-
                     </ul>
                 </div>
             </div>
@@ -603,18 +233,7 @@
                       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                   </table>
 
-                <!-- <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
-         
-                    <ng-container *ngFor="let column of displayedColumns" [matColumnDef]="column">
-                      <th mat-header-cell *matHeaderCellDef>{{ column }}</th>
-                      <td mat-cell *matCellDef="let element">{{ element[column] }}</td>
-                    </ng-container>
-                  
-               
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-                  </table> -->
                   <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>                  
             </div>
             
