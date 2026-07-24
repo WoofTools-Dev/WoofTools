@@ -1,7 +1,5 @@
-// Import the PrismaClient and Prisma type
-import { PrismaClient, DailyLoser as DailyLoserType } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { DailyLoser as DailyLoserType } from "@prisma/client";
+import prisma from "../configs/prisma.config";
 
 export const createDailyLoser = async (
   data: Omit<DailyLoserType, "id">

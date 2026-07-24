@@ -1,6 +1,5 @@
-import { PrismaClient, UpdatedRRSS as UpdatedRRSSType } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { UpdatedRRSS as UpdatedRRSSType } from "@prisma/client";
+import prisma from "../configs/prisma.config";
 
 export const createUpdatedRRSS = async (
   data: Omit<UpdatedRRSSType, "id">

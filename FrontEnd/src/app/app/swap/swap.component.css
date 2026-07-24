@@ -1,58 +1,137 @@
-.ldshFy,
-.ecXsVw,
-.sc-iTFTee  {
-    background-color: #131f26 !important;
-    color: #fff !important;
+/* ===== KyberSwap Widget Dark Theme Override ===== */
+
+/* Widget container - force dark theme font */
+.customReactComponentContainer {
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
 }
 
-.jAwVIF,
-.sc-pyfCe,
-.sc-bBABsx,
-.sc-jSUZER ,
-.sc-ksBlkl,
-.sc-dwnOUR,
-.sc-cwSeag
-{
-  background-color: #26323c !important;
+.customReactComponentContainer * {
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
+}
+
+/* Widget outer wrapper */
+.customReactComponentContainer > span {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Widget main container */
+.kswgt-wrapper,
+.kswgt-main-container,
+.kswgt-swap-box {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 16px !important;
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
+}
+
+/* All text inside widget */
+.kswgt-wrapper * {
+  color: var(--text-primary) !important;
+}
+
+/* Input fields */
+.kswgt-wrapper input,
+.kswgt-wrapper input[type="text"],
+.kswgt-wrapper input[type="number"] {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-input) !important;
+  border-color: var(--border-color) !important;
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
+}
+
+/* Buttons */
+.kswgt-wrapper button {
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
+}
+
+/* Primary action button (swap) */
+.kswgt-wrapper button.kswgt-swap-button,
+.kswgt-wrapper button[class*="swap"],
+.kswgt-wrapper button[class*="Swap"] {
+  background-color: var(--primary) !important;
   color: #fff !important;
 }
 
-.mSPeV {
-    width: 144px !important;
+/* Network/token selectors */
+.kswgt-wrapper select,
+.kswgt-wrapper [class*="token-select"],
+.kswgt-wrapper [class*="network"] {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
 }
-.sc-kDvujY {
 
+/* Dropdown panels */
+.kswgt-wrapper [class*="dropdown"],
+.kswgt-wrapper [class*="list"],
+.kswgt-wrapper [class*="modal"],
+.kswgt-wrapper [class*="panel"] {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
 }
-.fRgKhl {
-    justify-content: center !important;
+
+/* Headers / titles */
+.kswgt-wrapper h1,
+.kswgt-wrapper h2,
+.kswgt-wrapper h3,
+.kswgt-wrapper h4,
+.kswgt-wrapper p,
+.kswgt-wrapper span,
+.kswgt-wrapper div {
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
 }
-.sc-ipEyDJ {
-    display: none !important;
+
+/* Fallback: target any styled-components generated classes */
+[class*="ldshFy"],
+[class*="ecXsVw"],
+[class*="sc-iTFTee"] {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-primary) !important;
 }
-.iRSPuW,
-.sc-dIfARi,
-.sc-ezOQGI {
-  border: 1px solid #00b8d8 !important;
+
+[class*="jAwVIF"],
+[class*="sc-pyfCe"],
+[class*="sc-bBABsx"],
+[class*="sc-jSUZER"],
+[class*="sc-ksBlkl"],
+[class*="sc-dwnOUR"],
+[class*="sc-cwSeag"],
+[class*="sc-iAEawV"],
+[class*="sc-cabOPr"],
+[class*="sc-cUEOzv"] {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
 }
-.sc-iTFTee {
-   background-color:  #0b1217 !important ;
+
+[class*="sc-cUEOzv"] input {
+  color: var(--text-primary) !important;
 }
-.sc-iAEawV,
-.sc-cabOPr,
-.sc-cUEOzv {
-    background-color: #26323c !important;
-    color: #fff !important;
+
+[class*="iRSPuW"],
+[class*="sc-dIfARi"],
+[class*="sc-ezOQGI"] {
+  border: 1px solid var(--border-color) !important;
 }
-.sc-cUEOzv {
-    color: #fff !important;
+
+[class*="sc-ezOQGI"],
+[class*="sc-bYMpWt"] {
+  color: var(--text-primary) !important;
 }
-.sc-cUEOzv input{
-    color: #fff !important;
+
+[class*="sc-csuSiG"] {
+  background-color: var(--primary) !important;
+  color: #fff !important;
 }
-.sc-ezOQGI,.sc-ezOQGI , .sc-bYMpWt {
-    color: #fff !important;
-}
-.sc-csuSiG {
-    background-color: #00b8d8 !important;
-    color: #fff !important;
+
+/* Connect wallet / fallback states */
+.swap-connect-btn,
+.swap-connect-btn:hover {
+  background-color: var(--primary) !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
 }

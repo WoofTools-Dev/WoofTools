@@ -1,0 +1,8 @@
+.myReactComponentContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 180px);
+  padding: 24px;
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif;
+}

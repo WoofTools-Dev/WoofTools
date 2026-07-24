@@ -1,6 +1,5 @@
-import { PrismaClient, SwapTransaction as SwapTransactionType } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { SwapTransaction as SwapTransactionType } from "@prisma/client";
+import prisma from "../configs/prisma.config";
 
 export const createSwapTransaction = async (
   data: Omit<SwapTransactionType, "id" | "createdAt">

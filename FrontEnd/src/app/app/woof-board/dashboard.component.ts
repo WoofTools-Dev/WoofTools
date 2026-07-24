@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { ApiService } from 'src/app/Service/api.service';
-import { DashboardData } from 'src/app/Interface/api.interfaces';
+import { DashboardData, HotPair } from 'src/app/Interface/api.interfaces';
 
 export interface TokenInfo {
   pairInfo: {
@@ -27,22 +27,31 @@ export interface TokenInfo {
   actions: string[];
 }
 
+export interface RankingItem {
+  rank: number;
+  name: string;
+  price: string;
+  percentage: number;
+  isPositive: boolean;
+}
+
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
   tokensList: TokenInfo[] = [];
-  filteredPairs: any[] = [];
-  dataSource: any = null;
+  dataSource = new MatTableDataSource<TokenInfo>([]);
+  dataLoaded = false;
+
+  rankings: RankingItem[] = [];
+  hotPairsList: HotPair[] = [];
 
   constructor(
     private router: Router,
     private api: ApiService
-  ) {
-    this.filteredPairs = this.tokensList;
-  }
+  ) {}
 
   displayedColumns = [
     'pairInfo', 'price', 'percentage24H', 'score',
@@ -53,22 +62,26 @@ export class DashboardComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  search(event: any) {
-    let value = event.target.value;
-    this.filteredPairs = this.tokensList.filter((item: any) => {
-      return (
-        item.pairInfo.token0Name.toLowerCase().includes(value.toLowerCase()) ||
-        item.pairInfo.token1Name.toLowerCase().includes(value.toLowerCase()) ||
-        item.pairInfo.pairAddress.toLowerCase().includes(value.toLowerCase()) ||
-        item.price.toLowerCase().includes(value.toLowerCase())
-      );
-    });
-    this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-  }
-
   ngOnInit(): void {
+    this.dataSource.filterPredicate = (data: TokenInfo, filter: string) => {
+      const s = filter.toLowerCase();
+      return data.pairInfo.token0Name.toLowerCase().includes(s) ||
+        data.pairInfo.token1Name.toLowerCase().includes(s) ||
+        data.pairInfo.pairAddress.toLowerCase().includes(s) ||
+        data.price.toLowerCase().includes(s);
+    };
+
     this.api.getDashboardData().subscribe({
       next: (data: DashboardData[]) => {
+        const sorted = [...data].sort((a, b) => b.score - a.score);
+        this.rankings = sorted.slice(0, 10).map((item, i) => ({
+          rank: i + 1,
+          name: item.token0Name,
+          price: `$${item.price}`,
+          percentage: item.percentage24H,
+          isPositive: item.percentage24H >= 0,
+        }));
+
         this.tokensList = data.map((item) => ({
           pairInfo: {
             swapIcon: '',
@@ -89,20 +102,40 @@ export class DashboardComponent implements OnInit {
           Dex: item.dex,
           actions: [],
         }));
-        this.filteredPairs = this.tokensList;
-        this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-        if (this.sort && this.paginator) {
-          this.dataSource.sort = this.sort;
-          this.dataSource.paginator = this.paginator;
-        }
+        this.dataSource.data = this.tokensList;
+        this.dataLoaded = true;
+        this.applySortAndPaginator();
       },
       error: () => {
-        this.dataSource = new MatTableDataSource<TokenInfo>([]);
+        this.dataLoaded = true;
+        this.dataSource.data = [];
+        this.applySortAndPaginator();
+      },
+    });
+
+    this.api.getHotPairs().subscribe({
+      next: (data: HotPair[]) => {
+        this.hotPairsList = data;
+      },
+      error: () => {
+        this.hotPairsList = [];
       },
     });
   }
 
   ngAfterViewInit() {
+    this.applySortAndPaginator();
+  }
+
+  search(event: any) {
+    const value = event.target.value.trim().toLowerCase();
+    this.dataSource.filter = value;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  private applySortAndPaginator() {
     if (this.dataSource && this.sort && this.paginator) {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
@@ -132,4 +165,3 @@ export class DashboardComponent implements OnInit {
     }
   }
 }
-

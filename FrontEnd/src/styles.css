@@ -1,27 +1,139 @@
-html,
-body {
-  margin: 0;
-  width: 100%;
-}
-* {
-  overflow: clip;
-  font-family: Poppins, sans-serif;
-}
-::-webkit-scrollbar {
-  width: 5px;
-}
-/* Track */
-::-webkit-scrollbar-track {
-  background: #0b1217;
+:root {
+  --primary: #ea801e;
+  --primary-hover: #d47018;
+  --primary-light: rgba(234, 128, 30, 0.15);
+  --bg-dark: #0b1217;
+  --bg-card: #142028;
+  --bg-hover: #1e2d38;
+  --bg-input: #1a2832;
+  --text-primary: #ffffff;
+  --text-secondary: #a0b4c0;
+  --border-color: #1e2d38;
+  --sidebar-bg: #0e1a22;
+  --header-bg: #0e1a22;
 }
 
-/* Handle */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
 ::-webkit-scrollbar-thumb {
-  background: #131f26;
+  background: var(--bg-card);
   border-radius: 10px;
 }
-
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #1f333f;
+  background: var(--bg-hover);
+}
+
+table {
+  width: 100%;
+}
+
+/* Paginator dark theme */
+.mat-mdc-paginator {
+  background: var(--bg-card) !important;
+  color: var(--text-secondary) !important;
+  border-top: 1px solid var(--border-color);
+  font-size: 13px;
+}
+
+.mat-mdc-paginator .mat-mdc-paginator-range-label {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-paginator .mat-mdc-page-size-select {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-paginator .mat-mdc-page-size-select .mat-mdc-select-value {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-paginator .mat-mdc-paginator-page-size-select .mat-mdc-select-value-text {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-icon-button.mat-mdc-paginator-button {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-icon-button.mat-mdc-paginator-button:hover {
+  color: var(--primary) !important;
+}
+
+.mat-mdc-icon-button.mat-mdc-paginator-button.mat-mdc-paginator-button-disabled {
+  color: var(--border-color) !important;
+  opacity: 0.5;
+}
+
+.mat-mdc-select-value {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-select-arrow {
+  color: var(--text-secondary) !important;
+}
+
+.mat-mdc-option {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-card) !important;
+}
+
+.mat-mdc-option:hover {
+  background-color: var(--bg-hover) !important;
+}
+
+.mat-mdc-select-panel {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+.mat-mdc-form-field-infix {
+  border-color: var(--border-color) !important;
+}
+
+/* Table responsive */
+@media (max-width: 1200px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 13px;
+    min-width: 600px;
+  }
+  th, td {
+    padding: 8px 6px !important;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 576px) {
+  table {
+    font-size: 12px;
+    min-width: 500px;
+  }
+  th, td {
+    padding: 6px 4px !important;
+  }
 }

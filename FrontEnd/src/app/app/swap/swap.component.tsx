@@ -1,12 +1,26 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges,
-  OnDestroy, Output, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, ViewEncapsulation } from "@angular/core";
 import * as React from "react";
-import * as ReactDOM from "react-dom";
-import { TestButton } from "../Test/TestComponent";
+import { createRoot, Root } from "react-dom/client";
 import { Widget } from "@kyberswap/widgets";
 import { WalletService } from "src/app/provider/walletprovider";
+import { BrowserProvider } from "ethers";
 
 const containerElementRef = "customReactComponentContainer";
+
+const SUPPORTED_CHAINS = new Set([
+  1, 137, 56, 43114, 250, 25, 42161, 199, 106,
+  1313161554, 42262, 10, 59144, 1101, 324, 8453
+]);
+
+class WidgetErrorBoundary extends React.Component<{children: React.ReactNode, onError: () => void}, {hasError: boolean}> {
+  override state = { hasError: false };
+  static getDerivedStateFromError() { return { hasError: true }; }
+  override componentDidCatch() { this.props.onError(); }
+  override render() {
+    if (this.state.hasError) return null;
+    return this.props.children;
+  }
+}
 
 @Component({
   selector: 'app-swap-wrapper',
@@ -14,35 +28,14 @@ const containerElementRef = "customReactComponentContainer";
   encapsulation: ViewEncapsulation.None,
   styleUrls: ['./swap.component.css'],
 })
+
 export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
 
-   MY_TOKEN_LIST = [
-    {
-    "name": "KNC",
-    "address": "0x1C954E8fe737F99f68Fa1CCda3e51ebDB291948C",
-    "symbol": "KNC",
-    "decimals": 18,
-    "chainId": 1,
-    "logoURI": "https://s2.coinmarketcap.com/static/img/coins/64x64/9444.png"
-  },
-    {
-    "name": "Tether USD",
-    "address": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-    "symbol": "USDT",
-    "decimals": 6,
-    "chainId": 1,
-    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xdAC17F958D2ee523a2206206994597C13D831ec7/logo.png"
-  },
-  {
-    "name": "USD Coin",
-    "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-    "symbol": "USDC",
-    "decimals": 6,
-    "chainId": 1,
-    "logoURI": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png"
-  },
-  ]
-
+  private root: Root | null = null;
+  private provider: any = null;
+  private chainId: number | null = null;
+  private connecting = false;
+  private error = false;
 
   @ViewChild(containerElementRef, { static: true }) containerRef!: ElementRef;
 
@@ -51,62 +44,128 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
 
   constructor(
     private wallet: WalletService
-  ) {
-    this.handleClick = this.handleClick.bind(this);
-  }
+  ) {}
 
-  public handleClick() {
-    if (this.componentClick) {
-      this.componentClick.emit();
+  ngOnChanges(changes: SimpleChanges): void {
+    if (this.root) {
       this.render();
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  async ngAfterViewInit() {
+    this.root = createRoot(this.containerRef.nativeElement);
     this.render();
-  }
-
-  ngAfterViewInit() {
-    this.render();
+    const eth = (window as any).ethereum;
+    if (eth && eth.on) {
+      eth.on('chainChanged', (hexId: string) => {
+        this.chainId = parseInt(hexId, 16);
+        this.provider = null;
+        this.error = false;
+        this.render();
+        this.connectWallet();
+      });
+    }
+    await this.connectWallet();
   }
 
   ngOnDestroy() {
-    ReactDOM.unmountComponentAtNode(this.containerRef.nativeElement);
+    if (this.root) {
+      this.root.unmount();
+      this.root = null;
+    }
+    this.provider = null;
   }
 
-  private getProvider() {
-    // @ts-ignore
-    if (typeof window !== "undefined" && typeof window.ethereum !== "undefined") {
-      // @ts-ignore
-      return window.ethereum;
+  private async connectWallet() {
+    if (typeof window === "undefined" || typeof (window as any).ethereum === "undefined") {
+      this.connecting = false;
+      this.render();
+      return;
     }
-    return null;
+    if (this.connecting) return;
+    this.connecting = true;
+    this.render();
+    try {
+      const address = await this.wallet.connectWallet();
+      if (address) {
+        const eth = (window as any).ethereum;
+        const hexChainId = await eth.request({ method: 'eth_chainId' });
+        this.chainId = parseInt(hexChainId, 16);
+        this.provider = new BrowserProvider(eth);
+      }
+    } catch (e) {
+      console.warn('MetaMask connection failed or rejected', e);
+      this.provider = null;
+    }
+    this.connecting = false;
+    this.render();
+  }
+
+  private handleWidgetError = () => {
+    this.error = true;
+    this.render();
   }
 
   private render() {
-    const { counter } = this;
-    const provider = this.getProvider();
+    if (!this.root) return;
 
-    ReactDOM.render(
+    const content = this.connecting ? (
+      <div style={{display: "flex", alignItems: "center", justifyContent: "center", padding: "40px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
+        <p>Connecting to MetaMask...</p>
+      </div>
+    ) : !this.provider || this.error ? (
+      <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
+        {this.chainId !== null && !SUPPORTED_CHAINS.has(this.chainId) ? (
+          <>
+            <p>Unsupported network (chain ID: {this.chainId}).</p>
+            <p>Switch your wallet to a supported chain.</p>
+          </>
+        ) : (
+          <>
+            <p>Connect MetaMask to swap</p>
+            <button
+              onClick={() => this.connectWallet()}
+              className="swap-connect-btn"
+              style={{
+                padding: "12px 24px",
+                background: "var(--primary, #ea801e)",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"
+              }}
+            >
+              Connect Wallet
+            </button>
+          </>
+        )}
+      </div>
+    ) : (
+      <div style={{display : "flex" , alignContent: "center" , justifyContent:"center", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
+        <WidgetErrorBoundary onError={this.handleWidgetError}>
+          <Widget
+              client="WoofTools"
+              enableRoute={true}
+              enableDexes="kyberswap-elastic,uniswapv3,uniswap"
+              provider={this.provider}
+              title={<div>Swap</div>}
+              feeSetting={{
+                feeAmount: 100,
+                feeReceiver: "0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9",
+                chargeFeeBy: "currency_in",
+                isInBps: true,
+            }}
+          />
+        </WidgetErrorBoundary>
+      </div>
+    );
+
+    this.root.render(
       <React.StrictMode>
-        <div style={{display : "flex" , alignContent: "center" , justifyContent:"center"}}>
-        <Widget
-            client="yourCompanyNameHere"
-            tokenList={this.MY_TOKEN_LIST}
-            enableRoute = {true}
-            enableDexes="kyberswap-elastic,uniswapv3,uniswap"
-            provider={provider}
-            title={<div>Swap</div>}
-            feeSetting={{
-              feeAmount: 100,
-              feeReceiver: "0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9",
-              chargeFeeBy: "currency_in",
-              isInBps: true,
-          }}
-        />
-        </div>
-      </React.StrictMode>,
-      this.containerRef.nativeElement
+        {content}
+      </React.StrictMode>
     );
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -28,16 +28,14 @@ export interface TokenInfo {
   templateUrl: './big-swap-explorer.component.html',
   styleUrls: ['./big-swap-explorer.component.css']
 })
-export class BigSwapExplorerComponent implements OnInit {
+export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
   pairList: TokenInfo[] = [];
-  filteredPairs: any[] = [];
-  dataSource: any = null;
+  dataSource = new MatTableDataSource<TokenInfo>([]);
+  dataLoaded = false;
 
   constructor(
     private api: ApiService
-  ) {
-    this.filteredPairs = this.pairList;
-  }
+  ) {}
 
   displayedColumns = [
     'pairInfo', 'executionTime', 'type', 'quantity',
@@ -47,19 +45,14 @@ export class BigSwapExplorerComponent implements OnInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  search(event: any) {
-    let value = event.target.value;
-    this.filteredPairs = this.pairList.filter((item: any) => {
-      return (
-        item.pairInfo.token0Name.toLowerCase().includes(value.toLowerCase()) ||
-        item.pairInfo.token1Name.toLowerCase().includes(value.toLowerCase()) ||
-        item.pairInfo.pairAddress.toLowerCase().includes(value.toLowerCase())
-      );
-    });
-    this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-  }
-
   ngOnInit(): void {
+    this.dataSource.filterPredicate = (data: TokenInfo, filter: string) => {
+      const s = filter.toLowerCase();
+      return data.pairInfo.token0Name.toLowerCase().includes(s) ||
+        data.pairInfo.token1Name.toLowerCase().includes(s) ||
+        data.pairInfo.pairAddress.toLowerCase().includes(s);
+    };
+
     this.api.getSwaps().subscribe({
       next: (data: SwapTransaction[]) => {
         this.pairList = data.map((item) => ({
@@ -79,20 +72,31 @@ export class BigSwapExplorerComponent implements OnInit {
           maker: item.maker,
           actions: [],
         }));
-        this.filteredPairs = this.pairList;
-        this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-        if (this.sort && this.paginator) {
-          this.dataSource.sort = this.sort;
-          this.dataSource.paginator = this.paginator;
-        }
+        this.dataSource.data = this.pairList;
+        this.dataLoaded = true;
+        this.applySortAndPaginator();
       },
       error: () => {
-        this.dataSource = new MatTableDataSource<TokenInfo>([]);
+        this.dataLoaded = true;
+        this.dataSource.data = [];
+        this.applySortAndPaginator();
       },
     });
   }
 
   ngAfterViewInit() {
+    this.applySortAndPaginator();
+  }
+
+  search(event: any) {
+    const value = event.target.value.trim().toLowerCase();
+    this.dataSource.filter = value;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+  }
+
+  private applySortAndPaginator() {
     if (this.dataSource && this.sort && this.paginator) {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
@@ -105,4 +109,3 @@ export class BigSwapExplorerComponent implements OnInit {
     return initials;
   }
 }
-

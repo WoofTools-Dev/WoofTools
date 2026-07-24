@@ -1,6 +1,5 @@
-import { PrismaClient, LivePair as LivePairType } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { LivePair as LivePairType } from "@prisma/client";
+import prisma from "../configs/prisma.config";
 
 export const createLivePair = async (
   data: Omit<LivePairType, "id" | "createdAt">
