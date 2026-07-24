@@ -66,9 +66,9 @@
 
             <div class="section-gap">
                 <h2 class="heading-primary">Hot Pairs</h2>
-                <div class="hot-pairs-wrapper">
-                    <ul class="tokens-list hot-pairs-token-list">
-                        <li *ngFor="let item of hotPairsList; let i = index">
+                <div class="hot-pairs-wrapper" *ngIf="hotPairsList.length > 0">
+                    <div class="hot-pairs-grid">
+                        <div class="hot-pair-item" *ngFor="let item of hotPairsList; let i = index">
                             <div class="list-items-custom">
                                 <div class="list-item-left">
                                     <div class="number-tag" [class.active]="i < 5">#{{ i + 1 }}</div>
@@ -80,8 +80,8 @@
                                     <div class="numbers" [class.text-success]="(item.growthPercentage || 0) >= 0" [class.text-danger]="(item.growthPercentage || 0) < 0">{{ item.growthPercentage || 0 }}%</div>
                                 </div>
                             </div>
-                        </li>
-                    </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -184,7 +184,7 @@
                         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                   </table>
                 </div>
-                <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
+                <mat-paginator *ngIf="dataSource && dataSource.data && dataSource.data.length > 0" [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
             </div>
 
         </div>

@@ -70,11 +70,6 @@ p {
   font-size: 1.25rem;
 }
 
-.mat-mdc-paginator {
-  background: inherit;
-  color: var(--text-secondary);
-}
-
 /* Rankings grid */
 .rankings-grid {
   display: flex;
@@ -305,30 +300,23 @@ p {
   background-color: var(--bg-card);
   border-radius: 12px;
   border: 1px solid var(--border-color);
-  padding: 4px 0;
+  padding: 12px 16px;
 }
 
-.hot-pairs-token-list {
-  column-count: 3;
-  column-gap: 0;
-  list-style: none;
-  padding: 8px 16px;
-  margin: 0;
+.hot-pairs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
 }
 
-.hot-pairs-token-list li {
-  position: relative;
-  break-inside: avoid;
+.hot-pair-item {
+  padding: 4px 12px;
+  min-height: 44px;
 }
 
-.hot-pairs-token-list li:not(:last-child)::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  width: 1px;
-  background-color: var(--border-color);
+.hot-pair-item:hover {
+  background-color: var(--bg-hover);
+  border-radius: 8px;
 }
 
 .text-success {
@@ -342,20 +330,20 @@ p {
 /* ========== RESPONSIVE ========== */
 
 @media (max-width: 1200px) {
-  .hot-pairs-token-list {
-    column-count: 2;
+  .hot-pairs-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 992px) {
-  .hot-pairs-token-list {
-    column-count: 2;
+  .hot-pairs-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (max-width: 768px) {
-  .hot-pairs-token-list {
-    column-count: 1;
+  .hot-pairs-grid {
+    grid-template-columns: 1fr;
   }
 
   .heading-primary {
@@ -397,9 +385,5 @@ p {
     height: 26px;
     line-height: 26px;
     font-size: 9px;
-  }
-
-  .hot-pairs-token-list {
-    padding: 6px 10px;
   }
 }

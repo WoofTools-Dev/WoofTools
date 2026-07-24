@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -28,16 +28,14 @@ export interface TokenInfo {
   templateUrl: './big-swap-explorer.component.html',
   styleUrls: ['./big-swap-explorer.component.css']
 })
-export class BigSwapExplorerComponent implements OnInit {
+export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
   pairList: TokenInfo[] = [];
   filteredPairs: any[] = [];
-  dataSource: any = null;
+  dataSource: MatTableDataSource<TokenInfo> = new MatTableDataSource<TokenInfo>([]);
 
   constructor(
     private api: ApiService
-  ) {
-    this.filteredPairs = this.pairList;
-  }
+  ) {}
 
   displayedColumns = [
     'pairInfo', 'executionTime', 'type', 'quantity',
@@ -57,6 +55,7 @@ export class BigSwapExplorerComponent implements OnInit {
       );
     });
     this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
+    this.applySortAndPaginator();
   }
 
   ngOnInit(): void {
@@ -81,10 +80,7 @@ export class BigSwapExplorerComponent implements OnInit {
         }));
         this.filteredPairs = this.pairList;
         this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-        if (this.sort && this.paginator) {
-          this.dataSource.sort = this.sort;
-          this.dataSource.paginator = this.paginator;
-        }
+        this.applySortAndPaginator();
       },
       error: () => {
         this.dataSource = new MatTableDataSource<TokenInfo>([]);
@@ -93,6 +89,10 @@ export class BigSwapExplorerComponent implements OnInit {
   }
 
   ngAfterViewInit() {
+    this.applySortAndPaginator();
+  }
+
+  private applySortAndPaginator() {
     if (this.dataSource && this.sort && this.paginator) {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
@@ -105,4 +105,3 @@ export class BigSwapExplorerComponent implements OnInit {
     return initials;
   }
 }
-
