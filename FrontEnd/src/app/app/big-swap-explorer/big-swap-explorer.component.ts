@@ -30,8 +30,7 @@ export interface TokenInfo {
 })
 export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
   pairList: TokenInfo[] = [];
-  filteredPairs: any[] = [];
-  dataSource: MatTableDataSource<TokenInfo> = new MatTableDataSource<TokenInfo>([]);
+  dataSource = new MatTableDataSource<TokenInfo>([]);
   dataLoaded = false;
 
   constructor(
@@ -46,15 +45,14 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  search(event: any) {
-    const value = event.target.value.trim().toLowerCase();
-    this.dataSource.filter = value;
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-  }
-
   ngOnInit(): void {
+    this.dataSource.filterPredicate = (data: TokenInfo, filter: string) => {
+      const s = filter.toLowerCase();
+      return data.pairInfo.token0Name.toLowerCase().includes(s) ||
+        data.pairInfo.token1Name.toLowerCase().includes(s) ||
+        data.pairInfo.pairAddress.toLowerCase().includes(s);
+    };
+
     this.api.getSwaps().subscribe({
       next: (data: SwapTransaction[]) => {
         this.pairList = data.map((item) => ({
@@ -74,27 +72,28 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
           maker: item.maker,
           actions: [],
         }));
-        this.filteredPairs = this.pairList;
-        this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-        this.dataSource.filterPredicate = (data: TokenInfo, filter: string) => {
-          const searchStr = filter.toLowerCase();
-          return data.pairInfo.token0Name.toLowerCase().includes(searchStr) ||
-            data.pairInfo.token1Name.toLowerCase().includes(searchStr) ||
-            data.pairInfo.pairAddress.toLowerCase().includes(searchStr);
-        };
+        this.dataSource.data = this.pairList;
         this.dataLoaded = true;
-        setTimeout(() => this.applySortAndPaginator(), 0);
+        this.applySortAndPaginator();
       },
       error: () => {
         this.dataLoaded = true;
-        this.dataSource = new MatTableDataSource<TokenInfo>([]);
-        setTimeout(() => this.applySortAndPaginator(), 0);
+        this.dataSource.data = [];
+        this.applySortAndPaginator();
       },
     });
   }
 
   ngAfterViewInit() {
-    setTimeout(() => this.applySortAndPaginator(), 0);
+    this.applySortAndPaginator();
+  }
+
+  search(event: any) {
+    const value = event.target.value.trim().toLowerCase();
+    this.dataSource.filter = value;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   private applySortAndPaginator() {

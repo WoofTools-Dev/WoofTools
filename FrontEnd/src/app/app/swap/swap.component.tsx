@@ -110,11 +110,11 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     if (!this.root) return;
 
     const content = this.connecting ? (
-      <div style={{display: "flex", alignItems: "center", justifyContent: "center", padding: "40px"}}>
+      <div style={{display: "flex", alignItems: "center", justifyContent: "center", padding: "40px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
         <p>Connecting to MetaMask...</p>
       </div>
     ) : !this.provider || this.error ? (
-      <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px"}}>
+      <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
         {this.chainId !== null && !SUPPORTED_CHAINS.has(this.chainId) ? (
           <>
             <p>Unsupported network (chain ID: {this.chainId}).</p>
@@ -125,14 +125,16 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
             <p>Connect MetaMask to swap</p>
             <button
               onClick={() => this.connectWallet()}
+              className="swap-connect-btn"
               style={{
                 padding: "12px 24px",
-                background: "#F6851B",
+                background: "var(--primary, #ea801e)",
                 color: "white",
                 border: "none",
                 borderRadius: "8px",
                 cursor: "pointer",
-                fontSize: "16px"
+                fontSize: "16px",
+                fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"
               }}
             >
               Connect Wallet
@@ -141,7 +143,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
         )}
       </div>
     ) : (
-      <div style={{display : "flex" , alignContent: "center" , justifyContent:"center"}}>
+      <div style={{display : "flex" , alignContent: "center" , justifyContent:"center", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
         <WidgetErrorBoundary onError={this.handleWidgetError}>
           <Widget
               client="WoofTools"
