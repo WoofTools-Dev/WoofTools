@@ -1,19 +1,12 @@
 mat-drawer {
-  width: 64px;
+  width: 220px;
   height: 100%;
   align-items: center;
   flex-direction: column;
   background-color: var(--sidebar-bg);
   border-right: 1px solid var(--border-color);
   transition: width 0.3s ease;
-}
-
-mat-drawer:hover {
-  width: 220px;
-}
-
-mat-drawer:hover span {
-  opacity: 1;
+  overflow: hidden;
 }
 
 mat-drawer-content {
@@ -33,14 +26,4 @@ body {
   background-color: var(--bg-dark);
   align-content: center;
   text-align: center;
-}
-
-@media (max-width: 768px) {
-  mat-drawer {
-    width: 0;
-    overflow: hidden;
-  }
-  mat-drawer:hover {
-    width: 200px;
-  }
 }

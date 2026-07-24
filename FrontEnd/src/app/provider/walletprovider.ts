@@ -6,6 +6,7 @@ export class WalletService {
   private _provider: BrowserProvider | null = null;
   private _signer: JsonRpcSigner | null = null;
   address: string = '';
+  connected: boolean = false;
 
   private initProvider(): BrowserProvider | null {
     if (this._provider) return this._provider;
@@ -32,14 +33,16 @@ export class WalletService {
       await provider.send('eth_requestAccounts', []);
       this._signer = await provider.getSigner();
       this.address = await this._signer.getAddress();
+      this.connected = true;
 
-      // Listen for account changes
       eth.on('accountsChanged', (accounts: string[]) => {
         if (accounts.length === 0) {
           this.address = '';
+          this.connected = false;
           this._signer = null;
         } else {
           this.address = accounts[0];
+          this.connected = true;
         }
       });
 
@@ -47,6 +50,35 @@ export class WalletService {
     } catch (e) {
       console.warn('Wallet connection failed', e);
       return null;
+    }
+  }
+
+  async tryReconnect(): Promise<void> {
+    try {
+      const eth = (window as any).ethereum;
+      if (!eth) return;
+      const accounts = await eth.request({ method: 'eth_accounts' });
+      if (accounts && accounts.length > 0) {
+        this.address = accounts[0];
+        this.connected = true;
+        const provider = this.initProvider();
+        if (provider) {
+          this._signer = await provider.getSigner();
+        }
+
+        eth.on('accountsChanged', (accs: string[]) => {
+          if (accs.length === 0) {
+            this.address = '';
+            this.connected = false;
+            this._signer = null;
+          } else {
+            this.address = accs[0];
+            this.connected = true;
+          }
+        });
+      }
+    } catch {
+      // ignore
     }
   }
 
@@ -61,8 +93,12 @@ export class WalletService {
   }
 
   isWalletConnected(): boolean {
-    const eth = (window as any).ethereum;
-    return !!eth && eth.isConnected() && !!this.address;
+    return this.connected && !!this.address;
+  }
+
+  getTruncatedAddress(): string {
+    if (!this.address) return '';
+    return this.address.slice(0, 6) + '...' + this.address.slice(-4);
   }
 
   async getBalance(): Promise<bigint | null> {
@@ -87,6 +123,6 @@ export class WalletService {
 
   async getConnectedWalletAddress(): Promise<string | null> {
     if (this.address) return this.address;
-    return this.connectWallet();
+    return null;
   }
 }

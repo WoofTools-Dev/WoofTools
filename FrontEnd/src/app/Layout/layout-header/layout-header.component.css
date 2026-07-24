@@ -1,16 +1,87 @@
 div {
   background-color: var(--header-bg);
-  height: 60px;
   margin: 0;
-  align-items: center;
   border-bottom: 1px solid var(--border-color);
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 0 12px;
+  gap: 12px;
+}
+
+.hamburger-btn {
+  display: none;
+  cursor: pointer;
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 6px;
+  transition: background-color 0.2s;
+}
+
+.hamburger-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+.hamburger-btn mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.col-chain {
+  flex: 0 0 auto;
+}
+
+.col-search {
+  flex: 1 1 auto;
+}
+
+.col-wallet {
+  flex: 0 0 auto;
 }
 
 button {
   border-radius: 3.125rem;
   color: white !important;
-  margin: 12px;
+  margin: 0;
   width: auto;
+}
+
+.btn-wallet {
+  background-color: var(--primary) !important;
+  color: #fff !important;
+  border: none;
+  font-weight: 500;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 6px 16px;
+  font-size: 13px;
+}
+
+.btn-wallet:hover {
+  background-color: var(--primary-hover) !important;
+}
+
+.btn-connect {
+  max-width: 140px;
+}
+
+.wallet-icon {
+  margin-right: 4px;
+  font-size: 14px;
+}
+
+.connect-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  margin-right: 4px;
+  vertical-align: middle;
 }
 
 .select-menu {
@@ -19,10 +90,10 @@ button {
 
 .select-menu .select-btn {
   display: flex;
-  height: 55px;
+  height: 40px;
   background-color: var(--bg-card);
-  padding: 16px 20px;
-  font-size: 16px;
+  padding: 8px 16px;
+  font-size: 14px;
   font-weight: 400;
   border-radius: 8px;
   align-items: center;
@@ -57,7 +128,7 @@ button {
 
 .select-menu .options .option {
   display: flex;
-  height: 55px;
+  height: 44px;
   cursor: pointer;
   padding: 0 16px;
   border-radius: 8px;
@@ -76,12 +147,12 @@ button {
 }
 
 .select-menu .options .option .option-text {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-primary);
 }
 
 .select-btn i {
-  font-size: 25px;
+  font-size: 22px;
   transition: 0.3s;
 }
 
@@ -113,10 +184,32 @@ button {
 
 /* ========== RESPONSIVE ========== */
 
-@media (max-width: 768px) {
-  div {
+@media (max-width: 992px) {
+  .hamburger-btn {
+    display: flex;
+  }
+
+  .col-chain {
+    display: none;
+  }
+
+  .header-row {
     height: 50px;
-    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .btn-wallet {
+    font-size: 12px;
+    padding: 5px 12px;
+    max-width: 130px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header-row {
+    height: 48px;
+    padding: 0 8px;
+    gap: 6px;
   }
 
   .select-menu {
@@ -124,20 +217,25 @@ button {
   }
 
   .select-menu .select-btn {
-    height: 40px;
-    font-size: 14px;
-    padding: 12px 14px;
+    height: 34px;
+    font-size: 13px;
+    padding: 6px 12px;
   }
 
-  button {
-    margin: 6px;
-    padding: 4px 8px;
+  .btn-wallet {
+    font-size: 11px;
+    padding: 4px 10px;
+    max-width: 110px;
+  }
+
+  .btn-connect {
+    max-width: 110px;
   }
 }
 
 @media (max-width: 576px) {
-  div {
-    height: 45px;
+  .header-row {
+    height: 44px;
   }
 
   .select-menu {
@@ -145,9 +243,15 @@ button {
   }
 
   .select-menu .select-btn {
-    height: 36px;
-    font-size: 13px;
-    padding: 10px 12px;
+    height: 30px;
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+
+  .btn-wallet {
+    font-size: 11px;
+    padding: 4px 8px;
+    max-width: 100px;
   }
 }
 
@@ -172,15 +276,4 @@ button {
 
 .search-input::placeholder {
   color: var(--text-secondary);
-}
-
-.btn-wallet {
-  background-color: var(--primary) !important;
-  color: #fff !important;
-  border: none;
-  font-weight: 500;
-}
-
-.btn-wallet:hover {
-  background-color: var(--primary-hover) !important;
 }

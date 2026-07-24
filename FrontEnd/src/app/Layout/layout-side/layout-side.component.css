@@ -42,9 +42,6 @@ mat-icon {
 
 .box:hover {
   background-color: var(--bg-hover);
-}
-
-.box:hover {
   color: var(--primary);
 }
 

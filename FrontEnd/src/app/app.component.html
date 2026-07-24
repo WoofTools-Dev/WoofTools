@@ -1,8 +1,9 @@
 <mat-drawer-container>
-  <mat-drawer mode="side" opened>
-    <app-layout-side></app-layout-side></mat-drawer>
+  <mat-drawer #drawer [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" (openedChange)="onDrawerChange($event)">
+    <app-layout-side></app-layout-side>
+  </mat-drawer>
   <mat-drawer-content>
-    <app-layout-header></app-layout-header>
+    <app-layout-header (toggleDrawer)="toggleDrawer()"></app-layout-header>
     <br>
     <router-outlet></router-outlet>
     <br>

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { WalletService } from 'src/app/provider/walletprovider';
 
@@ -10,37 +10,37 @@ import { WalletService } from 'src/app/provider/walletprovider';
 export class LayoutHeaderComponent {
   selectedBlockChain: String = "Ethereum";
   isToggledBlockChainButton: boolean = false;
-  walletAddress: any = null
-  constructor(public router: Router , public wallet: WalletService) {
-   
-  }
+  walletAddress: string = '';
+  @Output() toggleDrawer = new EventEmitter<void>();
+
+  constructor(public router: Router, public wallet: WalletService) {}
 
   ngOnInit(): void {
-    this.getWalletAddress();
-
-    this.wallet.getBalance() .then((res) => {
-      console.log(res)
-    })
+    this.wallet.tryReconnect().then(() => {
+      if (this.wallet.isWalletConnected()) {
+        this.walletAddress = this.wallet.getTruncatedAddress();
+      }
+    });
   }
 
- async connectWallet () {
-   // @ts-ignore
-  this.wallet.connectWallet()
-  }
-
-  async getWalletAddress() {
-    this.walletAddress = await this.wallet.getConnectedWalletAddress()
+  async connectWallet() {
+    const addr = await this.wallet.connectWallet();
+    if (addr) {
+      this.walletAddress = this.wallet.getTruncatedAddress();
+    }
   }
 
   toggleButton() {
-     this.isToggledBlockChainButton = !this.isToggledBlockChainButton;
+    this.isToggledBlockChainButton = !this.isToggledBlockChainButton;
   }
 
   selectChain(value: string) {
     this.selectedBlockChain = value;
-    this.toggleButton()
- }
+    this.toggleButton();
+  }
 
-
+  onToggleDrawer() {
+    this.toggleDrawer.emit();
+  }
 }
 
