@@ -1,7 +1,8 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { Subscription, interval } from 'rxjs';
 import { ApiService } from 'src/app/Service/api.service';
 import { LivePair } from 'src/app/Interface/api.interfaces';
 
@@ -29,16 +30,18 @@ export interface TokenInfo {
   templateUrl: './live-pairs.component.html',
   styleUrls: ['./live-pairs.component.css'],
 })
-export class LivePairsComponent implements OnInit {
+export class LivePairsComponent implements OnInit, AfterViewInit, OnDestroy {
   pairList: TokenInfo[] = [];
   filteredPairs: any[] = [];
-  dataSource: any = null;
+  dataSource: MatTableDataSource<TokenInfo> = new MatTableDataSource<TokenInfo>([]);
+  dataLoaded = false;
+
+  private pollSub?: Subscription;
+  private readonly POLL_INTERVAL = 30000;
 
   constructor(
     private api: ApiService
-  ) {
-    this.filteredPairs = this.pairList;
-  }
+  ) {}
 
   displayedColumns = [
     'pairInfo', 'listedSince', 'tokenPriceUSD', 'initialLiquidity',
@@ -50,19 +53,25 @@ export class LivePairsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   search(event: any) {
-    let value = event.target.value;
-    this.filteredPairs = this.pairList.filter((item: any) => {
-      return (
-        item.pairInfo.token0Name.toLowerCase().includes(value.toLowerCase()) ||
-        item.pairInfo.token1Name.toLowerCase().includes(value.toLowerCase()) ||
-        item.pairInfo.pairAddress.toLowerCase().includes(value.toLowerCase()) ||
-        item.tokenPriceUSD.toLowerCase().includes(value.toLowerCase())
-      );
-    });
-    this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
+    const value = event.target.value.trim().toLowerCase();
+    this.dataSource.filter = value;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   ngOnInit(): void {
+    this.fetchData();
+    this.pollSub = interval(this.POLL_INTERVAL).subscribe(() => {
+      this.fetchData();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.pollSub?.unsubscribe();
+  }
+
+  private fetchData() {
     this.api.getLivePairs().subscribe({
       next: (data: LivePair[]) => {
         this.pairList = data.map((item) => ({
@@ -85,18 +94,29 @@ export class LivePairsComponent implements OnInit {
         }));
         this.filteredPairs = this.pairList;
         this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-        if (this.sort && this.paginator) {
-          this.dataSource.sort = this.sort;
-          this.dataSource.paginator = this.paginator;
-        }
+        this.dataSource.filterPredicate = (data: TokenInfo, filter: string) => {
+          const searchStr = filter.toLowerCase();
+          return data.pairInfo.token0Name.toLowerCase().includes(searchStr) ||
+            data.pairInfo.token1Name.toLowerCase().includes(searchStr) ||
+            data.pairInfo.pairAddress.toLowerCase().includes(searchStr) ||
+            data.tokenPriceUSD.toLowerCase().includes(searchStr);
+        };
+        this.dataLoaded = true;
+        setTimeout(() => this.applySortAndPaginator(), 0);
       },
       error: () => {
+        this.dataLoaded = true;
         this.dataSource = new MatTableDataSource<TokenInfo>([]);
+        setTimeout(() => this.applySortAndPaginator(), 0);
       },
     });
   }
 
   ngAfterViewInit() {
+    setTimeout(() => this.applySortAndPaginator(), 0);
+  }
+
+  private applySortAndPaginator() {
     if (this.dataSource && this.sort && this.paginator) {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
@@ -109,4 +129,3 @@ export class LivePairsComponent implements OnInit {
     return initials;
   }
 }
-
