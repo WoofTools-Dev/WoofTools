@@ -5,6 +5,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { Subscription, interval } from 'rxjs';
 import { ApiService } from 'src/app/Service/api.service';
 import { LivePair } from 'src/app/Interface/api.interfaces';
+import { getTokenIcon } from 'src/app/Service/token-icons';
 
 export interface TokenInfo {
   pairInfo: {
@@ -36,7 +37,8 @@ export class LivePairsComponent implements OnInit, AfterViewInit, OnDestroy {
   dataLoaded = false;
 
   private pollSub?: Subscription;
-  private readonly POLL_INTERVAL = 60000;
+  // cada 30 minutos lanza las requests
+  private readonly POLL_INTERVAL = 30000;
 
   constructor(
     private api: ApiService
@@ -126,5 +128,9 @@ export class LivePairsComponent implements OnInit, AfterViewInit, OnDestroy {
     const nameParts = name.split(' ');
     const initials = nameParts.map(part => part.charAt(0)).join('').toUpperCase();
     return initials;
+  }
+
+  getTokenIcon(name: string): string {
+    return getTokenIcon(name);
   }
 }

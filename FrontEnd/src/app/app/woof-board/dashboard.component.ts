@@ -5,6 +5,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { ApiService } from 'src/app/Service/api.service';
 import { DashboardData, HotPair } from 'src/app/Interface/api.interfaces';
+import { getTokenIcon } from 'src/app/Service/token-icons';
 
 export interface TokenInfo {
   pairInfo: {
@@ -140,6 +141,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
     }
+  }
+
+  getTokenIcon(name: string): string {
+    return getTokenIcon(name);
   }
 
   generateAvatarInitials(name: string): string {

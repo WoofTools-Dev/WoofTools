@@ -125,7 +125,7 @@ p {
   flex-shrink: 0;
 }
 
-.pair-info-inner img {
+.pair-info-inner img:not(.token-logo) {
   position: absolute;
   top: 0;
   right: 0;
@@ -158,6 +158,12 @@ p {
   line-height: 32px;
   font-size: 11px;
   flex-shrink: 0;
+}
+
+.token-logo {
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  object-fit: cover;
 }
 
 .score-badge {

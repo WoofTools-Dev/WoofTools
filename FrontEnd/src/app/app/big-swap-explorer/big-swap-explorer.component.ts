@@ -4,6 +4,7 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { ApiService } from 'src/app/Service/api.service';
 import { SwapTransaction } from 'src/app/Interface/api.interfaces';
+import { getTokenIcon } from 'src/app/Service/token-icons';
 
 export interface TokenInfo {
   pairInfo: {
@@ -107,5 +108,9 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
     const nameParts = name.split(' ');
     const initials = nameParts.map(part => part.charAt(0)).join('').toUpperCase();
     return initials;
+  }
+
+  getTokenIcon(name: string): string {
+    return getTokenIcon(name);
   }
 }
