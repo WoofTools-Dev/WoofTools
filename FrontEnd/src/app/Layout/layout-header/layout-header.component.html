@@ -48,7 +48,7 @@
     <div class="col-wallet">
         <div *ngIf="wallet.isWalletConnected(); else elseBlock">
             <button mat-raised-button class="btn-wallet" title="{{wallet.address}}">
-                <span class="wallet-icon">🦊</span> {{walletAddress}}
+                <mat-icon class="wallet-icon">account_balance_wallet</mat-icon> {{walletAddress}}
             </button>
         </div>
           <ng-template #elseBlock>

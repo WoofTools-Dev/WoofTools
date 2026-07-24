@@ -40,10 +40,11 @@ export interface RankingItem {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
   tokensList: TokenInfo[] = [];
   filteredPairs: any[] = [];
-  dataSource: any = null;
+  dataSource: MatTableDataSource<TokenInfo> = new MatTableDataSource<TokenInfo>([]);
+  dataLoaded = false;
 
   rankings: RankingItem[] = [];
   hotPairsList: HotPair[] = [];
@@ -51,9 +52,7 @@ export class DashboardComponent implements OnInit {
   constructor(
     private router: Router,
     private api: ApiService
-  ) {
-    this.filteredPairs = this.tokensList;
-  }
+  ) {}
 
   displayedColumns = [
     'pairInfo', 'price', 'percentage24H', 'score',
@@ -75,6 +74,7 @@ export class DashboardComponent implements OnInit {
       );
     });
     this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
+    this.applySortAndPaginator();
   }
 
   ngOnInit(): void {
@@ -111,12 +111,11 @@ export class DashboardComponent implements OnInit {
         }));
         this.filteredPairs = this.tokensList;
         this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-        if (this.sort && this.paginator) {
-          this.dataSource.sort = this.sort;
-          this.dataSource.paginator = this.paginator;
-        }
+        this.dataLoaded = true;
+        this.applySortAndPaginator();
       },
       error: () => {
+        this.dataLoaded = true;
         this.dataSource = new MatTableDataSource<TokenInfo>([]);
       },
     });
@@ -132,6 +131,10 @@ export class DashboardComponent implements OnInit {
   }
 
   ngAfterViewInit() {
+    this.applySortAndPaginator();
+  }
+
+  private applySortAndPaginator() {
     if (this.dataSource && this.sort && this.paginator) {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
@@ -161,4 +164,3 @@ export class DashboardComponent implements OnInit {
     }
   }
 }
-
