@@ -102,7 +102,7 @@
                         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
                     </table>
                 </div>
-                <mat-paginator *ngIf="dataSource && dataSource.data && dataSource.data.length > 0" [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
+                <mat-paginator [hidden]="!dataLoaded" [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
             </div>
 
         </div>

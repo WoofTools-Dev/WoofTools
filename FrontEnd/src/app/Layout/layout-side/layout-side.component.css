@@ -11,6 +11,8 @@
   position: relative;
   transition: 0.3s;
   color: var(--text-secondary);
+  border: none;
+  outline: none;
 }
 
 .title {

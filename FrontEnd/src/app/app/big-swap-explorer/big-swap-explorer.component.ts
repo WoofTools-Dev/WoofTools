@@ -32,6 +32,7 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
   pairList: TokenInfo[] = [];
   filteredPairs: any[] = [];
   dataSource: MatTableDataSource<TokenInfo> = new MatTableDataSource<TokenInfo>([]);
+  dataLoaded = false;
 
   constructor(
     private api: ApiService
@@ -46,16 +47,11 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   search(event: any) {
-    let value = event.target.value;
-    this.filteredPairs = this.pairList.filter((item: any) => {
-      return (
-        item.pairInfo.token0Name.toLowerCase().includes(value.toLowerCase()) ||
-        item.pairInfo.token1Name.toLowerCase().includes(value.toLowerCase()) ||
-        item.pairInfo.pairAddress.toLowerCase().includes(value.toLowerCase())
-      );
-    });
-    this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-    this.applySortAndPaginator();
+    const value = event.target.value.trim().toLowerCase();
+    this.dataSource.filter = value;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   ngOnInit(): void {
@@ -80,16 +76,25 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
         }));
         this.filteredPairs = this.pairList;
         this.dataSource = new MatTableDataSource<TokenInfo>(this.filteredPairs);
-        this.applySortAndPaginator();
+        this.dataSource.filterPredicate = (data: TokenInfo, filter: string) => {
+          const searchStr = filter.toLowerCase();
+          return data.pairInfo.token0Name.toLowerCase().includes(searchStr) ||
+            data.pairInfo.token1Name.toLowerCase().includes(searchStr) ||
+            data.pairInfo.pairAddress.toLowerCase().includes(searchStr);
+        };
+        this.dataLoaded = true;
+        setTimeout(() => this.applySortAndPaginator(), 0);
       },
       error: () => {
+        this.dataLoaded = true;
         this.dataSource = new MatTableDataSource<TokenInfo>([]);
+        setTimeout(() => this.applySortAndPaginator(), 0);
       },
     });
   }
 
   ngAfterViewInit() {
-    this.applySortAndPaginator();
+    setTimeout(() => this.applySortAndPaginator(), 0);
   }
 
   private applySortAndPaginator() {
