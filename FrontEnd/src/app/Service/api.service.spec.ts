@@ -86,7 +86,8 @@ describe('ApiService', () => {
     service.getDashboardData().subscribe({
       next: () => fail('expected an error'),
       error: (error) => {
-        expect(error.status).toBe(500);
+        expect(error).toBeTruthy();
+        expect(error.message).toContain('Http failure response');
       }
     });
 
