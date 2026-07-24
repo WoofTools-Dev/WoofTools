@@ -25,8 +25,7 @@ services:
       PGADMIN_DEFAULT_PASSWORD: admin123
       PGADMIN_CONFIG_SERVER_MODE: "False"
     volumes:
-      - ./pgadmin/servers.json:/pgadmin4/servers.json
-      - ./pgadmin/pgpass:/tmp/pgpassfile
+      - pgadmin-data:/var/lib/pgadmin
     depends_on:
       - postgres
     networks:
@@ -38,3 +37,4 @@ networks:
 
 volumes:
   pgdata:
+  pgadmin-data:

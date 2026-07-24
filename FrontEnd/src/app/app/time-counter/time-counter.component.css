@@ -1,11 +1,13 @@
 .timer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-secondary);
 
-
-    .custom-icon {
-        font-size: 20px;
-        margin-top: -20;
-    }
+  .custom-icon {
+    font-size: 20px;
+    color: var(--primary);
+  }
 }

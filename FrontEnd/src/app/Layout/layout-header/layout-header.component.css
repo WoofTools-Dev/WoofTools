@@ -1,32 +1,41 @@
 div {
-  background-color: #131f26;
+  background-color: var(--header-bg);
   height: 60px;
   margin: 0;
   align-items: center;
+  border-bottom: 1px solid var(--border-color);
 }
+
 button {
   border-radius: 3.125rem;
   color: white !important;
   margin: 12px;
-  width: 20px;
+  width: auto;
 }
 
 .select-menu {
   max-width: 330px;
 }
+
 .select-menu .select-btn {
   display: flex;
   height: 55px;
-  background-color: rgb(35, 50, 60);
-  padding: 20px;
-  font-size: 18px;
+  background-color: var(--bg-card);
+  padding: 16px 20px;
+  font-size: 16px;
   font-weight: 400;
   border-radius: 8px;
   align-items: center;
   cursor: pointer;
   justify-content: space-between;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--border-color);
+  transition: border-color 0.2s;
 }
+
+.select-menu .select-btn:hover {
+  border-color: var(--primary);
+}
+
 .select-menu .options {
   position: absolute;
   width: 330px;
@@ -35,8 +44,9 @@ button {
   padding: 10px;
   margin-top: 10px;
   border-radius: 8px;
-  background: #23323c;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   animation-name: fadeInDown;
   -webkit-animation-name: fadeInDown;
   animation-duration: 0.35s;
@@ -44,6 +54,7 @@ button {
   -webkit-animation-duration: 0.35s;
   -webkit-animation-fill-mode: both;
 }
+
 .select-menu .options .option {
   display: flex;
   height: 55px;
@@ -51,20 +62,22 @@ button {
   padding: 0 16px;
   border-radius: 8px;
   align-items: center;
-  /* background: #142028; */
-  color : #fff;
+  color: var(--text-primary);
+  transition: background-color 0.2s;
 }
+
 .select-menu .options .option:hover {
-  background: #142028;
-  cursor: pointer;;
+  background: var(--bg-hover);
 }
+
 .select-menu .options .option i {
   font-size: 25px;
   margin-right: 12px;
 }
+
 .select-menu .options .option .option-text {
-  font-size: 18px;
-  color : #fff;
+  font-size: 16px;
+  color: var(--text-primary);
 }
 
 .select-btn i {
@@ -75,6 +88,7 @@ button {
 .select-menu.active .select-btn i {
   transform: rotate(-180deg);
 }
+
 .select-menu.active .options {
   display: block;
   opacity: 0;
@@ -88,21 +102,85 @@ button {
 }
 
 @keyframes fadeInUp {
-  from {
-    transform: translate3d(0, 30px, 0);
+  from { transform: translate3d(0, 30px, 0); }
+  to { transform: translate3d(0, 0, 0); opacity: 1; }
+}
+
+@keyframes fadeInDown {
+  from { transform: translate3d(0, 0, 0); opacity: 1; }
+  to { transform: translate3d(0, 20px, 0); opacity: 0; }
+}
+
+/* ========== RESPONSIVE ========== */
+
+@media (max-width: 768px) {
+  div {
+    height: 50px;
+    padding: 0 10px;
   }
-  to {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
+
+  .select-menu {
+    max-width: 200px;
+  }
+
+  .select-menu .select-btn {
+    height: 40px;
+    font-size: 14px;
+    padding: 12px 14px;
+  }
+
+  button {
+    margin: 6px;
+    padding: 4px 8px;
   }
 }
-@keyframes fadeInDown {
-  from {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
+
+@media (max-width: 576px) {
+  div {
+    height: 45px;
   }
-  to {
-    transform: translate3d(0, 20px, 0);
-    opacity: 0;
+
+  .select-menu {
+    max-width: 160px;
   }
+
+  .select-menu .select-btn {
+    height: 36px;
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+}
+
+.search-bar {
+  border-color: var(--border-color) !important;
+  margin: 0;
+}
+
+.search-icon {
+  height: 100%;
+  background-color: var(--bg-hover) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-secondary);
+}
+
+.search-input {
+  height: 100% !important;
+  background-color: var(--bg-input) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.search-input::placeholder {
+  color: var(--text-secondary);
+}
+
+.btn-wallet {
+  background-color: var(--primary) !important;
+  color: #fff !important;
+  border: none;
+  font-weight: 500;
+}
+
+.btn-wallet:hover {
+  background-color: var(--primary-hover) !important;
 }

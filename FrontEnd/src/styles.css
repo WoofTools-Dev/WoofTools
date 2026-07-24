@@ -1,27 +1,77 @@
-html,
-body {
-  margin: 0;
-  width: 100%;
-}
-* {
-  overflow: clip;
-  font-family: Poppins, sans-serif;
-}
-::-webkit-scrollbar {
-  width: 5px;
-}
-/* Track */
-::-webkit-scrollbar-track {
-  background: #0b1217;
+:root {
+  --primary: #ea801e;
+  --primary-hover: #d47018;
+  --primary-light: rgba(234, 128, 30, 0.15);
+  --bg-dark: #0b1217;
+  --bg-card: #142028;
+  --bg-hover: #1e2d38;
+  --bg-input: #1a2832;
+  --text-primary: #ffffff;
+  --text-secondary: #a0b4c0;
+  --border-color: #1e2d38;
+  --sidebar-bg: #0e1a22;
+  --header-bg: #0e1a22;
 }
 
-/* Handle */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-dark);
+}
 ::-webkit-scrollbar-thumb {
-  background: #131f26;
+  background: var(--bg-card);
   border-radius: 10px;
 }
-
-/* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #1f333f;
+  background: var(--bg-hover);
+}
+
+table {
+  width: 100%;
+  overflow-x: auto;
+  display: block;
+}
+
+@media (max-width: 1200px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+@media (max-width: 768px) {
+  table {
+    font-size: 13px;
+    min-width: 600px;
+  }
+  th, td {
+    padding: 8px 6px !important;
+    white-space: nowrap;
+  }
+}
+
+@media (max-width: 576px) {
+  table {
+    font-size: 12px;
+    min-width: 500px;
+  }
+  th, td {
+    padding: 6px 4px !important;
+  }
 }

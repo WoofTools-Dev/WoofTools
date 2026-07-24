@@ -1,6 +1,6 @@
 <div>
     <div class="row align-content-center">
-        <div class="col-2">
+        <div class="col-12 col-md-2 col-lg-2">
             <div class="select-menu active">
                 <div class="select-btn" (click)="toggleButton()">
                   <span class="sBtn-text">
@@ -42,25 +42,20 @@
                 </ng-template>
               </div>
         </div>
-        <div class="col-8">
-            <div class="input-group" style="border-color: #3a4956;margin: 0;">
-                <span class="input-group-text" style="height: 65%;background-color: #3a4956;">
-                    <mat-icon matSuffix style="color:white">search</mat-icon> </span>
-                <input type="text" class="form-control" placeholder=" Search pair by simbol, name, contract or token"
-                    style="height: 65%;background-color: #23323c;color: white;">
+        <div class="col-12 col-md-8 col-lg-8">
+            <div class="input-group search-bar">
+                <span class="input-group-text search-icon">
+                    <mat-icon matSuffix>search</mat-icon> </span>
+                <input type="text" class="form-control search-input" placeholder=" Search pair by symbol, name, contract or token">
             </div>
         </div>
-        <div class="col-2">
-            
-
+        <div class="col-12 col-md-2 col-lg-2">
             <div *ngIf="wallet.isWalletConnected(); else elseBlock">
-                <button  mat-raised-button style="background-color: #00b8d8;" 
-                >{{(walletAddress)}}</button>
+                <button mat-raised-button class="btn-wallet">{{(walletAddress)}}</button>
             </div>
               <ng-template #elseBlock>
-                <button  (click)="connectWallet()" mat-raised-button style="background-color: #00b8d8;" 
-                >Connect</button>
-              </ng-template>            
+                <button (click)="connectWallet()" mat-raised-button class="btn-wallet">Connect</button>
+              </ng-template>
         </div>
     </div>
 </div>
