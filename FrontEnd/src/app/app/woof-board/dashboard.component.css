@@ -1,7 +1,11 @@
-body {
-  background-color: var(--bg-dark);
-  align-content: center;
-  text-align: center;
+.dashboard-root {
+  padding: 0 0 24px 0;
+}
+
+.logo-img {
+  display: block;
+  margin: 0 auto 12px;
+  max-width: 280px;
 }
 
 tr {
@@ -17,7 +21,6 @@ th {
   vertical-align: middle;
   color: var(--text-secondary);
   border: none;
-  border-color: var(--border-color);
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -40,7 +43,6 @@ td {
   vertical-align: middle;
   background-color: var(--bg-dark);
   color: var(--text-primary);
-  border-color: var(--border-color);
   font-size: 12px;
   padding: 10px 12px;
   white-space: nowrap;
@@ -62,23 +64,31 @@ p {
   color: var(--text-primary);
   letter-spacing: 0.5px;
   margin-top: 0;
-  margin-bottom: 0.75rem;
+  margin-bottom: 12px;
   font-weight: 600;
   line-height: 1.2;
   font-size: 1.25rem;
 }
 
-.subtitle-container {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.625rem;
-}
-
 .mat-mdc-paginator {
   background: inherit;
   color: var(--text-secondary);
+}
+
+/* Rankings grid */
+.rankings-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.rankings-grid > div {
+  flex: 1 1 300px;
+}
+
+/* Section spacing */
+.section-gap {
+  margin-top: 24px;
 }
 
 /* Table container */
@@ -107,7 +117,7 @@ p {
   border-radius: 10px;
 }
 
-/* Column widths */
+/* Pair info */
 .pair-info {
   display: flex;
   align-items: center;
@@ -206,7 +216,7 @@ p {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   transition: border-color 0.2s;
-  min-height: 280px;
+  height: 100%;
 }
 
 .custom-card:hover {
@@ -290,15 +300,24 @@ p {
   white-space: nowrap;
 }
 
+/* Hot Pairs full width */
+.hot-pairs-wrapper {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  padding: 4px 0;
+}
+
 .hot-pairs-token-list {
   column-count: 3;
-  column-gap: 20px;
+  column-gap: 0;
   list-style: none;
+  padding: 8px 16px;
+  margin: 0;
 }
 
 .hot-pairs-token-list li {
   position: relative;
-  padding-right: 20px;
   break-inside: avoid;
 }
 
@@ -308,7 +327,7 @@ p {
   top: 0;
   bottom: 0;
   right: 0;
-  width: 2px;
+  width: 1px;
   background-color: var(--border-color);
 }
 
@@ -332,10 +351,6 @@ p {
   .hot-pairs-token-list {
     column-count: 2;
   }
-
-  .custom-card {
-    min-height: 240px;
-  }
 }
 
 @media (max-width: 768px) {
@@ -352,12 +367,12 @@ p {
     font-size: 10px;
   }
 
-  .custom-card {
-    min-height: auto;
-  }
-
   .pair-info {
     min-width: 160px;
+  }
+
+  .rankings-grid {
+    gap: 8px;
   }
 }
 
@@ -382,5 +397,9 @@ p {
     height: 26px;
     line-height: 26px;
     font-size: 9px;
+  }
+
+  .hot-pairs-token-list {
+    padding: 6px 10px;
   }
 }

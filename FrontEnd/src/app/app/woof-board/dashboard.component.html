@@ -1,82 +1,78 @@
-<body>
-    <img src="/assets/WoofTools-LogoText.png">
-    <br>
-    <br>
+<div class="dashboard-root">
+    <img src="/assets/WoofTools-LogoText.png" class="logo-img">
     <div class="row mx-2">
         <div class="col-12">
             <h1 class="heading-primary">Woofboard</h1>
 
-            <div class="mt-5">
-                <div class="row gx-3 gy-3">
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
-                        <div class="custom-card">
-                            <ul class="tokens-list">
-                                <li *ngFor="let item of rankings.slice(0, 5); let i = index">
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag" [class.active]="i === 0">#{{ item.rank }}</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>{{ item.name }}</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.price }}</div>
-                                            <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.percentage }}%</div>
-                                        </div>
+            <div class="rankings-grid">
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                    <div class="custom-card">
+                        <ul class="tokens-list">
+                            <li *ngFor="let item of rankings.slice(0, 5); let i = index">
+                                <div class="list-items-custom">
+                                    <div class="list-item-left">
+                                        <div class="number-tag" [class.active]="i === 0">#{{ item.rank }}</div>
+                                        <img src="../../../assets/ether.png" width="20" height="20" alt="">
+                                        <p>{{ item.name }}</p>
                                     </div>
-                                </li>
-                            </ul>
-                        </div>
+                                    <div class="list-item-right">
+                                        <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.price }}</div>
+                                        <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.percentage }}%</div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4 ">
-                        <div class="custom-card">
-                            <ul class="tokens-list">
-                                <li *ngFor="let item of rankings.slice(5, 10); let i = index">
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag" [class.active]="i === 5">#{{ item.rank }}</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>{{ item.name }}</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.price }}</div>
-                                            <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.percentage }}%</div>
-                                        </div>
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                    <div class="custom-card">
+                        <ul class="tokens-list">
+                            <li *ngFor="let item of rankings.slice(5, 10); let i = index">
+                                <div class="list-items-custom">
+                                    <div class="list-item-left">
+                                        <div class="number-tag" [class.active]="i === 5">#{{ item.rank }}</div>
+                                        <img src="../../../assets/ether.png" width="20" height="20" alt="">
+                                        <p>{{ item.name }}</p>
                                     </div>
-                                </li>
-                            </ul>
-                        </div>
+                                    <div class="list-item-right">
+                                        <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.price }}</div>
+                                        <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.percentage }}%</div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
-                    <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4 ">
-                        <div class="custom-card">
-                            <ul class="tokens-list">
-                                <li *ngFor="let item of hotPairsList.slice(0, 5); let i = index">
-                                    <div class="list-items-custom">
-                                        <div class="list-item-left">
-                                            <div class="number-tag" [class.active]="i === 0">#{{ i + 1 }}</div>
-                                            <img src="../../../assets/ether.png" width="20" height="20" alt="name">
-                                            <p>{{ item.pairName }}</p>
-                                        </div>
-                                        <div class="list-item-right">
-                                            <div class="numbers text-success">${{ item.price || 0 }}</div>
-                                            <div class="numbers" [class.text-success]="(item.growthPercentage || 0) >= 0" [class.text-danger]="(item.growthPercentage || 0) < 0">{{ item.growthPercentage || 0 }}%</div>
-                                        </div>
+                </div>
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" *ngIf="hotPairsList.length > 0">
+                    <div class="custom-card">
+                        <ul class="tokens-list">
+                            <li *ngFor="let item of hotPairsList.slice(0, 5); let i = index">
+                                <div class="list-items-custom">
+                                    <div class="list-item-left">
+                                        <div class="number-tag" [class.active]="i === 0">#{{ i + 1 }}</div>
+                                        <img src="../../../assets/ether.png" width="20" height="20" alt="">
+                                        <p>{{ item.pairName }}</p>
                                     </div>
-                                </li>
-                            </ul>
-                        </div>
+                                    <div class="list-item-right">
+                                        <div class="numbers text-success">${{ item.price || 0 }}</div>
+                                        <div class="numbers" [class.text-success]="(item.growthPercentage || 0) >= 0" [class.text-danger]="(item.growthPercentage || 0) < 0">{{ item.growthPercentage || 0 }}%</div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
 
-            <div class="mt-5">
-                <div class="row gx-3 gy-3">
-                    <h2 class="heading-primary">Hot Pairs</h2>
+            <div class="section-gap">
+                <h2 class="heading-primary">Hot Pairs</h2>
+                <div class="hot-pairs-wrapper">
                     <ul class="tokens-list hot-pairs-token-list">
                         <li *ngFor="let item of hotPairsList; let i = index">
                             <div class="list-items-custom">
                                 <div class="list-item-left">
                                     <div class="number-tag" [class.active]="i < 5">#{{ i + 1 }}</div>
-                                    <img src="../../../assets/ether.png" width="20" height="20" alt="name">
+                                    <img src="../../../assets/ether.png" width="20" height="20" alt="">
                                     <p>{{ item.pairName }}</p>
                                 </div>
                                 <div class="list-item-right">
@@ -89,8 +85,7 @@
                 </div>
             </div>
 
-            
-            <div class="mt-5 table-container">
+            <div class="section-gap table-container">
                 <div class="table-scroll">
                   <table mat-table [dataSource]="dataSource">
 
@@ -191,7 +186,7 @@
                 </div>
                 <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
             </div>
-            
+
         </div>
     </div>
-</body>
+</div>
