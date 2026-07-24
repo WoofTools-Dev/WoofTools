@@ -28,11 +28,16 @@ export const updateUpdatedRRSS = async (
   id: number,
   data: Partial<UpdatedRRSSType>
 ): Promise<UpdatedRRSSType | null> => {
-  const updatedRRSS = await prisma.updatedRRSS.update({
-    where: { id },
-    data,
-  });
-  return updatedRRSS;
+  try {
+    const updatedRRSS = await prisma.updatedRRSS.update({
+      where: { id },
+      data,
+    });
+    return updatedRRSS;
+  } catch (err: any) {
+    if (err?.code === "P2025") return null;
+    throw err;
+  }
 };
 
 export const deleteUpdatedRRSS = async (id: number): Promise<void> => {
