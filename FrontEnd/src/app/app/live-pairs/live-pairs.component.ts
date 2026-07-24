@@ -36,7 +36,7 @@ export class LivePairsComponent implements OnInit, AfterViewInit, OnDestroy {
   dataLoaded = false;
 
   private pollSub?: Subscription;
-  private readonly POLL_INTERVAL = 30000;
+  private readonly POLL_INTERVAL = 60000;
 
   constructor(
     private api: ApiService
