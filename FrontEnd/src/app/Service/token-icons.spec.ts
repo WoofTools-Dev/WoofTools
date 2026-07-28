@@ -48,12 +48,13 @@ describe('getTokenIcon', () => {
 
   it('should cover all known tokens', () => {
     const knownTokens = [
-      'ETH', 'WETH', 'USDC', 'PEPE', 'LINK', 'USDT', 'UNI', 'AAVE',
+      'ETH', 'USDC', 'PEPE', 'LINK', 'USDT', 'UNI', 'AAVE',
       'MATIC', 'SHIB', 'ARB', 'BONK', 'DOGE', 'FLOKI', 'OP', 'INJ',
       'RBN', 'MKR', 'CRV', 'ENS', 'COMP',
     ];
     knownTokens.forEach(token => {
       expect(getTokenIcon(token)).toBe(`assets/coins/${token}.png`);
     });
+    expect(getTokenIcon('WETH')).toBe('assets/coins/ETH.png');
   });
 });

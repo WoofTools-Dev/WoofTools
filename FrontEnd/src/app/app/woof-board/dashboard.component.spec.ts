@@ -7,8 +7,12 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgChartsModule } from 'ng2-charts';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 import { DashboardComponent } from './dashboard.component';
+import { TokenChartComponent } from '../chart/chart.component';
 import { ApiService } from 'src/app/Service/api.service';
 import { SearchService } from 'src/app/Service/search.service';
 import { DashboardData, HotPair } from 'src/app/Interface/api.interfaces';
@@ -53,7 +57,7 @@ describe('DashboardComponent', () => {
     apiSpy.getHotPairs.and.returnValue(of(mockHotPairs));
 
     TestBed.configureTestingModule({
-      declarations: [DashboardComponent],
+      declarations: [DashboardComponent, TokenChartComponent],
       imports: [
         HttpClientTestingModule,
         MatPaginatorModule,
