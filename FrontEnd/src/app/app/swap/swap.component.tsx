@@ -84,6 +84,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     }
     if (this.connecting) return;
     this.connecting = true;
+    this.error = false;
     this.render();
     try {
       const address = await this.wallet.connectWallet();
