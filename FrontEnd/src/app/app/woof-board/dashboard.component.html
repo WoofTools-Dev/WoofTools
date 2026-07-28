@@ -4,6 +4,15 @@
         <div class="col-12">
             <h1 class="heading-primary">Woofboard</h1>
 
+            <div class="search-active-bar" *ngIf="searchQuery">
+                <span class="search-label">Searching: "{{ searchQuery }}"</span>
+                <span class="search-count">
+                    {{ filteredRankings1.length + filteredRankings2.length }} rankings ·
+                    {{ filteredHotPairs.length }} hot pairs ·
+                    {{ dataSource.filteredData?.length || 0 }} table rows
+                </span>
+            </div>
+
             <div class="main-chart-section" *ngIf="selectedPair">
                 <div class="main-chart-header">
                     <div class="main-chart-title">
@@ -15,7 +24,7 @@
                         </span>
                     </div>
                     <div class="main-chart-tabs">
-                        <button *ngFor="let pair of hotPairsList.slice(0, 5)"
+                        <button *ngFor="let pair of (filteredHotPairs.length > 0 ? filteredHotPairs : hotPairsList).slice(0, 5)"
                                 class="chart-tab"
                                 [class.active]="selectedPair.pairName === pair.pairName"
                                 (click)="selectPair(pair)">
@@ -35,8 +44,8 @@
             <div class="rankings-grid">
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
                     <div class="custom-card">
-                        <ul class="tokens-list">
-                            <li *ngFor="let item of rankings.slice(0, 5); let i = index">
+                        <ul class="tokens-list" *ngIf="filteredRankings1.length > 0; else noRankings1">
+                            <li *ngFor="let item of filteredRankings1; let i = index">
                                 <div class="list-items-custom">
                                     <div class="list-item-left">
                                         <div class="number-tag" [class.active]="i === 0">#{{ item.rank }}</div>
@@ -50,12 +59,13 @@
                                 </div>
                             </li>
                         </ul>
+                        <ng-template #noRankings1><div class="no-results">No results</div></ng-template>
                     </div>
                 </div>
                 <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
                     <div class="custom-card">
-                        <ul class="tokens-list">
-                            <li *ngFor="let item of rankings.slice(5, 10); let i = index">
+                        <ul class="tokens-list" *ngIf="filteredRankings2.length > 0; else noRankings2">
+                            <li *ngFor="let item of filteredRankings2; let i = index">
                                 <div class="list-items-custom">
                                     <div class="list-item-left">
                                         <div class="number-tag" [class.active]="i === 5">#{{ item.rank }}</div>
@@ -69,12 +79,13 @@
                                 </div>
                             </li>
                         </ul>
+                        <ng-template #noRankings2><div class="no-results">No results</div></ng-template>
                     </div>
                 </div>
-                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" *ngIf="hotPairsList.length > 0">
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" *ngIf="filteredHotPairs.length > 0 || hotPairsList.length > 0">
                     <div class="custom-card">
-                        <ul class="tokens-list">
-                            <li *ngFor="let item of hotPairsList.slice(0, 5); let i = index">
+                        <ul class="tokens-list" *ngIf="filteredHotPairs.length > 0; else noHotPairs">
+                            <li *ngFor="let item of filteredHotPairs.slice(0, 5); let i = index">
                                 <div class="list-items-custom">
                                     <div class="list-item-left">
                                         <div class="number-tag" [class.active]="i === 0">#{{ i + 1 }}</div>
@@ -88,15 +99,16 @@
                                 </div>
                             </li>
                         </ul>
+                        <ng-template #noHotPairs><div class="no-results">No results</div></ng-template>
                     </div>
                 </div>
             </div>
 
             <div class="section-gap">
                 <h2 class="heading-primary">Hot Pairs</h2>
-                <div class="hot-pairs-wrapper" *ngIf="hotPairsList.length > 0">
+                <div class="hot-pairs-wrapper" *ngIf="filteredHotPairs.length > 0; else noHotPairsFull">
                     <div class="hot-pairs-grid">
-                        <div class="hot-pair-item" *ngFor="let item of hotPairsList; let i = index" (click)="selectPair(item)">
+                        <div class="hot-pair-item" *ngFor="let item of filteredHotPairs; let i = index" (click)="selectPair(item)">
                             <div class="list-items-custom">
                                 <div class="list-item-left">
                                     <div class="number-tag" [class.active]="i < 5">#{{ i + 1 }}</div>
@@ -118,6 +130,7 @@
                         </div>
                     </div>
                 </div>
+                <ng-template #noHotPairsFull><div class="no-results" *ngIf="searchQuery">No hot pairs match "{{ searchQuery }}"</div></ng-template>
             </div>
 
             <div class="section-gap table-container">

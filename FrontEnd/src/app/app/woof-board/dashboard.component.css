@@ -434,6 +434,37 @@ p {
 
 /* ========== RESPONSIVE ========== */
 
+.search-active-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--bg-card);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  padding: 8px 14px;
+  margin-bottom: 16px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.search-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary);
+}
+
+.search-count {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.no-results {
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+
 @media (max-width: 1200px) {
   .hot-pairs-grid {
     grid-template-columns: repeat(2, 1fr);

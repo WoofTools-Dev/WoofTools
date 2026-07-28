@@ -21,8 +21,14 @@ export class TokenChartComponent implements OnChanges {
     const gradient =
       this.data[this.data.length - 1] >= this.data[0] ? '#22c55e' : '#ef4444';
 
+    const chartLabels = this.data.map((_, i) => {
+      if (i === 0) return 'Start';
+      if (i === this.data.length - 1) return 'Now';
+      return '';
+    });
+
     this.chartData = {
-      labels: this.data.map((_, i) => i.toString()),
+      labels: chartLabels,
       datasets: [
         {
           data: this.data,
@@ -40,7 +46,7 @@ export class TokenChartComponent implements OnChanges {
           fill: true,
           tension: 0.4,
           pointRadius: 0,
-          pointHitRadius: 0,
+          pointHitRadius: this.showAxes ? 6 : 0,
         },
       ],
     };
@@ -51,14 +57,40 @@ export class TokenChartComponent implements OnChanges {
       animation: { duration: 600 },
       plugins: {
         legend: { display: false },
-        tooltip: { enabled: false },
+        tooltip: {
+          enabled: this.showAxes,
+          displayColors: false,
+          callbacks: {
+            label: (ctx: any) => '$' + ctx.parsed.y.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }),
+          },
+        },
       },
       scales: {
-        x: { display: this.showAxes, grid: { display: false }, ticks: { display: false } },
+        x: {
+          display: this.showAxes,
+          grid: { display: false },
+          ticks: {
+            display: this.showAxes,
+            color: '#a0b4c0',
+            font: { size: 10 },
+            maxRotation: 0,
+          },
+          border: { display: false },
+        },
         y: {
           display: this.showAxes,
-          grid: { color: '#1e2d3833' },
-          ticks: { display: false },
+          grid: { color: '#1e2d3844' },
+          ticks: {
+            display: this.showAxes,
+            color: '#a0b4c0',
+            font: { size: 10 },
+            callback: (tickValue: any) => {
+              const val = typeof tickValue === 'number' ? tickValue : parseFloat(tickValue);
+              if (val >= 1000) return '$' + (val / 1000).toFixed(1) + 'K';
+              if (val >= 1) return '$' + val.toFixed(2);
+              return '$' + val.toFixed(4);
+            },
+          },
           border: { display: false },
         },
       },

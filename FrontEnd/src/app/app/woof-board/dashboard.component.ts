@@ -49,7 +49,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   rankings: RankingItem[] = [];
   hotPairsList: HotPair[] = [];
+  filteredHotPairs: HotPair[] = [];
+  filteredRankings1: RankingItem[] = [];
+  filteredRankings2: RankingItem[] = [];
   selectedPair: HotPair | null = null;
+  searchQuery = '';
+  allRankings: RankingItem[] = [];
 
   constructor(
     private router: Router,
@@ -78,13 +83,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.api.getDashboardData().subscribe({
       next: (data: DashboardData[]) => {
         const sorted = [...data].sort((a, b) => b.score - a.score);
-        this.rankings = sorted.slice(0, 10).map((item, i) => ({
+        this.allRankings = sorted.slice(0, 10).map((item, i) => ({
           rank: i + 1,
           name: item.token0Name,
           price: `$${item.price}`,
           percentage: item.percentage24H,
           isPositive: item.percentage24H >= 0,
         }));
+        this.rankings = this.allRankings;
+        this.updateRankingsDisplay();
 
         this.tokensList = data.map((item) => ({
           pairInfo: {
@@ -109,6 +116,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         this.dataSource.data = this.tokensList;
         this.dataLoaded = true;
         this.applySortAndPaginator();
+        this.applySearchFilter();
       },
       error: () => {
         this.dataLoaded = true;
@@ -120,21 +128,21 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.api.getHotPairs().subscribe({
       next: (data: HotPair[]) => {
         this.hotPairsList = data;
+        this.filteredHotPairs = [...data];
         if (data.length > 0 && !this.selectedPair) {
           this.selectedPair = data[0];
         }
       },
       error: () => {
         this.hotPairsList = [];
+        this.filteredHotPairs = [];
       },
     });
 
     this.searchService.query$.subscribe(q => {
       if (q !== undefined) {
-        this.dataSource.filter = q.trim().toLowerCase();
-        if (this.dataSource.paginator) {
-          this.dataSource.paginator.firstPage();
-        }
+        this.searchQuery = q.trim().toLowerCase();
+        this.applySearchFilter();
       }
     });
   }
@@ -160,6 +168,32 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.dataSource.sort = this.sort;
       this.dataSource.paginator = this.paginator;
     }
+  }
+
+  private applySearchFilter() {
+    this.dataSource.filter = this.searchQuery;
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
+
+    if (this.searchQuery) {
+      this.filteredHotPairs = this.hotPairsList.filter(p =>
+        p.pairName.toLowerCase().includes(this.searchQuery)
+      );
+    } else {
+      this.filteredHotPairs = [...this.hotPairsList];
+    }
+
+    this.updateRankingsDisplay();
+  }
+
+  private updateRankingsDisplay() {
+    const source = this.searchQuery
+      ? this.allRankings.filter(r => r.name.toLowerCase().includes(this.searchQuery))
+      : this.allRankings;
+    this.filteredRankings1 = source.slice(0, 5);
+    this.filteredRankings2 = source.slice(5, 10);
+    this.rankings = source;
   }
 
   getTokenIcon(name: string): string {
