@@ -53,6 +53,31 @@ async function main() {
     ],
   });
 
+  await prisma.hotPair.createMany({
+    data: [
+      { pairName: "BONK/WETH", popularity: 95, price: 0.0000456, previousPrices: [0.000032, 0.000035, 0.000038, 0.000041, 0.000039, 0.000044, 0.000042, 0.000046, 0.000044, 0.0000456], growthPercentage: 15.2 },
+      { pairName: "DOGE/USDT", popularity: 88, price: 0.42, previousPrices: [0.38, 0.39, 0.41, 0.40, 0.43, 0.42, 0.44, 0.41, 0.43, 0.42], growthPercentage: 8.5 },
+      { pairName: "FLOKI/WETH", popularity: 76, price: 0.000295, previousPrices: [0.00025, 0.00026, 0.00028, 0.00027, 0.00030, 0.00029, 0.00031, 0.00028, 0.00030, 0.000295], growthPercentage: 5.1 },
+      { pairName: "OP/USDC", popularity: 65, price: 3.75, previousPrices: [3.90, 3.85, 3.80, 3.78, 3.72, 3.76, 3.70, 3.74, 3.72, 3.75], growthPercentage: -2.3 },
+      { pairName: "INJ/WETH", popularity: 58, price: 35.20, previousPrices: [32.5, 33.0, 33.8, 34.2, 33.5, 34.8, 35.0, 34.5, 35.1, 35.2], growthPercentage: 7.8 },
+    ],
+  });
+
+  await prisma.dailyWinner.createMany({
+    data: [
+      { username: "CryptoWhale", price: 3450.50, previousPrices: [3200, 3280, 3350, 3400, 3420, 3450.50], growthPercentage: 7.8 },
+      { username: "DeFiKing", price: 0.42, previousPrices: [0.38, 0.39, 0.40, 0.41, 0.415, 0.42], growthPercentage: 10.5 },
+      { username: "TokenMaster", price: 1850.00, previousPrices: [1780, 1800, 1820, 1840, 1845, 1850], growthPercentage: 3.9 },
+    ],
+  });
+
+  await prisma.dailyLoser.createMany({
+    data: [
+      { username: "RektTrader", price: 0.00001234, previousPrices: [0.000018, 0.000016, 0.000015, 0.000014, 0.000013, 0.00001234], growthPercentage: -31.4 },
+      { username: "HodlGone", price: 1.24, previousPrices: [1.55, 1.48, 1.42, 1.38, 1.30, 1.24], growthPercentage: -20.0 },
+    ],
+  });
+
   console.log("Seeded successfully!");
 }
 
