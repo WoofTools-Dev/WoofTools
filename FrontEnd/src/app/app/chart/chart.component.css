@@ -1,0 +1,8 @@
+:host {
+  display: block;
+}
+
+.chart-wrapper {
+  width: 100%;
+  position: relative;
+}

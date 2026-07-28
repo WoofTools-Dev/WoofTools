@@ -20,8 +20,12 @@ import { MatTableModule } from '@angular/material/table';
 import { TimeCounterComponent } from './app/time-counter/time-counter.component';
 import { LivePairsComponent } from './app/live-pairs/live-pairs.component';
 import { BigSwapExplorerComponent } from './app/big-swap-explorer/big-swap-explorer.component';
+import { TokenChartComponent } from './app/chart/chart.component';
+import { NgChartsModule } from 'ng2-charts';
+import { Chart, registerables } from 'chart.js';
+Chart.register(...registerables);
 @NgModule({
-  declarations: [AppComponent, DashboardComponent, WalletConnectComponent, AppLayoutComponent, SwapComponent, SwapWrapperComponent, TimeCounterComponent, LivePairsComponent, BigSwapExplorerComponent],
+  declarations: [AppComponent, DashboardComponent, WalletConnectComponent, AppLayoutComponent, SwapComponent, SwapWrapperComponent, TimeCounterComponent, LivePairsComponent, BigSwapExplorerComponent, TokenChartComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -34,7 +38,8 @@ import { BigSwapExplorerComponent } from './app/big-swap-explorer/big-swap-explo
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
-    MatIconModule
+    MatIconModule,
+    NgChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent],

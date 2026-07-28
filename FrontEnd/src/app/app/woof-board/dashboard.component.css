@@ -86,6 +86,105 @@ p {
   margin-top: 24px;
 }
 
+/* Main Chart */
+.main-chart-section {
+  background-color: var(--bg-card);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.main-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.main-chart-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.main-chart-title img {
+  border-radius: 50%;
+}
+
+.main-chart-price {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.main-chart-change {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 8px;
+}
+
+.main-chart-change.text-success {
+  background-color: rgba(34, 197, 94, 0.15);
+}
+
+.main-chart-change.text-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.main-chart-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.chart-tab {
+  padding: 4px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chart-tab:hover {
+  border-color: var(--primary);
+  color: var(--text-primary);
+}
+
+.chart-tab.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.main-chart-body {
+  padding: 16px 18px;
+}
+
+/* Sparkline in hot pair cards */
+.sparkline-row {
+  padding: 0 12px 4px;
+  opacity: 0.8;
+}
+
+.hot-pair-item {
+  cursor: pointer;
+}
+
+.hot-pair-item:hover {
+  border-radius: 8px;
+}
+
 /* Table container */
 .table-container {
   background-color: var(--bg-card);

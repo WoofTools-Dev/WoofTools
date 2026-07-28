@@ -1,0 +1,9 @@
+<div class="chart-wrapper" [style.height.px]="height">
+  <canvas baseChart
+    *ngIf="chartData"
+    type="line"
+    [data]="chartData"
+    [options]="chartOptions"
+    [plugins]="[]">
+  </canvas>
+</div>

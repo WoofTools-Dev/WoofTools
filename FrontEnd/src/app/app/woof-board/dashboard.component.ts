@@ -48,6 +48,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   rankings: RankingItem[] = [];
   hotPairsList: HotPair[] = [];
+  selectedPair: HotPair | null = null;
 
   constructor(
     private router: Router,
@@ -117,11 +118,18 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     this.api.getHotPairs().subscribe({
       next: (data: HotPair[]) => {
         this.hotPairsList = data;
+        if (data.length > 0 && !this.selectedPair) {
+          this.selectedPair = data[0];
+        }
       },
       error: () => {
         this.hotPairsList = [];
       },
     });
+  }
+
+  selectPair(pair: HotPair) {
+    this.selectedPair = pair;
   }
 
   ngAfterViewInit() {
