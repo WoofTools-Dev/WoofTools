@@ -1,8 +1,15 @@
 :host {
   display: block;
+  width: 100%;
 }
 
 .chart-wrapper {
   width: 100%;
   position: relative;
+}
+
+.chart-wrapper canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
 }

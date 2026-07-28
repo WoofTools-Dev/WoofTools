@@ -92,25 +92,13 @@ p {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   margin-bottom: 24px;
-  overflow-x: auto;
-}
-
-.main-chart-section::-webkit-scrollbar {
-  height: 6px;
-}
-
-.main-chart-section::-webkit-scrollbar-track {
-  background: var(--bg-card);
-}
-
-.main-chart-section::-webkit-scrollbar-thumb {
-  background: var(--bg-hover);
-  border-radius: 10px;
+  overflow: hidden;
 }
 
 .main-chart-body {
-  min-width: 500px;
   padding: 16px 18px;
+  width: 100%;
+  overflow: hidden;
 }
 
 .main-chart-header {
@@ -189,6 +177,8 @@ p {
 .sparkline-row {
   padding: 0 12px 4px;
   opacity: 0.8;
+  width: 100%;
+  overflow: hidden;
 }
 
 .hot-pair-item {
@@ -555,10 +545,6 @@ p {
     flex-shrink: 0;
     font-size: 11px;
     padding: 3px 10px;
-  }
-
-  .main-chart-body {
-    padding: 10px 8px;
   }
 }
 
