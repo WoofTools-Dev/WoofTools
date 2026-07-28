@@ -92,7 +92,25 @@ p {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   margin-bottom: 24px;
-  overflow: hidden;
+  overflow-x: auto;
+}
+
+.main-chart-section::-webkit-scrollbar {
+  height: 6px;
+}
+
+.main-chart-section::-webkit-scrollbar-track {
+  background: var(--bg-card);
+}
+
+.main-chart-section::-webkit-scrollbar-thumb {
+  background: var(--bg-hover);
+  border-radius: 10px;
+}
+
+.main-chart-body {
+  min-width: 500px;
+  padding: 16px 18px;
 }
 
 .main-chart-header {
@@ -165,10 +183,6 @@ p {
   background-color: var(--primary);
   border-color: var(--primary);
   color: #fff;
-}
-
-.main-chart-body {
-  padding: 16px 18px;
 }
 
 /* Sparkline in hot pair cards */
