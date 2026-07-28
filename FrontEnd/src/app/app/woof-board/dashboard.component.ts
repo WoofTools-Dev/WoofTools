@@ -6,6 +6,7 @@ import { MatPaginator } from '@angular/material/paginator';
 import { ApiService } from 'src/app/Service/api.service';
 import { DashboardData, HotPair } from 'src/app/Interface/api.interfaces';
 import { getTokenIcon } from 'src/app/Service/token-icons';
+import { SearchService } from 'src/app/Service/search.service';
 
 export interface TokenInfo {
   pairInfo: {
@@ -52,7 +53,8 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   constructor(
     private router: Router,
-    private api: ApiService
+    private api: ApiService,
+    private searchService: SearchService
   ) {}
 
   displayedColumns = [
@@ -125,6 +127,15 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       error: () => {
         this.hotPairsList = [];
       },
+    });
+
+    this.searchService.query$.subscribe(q => {
+      if (q !== undefined) {
+        this.dataSource.filter = q.trim().toLowerCase();
+        if (this.dataSource.paginator) {
+          this.dataSource.paginator.firstPage();
+        }
+      }
     });
   }
 

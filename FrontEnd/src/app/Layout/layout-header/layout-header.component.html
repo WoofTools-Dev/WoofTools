@@ -44,7 +44,8 @@
               <span class="input-group-text search-icon">
                   <mat-icon matSuffix>search</mat-icon>
               </span>
-              <input type="text" class="form-control search-input" placeholder="Search pair by symbol, name, contract or token">
+              <input type="text" class="form-control search-input" placeholder="Search pair by symbol, name, contract or token"
+                 [value]="searchValue" (input)="onSearchInput($event)">
           </div>
       </div>
       <div class="col-wallet">

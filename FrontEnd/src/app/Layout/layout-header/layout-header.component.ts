@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 import { WalletService } from 'src/app/provider/walletprovider';
+import { SearchService } from 'src/app/Service/search.service';
 
 @Component({
   selector: 'app-layout-header',
@@ -11,9 +12,14 @@ export class LayoutHeaderComponent {
   selectedBlockChain: String = "Ethereum";
   isToggledBlockChainButton: boolean = false;
   walletAddress: string = '';
+  searchValue: string = '';
   @Output() toggleDrawer = new EventEmitter<void>();
 
-  constructor(public router: Router, public wallet: WalletService) {}
+  constructor(
+    public router: Router,
+    public wallet: WalletService,
+    private search: SearchService
+  ) {}
 
   ngOnInit(): void {
     this.wallet.tryReconnect().then(() => {
@@ -21,6 +27,7 @@ export class LayoutHeaderComponent {
         this.walletAddress = this.wallet.getTruncatedAddress();
       }
     });
+    this.search.query$.subscribe(q => this.searchValue = q);
   }
 
   async connectWallet() {
@@ -41,6 +48,14 @@ export class LayoutHeaderComponent {
 
   onToggleDrawer() {
     this.toggleDrawer.emit();
+  }
+
+  onSearchInput(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.search.setQuery(value);
+    if (this.router.url !== '/woofboard') {
+      this.router.navigate(['/woofboard']);
+    }
   }
 }
 
