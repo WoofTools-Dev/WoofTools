@@ -165,17 +165,13 @@ export class CandlestickChartComponent implements AfterViewInit, OnDestroy, OnCh
     const volData = param.seriesData?.get(this.volumeSeries);
     const volume = volData?.value ?? 0;
 
-    const date = new Date((param.time as number) * 1000);
-    const timeStr = date.toLocaleString('es-MX', {
-      month: 'short', day: 'numeric',
-      hour: '2-digit', minute: '2-digit',
-    });
+    const candleIdx = this.candles.findIndex(c => c.time === (param.time as number)) + 1;
 
     const fmt = (v: number) =>
       '$' + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
 
     tooltip.innerHTML = `
-      <div class="tooltip-time">${timeStr}</div>
+      <div class="tooltip-time">Vela #${candleIdx > 0 ? candleIdx : '?'}</div>
       <div class="tooltip-row">
         <span>O</span><span class="val">${fmt(o)}</span>
         <span>H</span><span class="val">${fmt(h)}</span>
