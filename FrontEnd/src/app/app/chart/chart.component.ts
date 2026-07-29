@@ -174,8 +174,8 @@ export class TokenChartComponent implements OnChanges {
           borderColors: { up: '#22c55e', down: '#ef4444', unchanged: '#888888' },
           backgroundColors: { up: '#22c55e88', down: '#ef444488', unchanged: '#88888844' },
           borderWidth: 1,
-          barPercentage: this.showAxes ? 0.3 : 0.5,
-          categoryPercentage: this.showAxes ? 0.5 : 0.7,
+          barPercentage: this.showAxes ? 0.35 : 0.5,
+          categoryPercentage: this.showAxes ? 0.9 : 0.95,
         } as any,
       ],
     };

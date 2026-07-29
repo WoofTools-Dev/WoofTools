@@ -94,3 +94,6 @@ testem.log
 
 # infra
 pgpass
+
+# Large files
+entrega-final.zip

@@ -165,8 +165,8 @@ describe('TokenChartComponent', () => {
     component.showAxes = true;
     component.ngOnChanges({});
     const ds = component.chartData!.datasets[0] as any;
-    expect(ds.barPercentage).toBe(0.3);
-    expect(ds.categoryPercentage).toBe(0.5);
+    expect(ds.barPercentage).toBe(0.35);
+    expect(ds.categoryPercentage).toBe(0.9);
   });
 
   it('should use slightly wider candle spacing for candlestick without axes', () => {
@@ -176,7 +176,7 @@ describe('TokenChartComponent', () => {
     component.ngOnChanges({});
     const ds = component.chartData!.datasets[0] as any;
     expect(ds.barPercentage).toBe(0.5);
-    expect(ds.categoryPercentage).toBe(0.7);
+    expect(ds.categoryPercentage).toBe(0.95);
   });
 
   it('should have only one dataset (no SMA overlay)', () => {
