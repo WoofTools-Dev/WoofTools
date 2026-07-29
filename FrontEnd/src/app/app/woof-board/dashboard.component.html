@@ -33,12 +33,10 @@
                     </div>
                 </div>
                 <div class="main-chart-body">
-                    <token-chart
+                    <candlestick-chart
                         [data]="selectedPair.previousPrices || []"
-                        [height]="160"
-                        [showAxes]="true"
-                        [chartType]="'candlestick'">
-                    </token-chart>
+                        [height]="160">
+                    </candlestick-chart>
                 </div>
             </div>
 

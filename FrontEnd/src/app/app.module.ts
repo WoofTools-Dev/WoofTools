@@ -21,6 +21,7 @@ import { TimeCounterComponent } from './app/time-counter/time-counter.component'
 import { LivePairsComponent } from './app/live-pairs/live-pairs.component';
 import { BigSwapExplorerComponent } from './app/big-swap-explorer/big-swap-explorer.component';
 import { TokenChartComponent } from './app/chart/chart.component';
+import { CandlestickChartComponent } from './charts/candlestick-chart/candlestick-chart.component';
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
 import { CandlestickController, CandlestickElement } from 'chartjs-chart-financial';
@@ -40,7 +41,8 @@ Chart.register(...registerables, CandlestickController, CandlestickElement);
     MatSortModule,
     MatPaginatorModule,
     MatIconModule,
-    NgChartsModule
+    NgChartsModule,
+    CandlestickChartComponent
   ],
   providers: [],
   bootstrap: [AppComponent],

@@ -1,0 +1,50 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.chart-container {
+  position: relative;
+  width: 100%;
+}
+
+.chart-tooltip {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  pointer-events: none;
+  background: #0f1a24;
+  border: 1px solid #1e2d38;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  font-size: 10px;
+  color: #e8edf0;
+  min-width: 160px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.tooltip-time {
+  font-size: 9px;
+  color: #a0b4c0;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #1e2d38;
+}
+
+.tooltip-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.tooltip-row span:first-child {
+  color: #a0b4c0;
+  width: 24px;
+}
+
+.tooltip-row .val {
+  color: #e8edf0;
+  min-width: 60px;
+  text-align: right;
+}
