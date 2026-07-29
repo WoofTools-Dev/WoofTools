@@ -62,6 +62,7 @@ export class CandlestickChartComponent implements AfterViewInit, OnDestroy, OnCh
         textColor: '#a0b4c0',
         fontFamily: "'JetBrains Mono', 'Fira Code', 'Consolas', monospace",
         fontSize: 10,
+        attributionLogo: false,
       },
       grid: {
         vertLines: { color: '#1a1d2e' },
@@ -90,6 +91,8 @@ export class CandlestickChartComponent implements AfterViewInit, OnDestroy, OnCh
         borderColor: '#1e2d38',
         timeVisible: true,
         secondsVisible: false,
+        barSpacing: 3,
+        minBarSpacing: 2,
       },
       handleScroll: { vertTouchDrag: false },
     });
