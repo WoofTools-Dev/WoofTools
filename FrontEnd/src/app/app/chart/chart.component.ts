@@ -23,6 +23,10 @@ const crosshairPlugin = {
   }
 };
 
+function formatPrice(v: number): string {
+  return '$' + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
+}
+
 @Component({
   selector: 'token-chart',
   templateUrl: './chart.component.html',
@@ -30,7 +34,6 @@ const crosshairPlugin = {
 })
 export class TokenChartComponent implements OnChanges {
   @Input() data: number[] = [];
-  @Input() color: string = '#ea801e';
   @Input() height: number = 200;
   @Input() showAxes: boolean = true;
   @Input() chartType: 'line' | 'candlestick' = 'line';
@@ -52,22 +55,6 @@ export class TokenChartComponent implements OnChanges {
     return result;
   }
 
-  private calculateSMA(data: number[], period: number): number[] {
-    const result: number[] = [];
-    for (let i = 0; i < data.length; i++) {
-      if (i < period - 1) {
-        result.push(NaN);
-      } else {
-        let sum = 0;
-        for (let j = i - period + 1; j <= i; j++) {
-          sum += data[j];
-        }
-        result.push(sum / period);
-      }
-    }
-    return result;
-  }
-
   ngOnChanges(_changes: SimpleChanges): void {
     if (!this.data || this.data.length < 2) {
       this.chartData = undefined as any;
@@ -83,38 +70,40 @@ export class TokenChartComponent implements OnChanges {
     }
   }
 
+  private buildLabel(i: number): string {
+    if (i === 0) return 'Start';
+    if (i === this.data.length - 1) return 'Now';
+    return '';
+  }
+
   private buildLine(): void {
     this.type = 'line';
 
-    const gradient =
-      this.data[this.data.length - 1] >= this.data[0] ? '#22c55e' : '#ef4444';
+    const trendUp = this.data[this.data.length - 1] >= this.data[0];
+    const color = trendUp ? '#22c55e' : '#ef4444';
 
-    const chartLabels = this.data.map((_, i) => {
-      if (i === 0) return 'Start';
-      if (i === this.data.length - 1) return 'Now';
-      return '';
-    });
+    const chartLabels = this.data.map((_, i) => this.buildLabel(i));
 
     this.chartData = {
       labels: chartLabels,
       datasets: [
         {
           data: this.data,
-          borderColor: gradient,
+          borderColor: color,
           backgroundColor: (ctx: any) => {
             const chart = ctx.chart;
             const { ctx: c, chartArea } = chart;
-            if (!chartArea) return gradient + '1a';
+            if (!chartArea) return color + '1a';
             const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
-            g.addColorStop(0, gradient + '33');
-            g.addColorStop(1, gradient + '05');
+            g.addColorStop(0, color + '33');
+            g.addColorStop(1, color + '05');
             return g;
           },
           borderWidth: this.showAxes ? 2 : 1.5,
           fill: true,
           tension: 0.4,
           pointRadius: 0,
-          pointHitRadius: this.showAxes ? 6 : 0,
+          pointHitRadius: this.showAxes ? 8 : 4,
         } as any,
       ],
     };
@@ -122,11 +111,11 @@ export class TokenChartComponent implements OnChanges {
     this.chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
-      animation: { duration: 400 },
+      animation: { duration: 300 },
       plugins: {
         legend: { display: false },
         tooltip: {
-          enabled: this.showAxes,
+          enabled: true,
           displayColors: false,
           backgroundColor: '#0f1a24',
           titleColor: '#a0b4c0',
@@ -136,8 +125,7 @@ export class TokenChartComponent implements OnChanges {
           padding: 8,
           cornerRadius: 6,
           callbacks: {
-            label: (ctx: any) =>
-              '$' + ctx.parsed.y.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 }),
+            label: (ctx: any) => formatPrice(ctx.parsed.y),
           },
         },
       },
@@ -163,12 +151,7 @@ export class TokenChartComponent implements OnChanges {
             font: { size: 10 },
             padding: 4,
             maxTicksLimit: 6,
-            callback: (tickValue: any) => {
-              const val = typeof tickValue === 'number' ? tickValue : parseFloat(tickValue);
-              if (val >= 1000) return '$' + (val / 1000).toFixed(1) + 'K';
-              if (val >= 1) return '$' + val.toFixed(2);
-              return '$' + val.toFixed(4);
-            },
+            callback: (v: any) => formatPrice(typeof v === 'number' ? v : parseFloat(v)),
           },
           border: { display: false },
         },
@@ -180,32 +163,19 @@ export class TokenChartComponent implements OnChanges {
 
   private buildCandlestick(): void {
     this.type = 'candlestick';
+    const totalCandles = this.data.length - 1;
 
     const ohlcData = this.generateOHLC(this.data);
-    const smaData = this.calculateSMA(this.data, 3);
 
     this.chartData = {
       datasets: [
         {
-          label: 'Price',
           data: ohlcData,
           borderColors: { up: '#22c55e', down: '#ef4444', unchanged: '#888888' },
           backgroundColors: { up: '#22c55e88', down: '#ef444488', unchanged: '#88888844' },
           borderWidth: 1,
-          barPercentage: this.showAxes ? 0.6 : 0.85,
-          categoryPercentage: this.showAxes ? 0.7 : 0.9,
-        } as any,
-        {
-          label: 'SMA 3',
-          type: 'line',
-          data: smaData.map((v, i) => ({ x: i, y: v })),
-          borderColor: '#ea801e',
-          borderWidth: 1.5,
-          borderDash: [4, 4],
-          pointRadius: 0,
-          pointHitRadius: 0,
-          fill: false,
-          tension: 0.3,
+          barPercentage: this.showAxes ? 0.3 : 0.5,
+          categoryPercentage: this.showAxes ? 0.5 : 0.7,
         } as any,
       ],
     };
@@ -218,13 +188,13 @@ export class TokenChartComponent implements OnChanges {
         ticks: {
           color: '#a0b4c0',
           font: { size: 10 },
-          count: 5,
+          count: this.showAxes && this.height <= 50 ? 3 : Math.min(totalCandles, 7),
           maxRotation: 0,
           padding: 4,
           callback: (tickValue: any) => {
             const i = typeof tickValue === 'number' ? tickValue : parseFloat(tickValue);
             if (i === 1) return 'Start';
-            if (i === this.data.length - 1) return 'Now';
+            if (i === totalCandles) return 'Now';
             return '';
           },
         },
@@ -236,15 +206,11 @@ export class TokenChartComponent implements OnChanges {
         grid: { color: '#1e2d3844', drawTicks: false },
         ticks: {
           color: '#a0b4c0',
-          font: { size: 10 },
-          padding: 4,
-          maxTicksLimit: 6,
-          callback: (tickValue: any) => {
-            const val = typeof tickValue === 'number' ? tickValue : parseFloat(tickValue);
-            if (val >= 1000) return '$' + (val / 1000).toFixed(1) + 'K';
-            if (val >= 1) return '$' + val.toFixed(2);
-            return '$' + val.toFixed(4);
-          },
+          font: { size: this.height <= 50 ? 8 : 10 },
+          padding: 2,
+          maxTicksLimit: this.height <= 50 ? 4 : 6,
+          autoSkip: true,
+          callback: (v: any) => formatPrice(typeof v === 'number' ? v : parseFloat(v)),
         },
         border: { display: false },
       },
@@ -256,27 +222,24 @@ export class TokenChartComponent implements OnChanges {
     this.chartOptions = {
       responsive: true,
       maintainAspectRatio: false,
-      animation: { duration: this.showAxes ? 400 : 0 },
+      animation: { duration: this.showAxes ? 300 : 0 },
       plugins: {
         legend: { display: false },
         tooltip: {
-          enabled: this.showAxes,
+          enabled: true,
           displayColors: false,
           backgroundColor: '#0f1a24',
           titleColor: '#a0b4c0',
           bodyColor: '#e8edf0',
           borderColor: '#1e2d38',
           borderWidth: 1,
-          padding: 10,
-          cornerRadius: 8,
+          padding: 8,
+          cornerRadius: 6,
           callbacks: {
             title: () => '',
             label: (ctx: any) => {
-              const d = ctx.parsed;
-              if (!d) return '';
-              const fmt = (v: number) =>
-                '$' + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
-              return `O:${fmt(d._custom?.o ?? d.o)}  H:${fmt(d._custom?.h ?? d.h)}  L:${fmt(d._custom?.l ?? d.l)}  C:${fmt(d._custom?.c ?? d.c)}`;
+              const d = ctx.parsed._custom || ctx.parsed;
+              return `Price: ${formatPrice(ctx.parsed.y)}  |  O:${formatPrice(d.o)}  H:${formatPrice(d.h)}  L:${formatPrice(d.l)}  C:${formatPrice(d.c)}`;
             },
           },
         },

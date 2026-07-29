@@ -87,11 +87,11 @@ describe('TokenChartComponent', () => {
     expect(component.chartOptions!.plugins!.tooltip!.enabled).toBe(true);
   });
 
-  it('should disable tooltips when showAxes is false', () => {
+  it('should keep tooltips enabled even when showAxes is false', () => {
     component.data = [1, 2, 3];
     component.showAxes = false;
     component.ngOnChanges({});
-    expect(component.chartOptions!.plugins!.tooltip!.enabled).toBe(false);
+    expect(component.chartOptions!.plugins!.tooltip!.enabled).toBe(true);
   });
 
   // Candlestick tests
@@ -144,15 +144,6 @@ describe('TokenChartComponent', () => {
     expect((component.chartOptions!.scales!['y'] as any).position).toBe('right');
   });
 
-  it('should include SMA overlay dataset for candlestick chart', () => {
-    component.data = [100, 102, 101, 99, 98, 100, 103];
-    component.chartType = 'candlestick';
-    component.ngOnChanges({});
-    expect(component.chartData!.datasets.length).toBe(2);
-    expect((component.chartData!.datasets[1] as any).label).toBe('SMA 3');
-    expect((component.chartData!.datasets[1] as any).type).toBe('line');
-  });
-
   it('should include crosshair plugin when showAxes is true', () => {
     component.data = [1, 2, 3];
     component.showAxes = true;
@@ -168,23 +159,30 @@ describe('TokenChartComponent', () => {
     expect(component.plugins.length).toBe(0);
   });
 
-  it('should use tight candle spacing for candlestick with axes', () => {
+  it('should use thin candle spacing for candlestick with axes', () => {
     component.data = [100, 101, 102, 99, 98];
     component.chartType = 'candlestick';
     component.showAxes = true;
     component.ngOnChanges({});
     const ds = component.chartData!.datasets[0] as any;
-    expect(ds.barPercentage).toBe(0.6);
-    expect(ds.categoryPercentage).toBe(0.7);
+    expect(ds.barPercentage).toBe(0.3);
+    expect(ds.categoryPercentage).toBe(0.5);
   });
 
-  it('should use tighter candle spacing for candlestick without axes', () => {
+  it('should use slightly wider candle spacing for candlestick without axes', () => {
     component.data = [100, 101, 102, 99, 98];
     component.chartType = 'candlestick';
     component.showAxes = false;
     component.ngOnChanges({});
     const ds = component.chartData!.datasets[0] as any;
-    expect(ds.barPercentage).toBe(0.85);
-    expect(ds.categoryPercentage).toBe(0.9);
+    expect(ds.barPercentage).toBe(0.5);
+    expect(ds.categoryPercentage).toBe(0.7);
+  });
+
+  it('should have only one dataset (no SMA overlay)', () => {
+    component.data = [100, 102, 101, 99, 98];
+    component.chartType = 'candlestick';
+    component.ngOnChanges({});
+    expect(component.chartData!.datasets.length).toBe(1);
   });
 });

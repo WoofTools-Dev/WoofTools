@@ -35,7 +35,7 @@
                 <div class="main-chart-body">
                     <token-chart
                         [data]="selectedPair.previousPrices || []"
-                        [height]="220"
+                        [height]="160"
                         [showAxes]="true"
                         [chartType]="'candlestick'">
                     </token-chart>
@@ -124,7 +124,7 @@
                             <div class="sparkline-row">
                                 <token-chart
                                     [data]="item.previousPrices || []"
-                                    [height]="60"
+                                    [height]="40"
                                     [showAxes]="false"
                                     [chartType]="'candlestick'">
                                 </token-chart>
