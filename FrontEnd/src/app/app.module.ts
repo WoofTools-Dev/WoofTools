@@ -23,7 +23,8 @@ import { BigSwapExplorerComponent } from './app/big-swap-explorer/big-swap-explo
 import { TokenChartComponent } from './app/chart/chart.component';
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
-Chart.register(...registerables);
+import { CandlestickController, CandlestickElement } from 'chartjs-chart-financial';
+Chart.register(...registerables, CandlestickController, CandlestickElement);
 @NgModule({
   declarations: [AppComponent, DashboardComponent, WalletConnectComponent, AppLayoutComponent, SwapComponent, SwapWrapperComponent, TimeCounterComponent, LivePairsComponent, BigSwapExplorerComponent, TokenChartComponent],
   imports: [

@@ -9,14 +9,14 @@
                 <span class="search-count">
                     {{ filteredRankings1.length + filteredRankings2.length }} rankings ·
                     {{ filteredHotPairs.length }} hot pairs ·
-                    {{ dataSource.filteredData?.length || 0 }} table rows
+                    {{ dataSource.filteredData.length || 0 }} table rows
                 </span>
             </div>
 
             <div class="main-chart-section" *ngIf="selectedPair">
                 <div class="main-chart-header">
                     <div class="main-chart-title">
-                        <img [src]="getTokenIcon(selectedPair.pairName)" width="24" height="24" alt="">
+                        <img [src]="getTokenIcon(selectedPair.pairName)" (error)="handleImgError($event)" width="24" height="24" alt="">
                         <span>{{ selectedPair.pairName }}</span>
                         <span class="main-chart-price">${{ selectedPair.price || 0 }}</span>
                         <span class="main-chart-change" [class.text-success]="(selectedPair.growthPercentage || 0) >= 0" [class.text-danger]="(selectedPair.growthPercentage || 0) < 0">
@@ -36,7 +36,8 @@
                     <token-chart
                         [data]="selectedPair.previousPrices || []"
                         [height]="220"
-                        [showAxes]="true">
+                        [showAxes]="true"
+                        [chartType]="'candlestick'">
                     </token-chart>
                 </div>
             </div>
@@ -49,7 +50,7 @@
                                 <div class="list-items-custom">
                                     <div class="list-item-left">
                                         <div class="number-tag" [class.active]="i === 0">#{{ item.rank }}</div>
-                                        <img [src]="getTokenIcon(item.name)" width="20" height="20" alt="">
+                                        <img [src]="getTokenIcon(item.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
                                         <p>{{ item.name }}</p>
                                     </div>
                                     <div class="list-item-right">
@@ -69,7 +70,7 @@
                                 <div class="list-items-custom">
                                     <div class="list-item-left">
                                         <div class="number-tag" [class.active]="i === 5">#{{ item.rank }}</div>
-                                        <img [src]="getTokenIcon(item.name)" width="20" height="20" alt="">
+                                        <img [src]="getTokenIcon(item.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
                                         <p>{{ item.name }}</p>
                                     </div>
                                     <div class="list-item-right">
@@ -89,7 +90,7 @@
                                 <div class="list-items-custom">
                                     <div class="list-item-left">
                                         <div class="number-tag" [class.active]="i === 0">#{{ i + 1 }}</div>
-                                        <img [src]="getTokenIcon(item.pairName.split('/')[0])" width="20" height="20" alt="">
+                                        <img [src]="getTokenIcon(item.pairName.split('/')[0])" (error)="handleImgError($event)" width="20" height="20" alt="">
                                         <p>{{ item.pairName }}</p>
                                     </div>
                                     <div class="list-item-right">
@@ -112,7 +113,7 @@
                             <div class="list-items-custom">
                                 <div class="list-item-left">
                                     <div class="number-tag" [class.active]="i < 5">#{{ i + 1 }}</div>
-                                    <img [src]="getTokenIcon(item.pairName)" width="20" height="20" alt="">
+                                    <img [src]="getTokenIcon(item.pairName)" (error)="handleImgError($event)" width="20" height="20" alt="">
                                     <p>{{ item.pairName }}</p>
                                 </div>
                                 <div class="list-item-right">
@@ -123,8 +124,9 @@
                             <div class="sparkline-row">
                                 <token-chart
                                     [data]="item.previousPrices || []"
-                                    [height]="36"
-                                    [showAxes]="false">
+                                    [height]="60"
+                                    [showAxes]="false"
+                                    [chartType]="'candlestick'">
                                 </token-chart>
                             </div>
                         </div>
@@ -142,7 +144,7 @@
                           <td mat-cell *matCellDef="let element">
                               <div class="pair-info">
                                     <div class="pair-info-inner">
-                                        <img [src]="getTokenIcon(element.pairInfo.token0Name)" class="token-logo" width="32" height="32" alt="">
+                                        <img [src]="getTokenIcon(element.pairInfo.token0Name)" (error)="handleImgError($event)" class="token-logo" width="32" height="32" alt="">
                                         <img src="../../../assets/uniswap.png" width="16" height="16" alt="dex">
                                     </div>
                                   <div>

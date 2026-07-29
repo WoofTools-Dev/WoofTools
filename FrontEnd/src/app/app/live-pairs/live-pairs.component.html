@@ -25,7 +25,7 @@
                             <td mat-cell *matCellDef="let element">
                                 <div class="pair-info">
                                     <div class="pair-info-inner">
-                                        <img [src]="getTokenIcon(element.pairInfo.token0Name)" class="token-logo" width="32" height="32" alt="">
+                                        <img [src]="getTokenIcon(element.pairInfo.token0Name)" (error)="handleImgError($event)" class="token-logo" width="32" height="32" alt="">
                                         <img src="../../../assets/uniswap.png" width="16" height="16" alt="dex">
                                     </div>
                                     <div>

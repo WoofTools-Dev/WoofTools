@@ -175,8 +175,7 @@ p {
 
 /* Sparkline in hot pair cards */
 .sparkline-row {
-  padding: 0 12px 4px;
-  opacity: 0.8;
+  padding: 4px 12px 4px;
   width: 100%;
   overflow: hidden;
 }

@@ -26,6 +26,7 @@
     "@swimlane/ngx-datatable": "^20.1.0",
     "bootstrap": "^5.2.3",
     "chart.js": "^4.5.1",
+    "chartjs-chart-financial": "^0.2.1",
     "ethers": "^6.9.0",
     "ng2-charts": "^4.1.1",
     "react": "^18.2.0",

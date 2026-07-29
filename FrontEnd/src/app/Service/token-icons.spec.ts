@@ -51,6 +51,11 @@ describe('getTokenIcon', () => {
       'ETH', 'USDC', 'PEPE', 'LINK', 'USDT', 'UNI', 'AAVE',
       'MATIC', 'SHIB', 'ARB', 'BONK', 'DOGE', 'FLOKI', 'OP', 'INJ',
       'RBN', 'MKR', 'CRV', 'ENS', 'COMP',
+      'WBTC', 'SOL', 'AVAX', 'ADA', 'DOT', 'GALA', 'CAKE', 'AXS',
+      'CHZ', 'ICP', 'FIL', 'VET', 'THETA', 'EOS', 'EGLD', 'FLOW',
+      'ALGO', 'HBAR', 'XTZ', 'STX', 'CRO', 'KAS', 'RUNE', 'FET',
+      'AGIX', 'WLD', 'SUI', 'SEI', 'TIA', 'BEAM', 'PENDLE', 'ONDO',
+      'LDO', 'FTM', 'SAND', 'MANA', 'ATOM', 'NEAR', 'APE',
     ];
     knownTokens.forEach(token => {
       expect(getTokenIcon(token)).toBe(`assets/coins/${token}.png`);

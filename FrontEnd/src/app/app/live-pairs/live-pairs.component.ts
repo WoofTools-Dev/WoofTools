@@ -133,4 +133,8 @@ export class LivePairsComponent implements OnInit, AfterViewInit, OnDestroy {
   getTokenIcon(name: string): string {
     return getTokenIcon(name);
   }
+
+  handleImgError(event: Event) {
+    (event.target as HTMLImageElement).src = 'assets/coins/ETH.png';
+  }
 }

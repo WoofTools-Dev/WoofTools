@@ -200,6 +200,10 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     return getTokenIcon(name);
   }
 
+  handleImgError(event: Event) {
+    (event.target as HTMLImageElement).src = 'assets/coins/ETH.png';
+  }
+
   generateAvatarInitials(name: string): string {
     const nameParts = name.split(' ');
     const initials = nameParts.map(part => part.charAt(0)).join('').toUpperCase();

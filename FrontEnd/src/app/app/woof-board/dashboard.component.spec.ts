@@ -8,8 +8,9 @@ import { MatTableModule } from '@angular/material/table';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NgChartsModule } from 'ng2-charts';
 import { Chart, registerables } from 'chart.js';
+import { CandlestickController, CandlestickElement } from 'chartjs-chart-financial';
 
-Chart.register(...registerables);
+Chart.register(...registerables, CandlestickController, CandlestickElement);
 
 import { DashboardComponent } from './dashboard.component';
 import { TokenChartComponent } from '../chart/chart.component';

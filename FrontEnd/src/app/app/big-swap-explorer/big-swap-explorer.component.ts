@@ -113,4 +113,8 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit {
   getTokenIcon(name: string): string {
     return getTokenIcon(name);
   }
+
+  handleImgError(event: Event) {
+    (event.target as HTMLImageElement).src = 'assets/coins/ETH.png';
+  }
 }
