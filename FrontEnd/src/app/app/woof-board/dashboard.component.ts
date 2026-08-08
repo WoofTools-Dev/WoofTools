@@ -1,12 +1,22 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
+import { forkJoin, Subscription } from 'rxjs';
 import { ApiService } from 'src/app/Service/api.service';
-import { DashboardData, HotPair } from 'src/app/Interface/api.interfaces';
+import {
+  DashboardData,
+  HotPair,
+  DailyWinner,
+  DailyLoser,
+  UpdatedRRSS,
+} from 'src/app/Interface/api.interfaces';
 import { getTokenIcon } from 'src/app/Service/token-icons';
 import { SearchService } from 'src/app/Service/search.service';
+import { ChainService } from 'src/app/Service/chain.service';
+import { ChainMeta } from 'src/app/Service/chain.constants';
+import { generateTimes } from 'src/app/charts/price-times';
 
 export interface TokenInfo {
   pairInfo: {
@@ -29,12 +39,22 @@ export interface TokenInfo {
   actions: string[];
 }
 
-export interface RankingItem {
+export interface RankRow {
   rank: number;
   name: string;
-  price: string;
+  price: number;
   percentage: number;
   isPositive: boolean;
+  previousPrices: number[];
+  previousTimes: number[];
+}
+
+export interface ChartSelectable {
+  name: string;
+  price: number;
+  growthPercentage: number;
+  previousPrices: number[];
+  previousTimes: number[];
 }
 
 @Component({
@@ -42,31 +62,45 @@ export interface RankingItem {
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
 })
-export class DashboardComponent implements OnInit, AfterViewInit {
+export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   tokensList: TokenInfo[] = [];
   dataSource = new MatTableDataSource<TokenInfo>([]);
   dataLoaded = false;
 
-  rankings: RankingItem[] = [];
+  winners: RankRow[] = [];
+  losers: RankRow[] = [];
+  updatedRows: RankRow[] = [];
   hotPairsList: HotPair[] = [];
+  filteredWinners: RankRow[] = [];
+  filteredLosers: RankRow[] = [];
+  filteredUpdated: RankRow[] = [];
   filteredHotPairs: HotPair[] = [];
-  filteredRankings1: RankingItem[] = [];
-  filteredRankings2: RankingItem[] = [];
-  selectedPair: HotPair | null = null;
+  selectedPair: ChartSelectable | null = null;
   searchQuery = '';
-  allRankings: RankingItem[] = [];
+
+  activeChainMeta: ChainMeta;
+  private chainSub: Subscription | null = null;
+  private searchSub: Subscription | null = null;
 
   constructor(
     private router: Router,
     private api: ApiService,
-    private searchService: SearchService
-  ) {}
+    private searchService: SearchService,
+    private chainService: ChainService
+  ) {
+    this.activeChainMeta = this.chainService.getActiveChainMeta();
+  }
 
   displayedColumns = [
     'pairInfo', 'price', 'percentage24H', 'score',
     'contracts', 'created', 'volume', 'swaps',
     'liquidity', 'TMCap', 'Dex', 'actions',
   ];
+
+  rankingColumns = ['rank', 'name', 'price', 'change'];
+
+  pageSize = 15;
+  pageSizeOptions = [5, 10, 15, 25, 50, 100];
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -80,66 +114,12 @@ export class DashboardComponent implements OnInit, AfterViewInit {
         data.price.toLowerCase().includes(s);
     };
 
-    this.api.getDashboardData().subscribe({
-      next: (data: DashboardData[]) => {
-        const sorted = [...data].sort((a, b) => b.score - a.score);
-        this.allRankings = sorted.slice(0, 10).map((item, i) => ({
-          rank: i + 1,
-          name: item.token0Name,
-          price: `$${item.price}`,
-          percentage: item.percentage24H,
-          isPositive: item.percentage24H >= 0,
-        }));
-        this.rankings = this.allRankings;
-        this.updateRankingsDisplay();
-
-        this.tokensList = data.map((item) => ({
-          pairInfo: {
-            swapIcon: '',
-            chainIcon: '',
-            token0Name: item.token0Name,
-            token1Name: item.token1Name,
-            pairAddress: item.pairAddress,
-          },
-          price: `$${item.price}`,
-          percentage24H: item.percentage24H,
-          score: item.score,
-          contracts: item.contracts,
-          created: item.created,
-          volume: item.volume,
-          swaps: item.swaps,
-          liquidity: item.liquidity,
-          TMCap: item.marketCap,
-          Dex: item.dex,
-          actions: [],
-        }));
-        this.dataSource.data = this.tokensList;
-        this.dataLoaded = true;
-        this.applySortAndPaginator();
-        this.applySearchFilter();
-      },
-      error: () => {
-        this.dataLoaded = true;
-        this.dataSource.data = [];
-        this.applySortAndPaginator();
-      },
+    this.chainSub = this.chainService.chain$.subscribe((chain) => {
+      this.activeChainMeta = this.chainService.getActiveChainMeta();
+      this.loadData(chain);
     });
 
-    this.api.getHotPairs().subscribe({
-      next: (data: HotPair[]) => {
-        this.hotPairsList = data;
-        this.filteredHotPairs = [...data];
-        if (data.length > 0 && !this.selectedPair) {
-          this.selectedPair = data[0];
-        }
-      },
-      error: () => {
-        this.hotPairsList = [];
-        this.filteredHotPairs = [];
-      },
-    });
-
-    this.searchService.query$.subscribe(q => {
+    this.searchSub = this.searchService.query$.subscribe(q => {
       if (q !== undefined) {
         this.searchQuery = q.trim().toLowerCase();
         this.applySearchFilter();
@@ -147,8 +127,148 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     });
   }
 
-  selectPair(pair: HotPair) {
-    this.selectedPair = pair;
+  private loadData(chain: string) {
+    forkJoin({
+      dashboard: this.api.getDashboardData(chain),
+      hotPairs: this.api.getHotPairs(chain),
+      winners: this.api.getDailyWinners(chain),
+      losers: this.api.getDailyLosers(chain),
+      updated: this.api.getUpdatedRRSS(chain),
+    }).subscribe({
+      next: ({ dashboard, hotPairs, winners, losers, updated }) => {
+        this.buildMainTable(dashboard);
+
+        this.winners = winners.map((w, i) => this.toRankRow(w.username, w.price, w.growthPercentage, w.previousPrices, w.previousTimes, i));
+        this.losers = losers.map((l, i) => this.toRankRow(l.username, l.price, l.growthPercentage, l.previousPrices, l.previousTimes, i));
+        this.updatedRows = updated.map((u, i) => this.toRankRow(u.profileName, u.price, u.growthPercentage, u.previousPrices, u.previousTimes, i));
+        this.hotPairsList = hotPairs;
+
+        this.dataLoaded = true;
+        this.applySortAndPaginator();
+        this.applySearchFilter();
+
+        if (!this.selectedPair) {
+          if (this.winners.length > 0) {
+            this.selectRow(this.winners[0]);
+          } else if (hotPairs.length > 0) {
+            this.selectHotPair(hotPairs[0]);
+          }
+        }
+      },
+      error: () => {
+        this.dataLoaded = true;
+        this.dataSource.data = [];
+        this.winners = [];
+        this.losers = [];
+        this.updatedRows = [];
+        this.hotPairsList = [];
+        this.applySortAndPaginator();
+        this.applySearchFilter();
+      },
+    });
+  }
+
+  private buildMainTable(data: DashboardData[]) {
+    this.tokensList = data.map((item) => ({
+      pairInfo: {
+        swapIcon: this.activeChainMeta.dexIcon,
+        chainIcon: this.activeChainMeta.icon,
+        token0Name: item.token0Name,
+        token1Name: item.token1Name,
+        pairAddress: item.pairAddress,
+      },
+      price: `$${item.price}`,
+      percentage24H: item.percentage24H,
+      score: item.score,
+      contracts: item.contracts,
+      created: item.created,
+      volume: item.volume,
+      swaps: item.swaps,
+      liquidity: item.liquidity,
+      TMCap: item.marketCap,
+      Dex: item.dex,
+      actions: [],
+    }));
+    this.dataSource.data = this.tokensList;
+  }
+
+  private toRankRow(name: string, price: number | undefined, growth: number | undefined, previousPrices: number[], previousTimes: number[] | undefined, index: number): RankRow {
+    const safePrice = price ?? 0;
+    const safeGrowth = growth ?? 0;
+    const prices = previousPrices && previousPrices.length >= 2
+      ? previousPrices
+      : this.generatePrices(safePrice);
+    return {
+      rank: index + 1,
+      name: name || '—',
+      price: safePrice,
+      percentage: safeGrowth,
+      isPositive: safeGrowth >= 0,
+      previousPrices: prices,
+      previousTimes: previousTimes && previousTimes.length === prices.length
+        ? previousTimes
+        : generateTimes(prices.length),
+    };
+  }
+
+  private generatePrices(price: number): number[] {
+    const base = price > 0 ? price : 1;
+    const prices: number[] = [];
+    let v = base * 0.92;
+    for (let i = 0; i < 36; i++) {
+      v = v * (1 + (Math.random() - 0.48) * 0.03);
+      prices.push(parseFloat(v.toFixed(8)));
+    }
+    prices.push(base);
+    return prices;
+  }
+
+  private generatePricesWithTimes(price: number): { prices: number[]; times: number[] } {
+    const prices = this.generatePrices(price);
+    return { prices, times: generateTimes(prices.length) };
+  }
+
+  ngOnDestroy(): void {
+    this.chainSub?.unsubscribe();
+    this.searchSub?.unsubscribe();
+  }
+
+  selectRow(row: RankRow) {
+    this.selectedPair = {
+      name: row.name,
+      price: row.price,
+      growthPercentage: row.percentage,
+      previousPrices: row.previousPrices,
+      previousTimes: row.previousTimes,
+    };
+  }
+
+  selectMainRow(element: TokenInfo) {
+    const price = parseFloat(element.price.replace(/[$,]/g, '')) || 0;
+    const { prices, times } = this.generatePricesWithTimes(price);
+    this.selectedPair = {
+      name: `${element.pairInfo.token0Name} / ${element.pairInfo.token1Name}`,
+      price,
+      growthPercentage: element.percentage24H,
+      previousPrices: prices,
+      previousTimes: times,
+    };
+  }
+
+  selectHotPair(pair: HotPair) {
+    const fallback = this.generatePricesWithTimes(pair.price ?? 0);
+    const prices = pair.previousPrices && pair.previousPrices.length >= 2
+      ? pair.previousPrices
+      : fallback.prices;
+    this.selectedPair = {
+      name: pair.pairName,
+      price: pair.price ?? 0,
+      growthPercentage: pair.growthPercentage ?? 0,
+      previousPrices: prices,
+      previousTimes: pair.previousTimes && pair.previousTimes.length === prices.length
+        ? pair.previousTimes
+        : fallback.times,
+    };
   }
 
   ngAfterViewInit() {
@@ -163,11 +283,58 @@ export class DashboardComponent implements OnInit, AfterViewInit {
     }
   }
 
-  private applySortAndPaginator() {
-    if (this.dataSource && this.sort && this.paginator) {
-      this.dataSource.sort = this.sort;
-      this.dataSource.paginator = this.paginator;
+  get currentPage(): number {
+    return this.dataSource.paginator ? this.dataSource.paginator.pageIndex + 1 : 1;
+  }
+
+  get totalPages(): number {
+    const p = this.dataSource.paginator;
+    if (!p || p.length === 0) return 1;
+    return Math.max(1, Math.ceil(p.length / p.pageSize));
+  }
+
+  canPrevPage(): boolean {
+    return this.dataSource.paginator ? (this.dataSource.paginator as MatPaginator).hasPreviousPage() : false;
+  }
+
+  canNextPage(): boolean {
+    return this.dataSource.paginator ? (this.dataSource.paginator as MatPaginator).hasNextPage() : false;
+  }
+
+  setPageSize(size: number) {
+    this.pageSize = size;
+    if (this.dataSource.paginator) {
+      (this.dataSource.paginator as MatPaginator)._changePageSize(size);
     }
+  }
+
+  firstPage() {
+    this.dataSource.paginator?.firstPage();
+  }
+
+  prevPage() {
+    (this.dataSource.paginator as MatPaginator)?.previousPage();
+  }
+
+  nextPage() {
+    (this.dataSource.paginator as MatPaginator)?.nextPage();
+  }
+
+  lastPage() {
+    this.dataSource.paginator?.lastPage();
+  }
+
+  private applySortAndPaginator() {
+    if (this.dataSource && this.paginator) {
+      this.dataSource.paginator = this.paginator;
+      if (this.sort) {
+        this.dataSource.sort = this.sort;
+      }
+    }
+  }
+
+  private matches(query: string, value: string): boolean {
+    return value.toLowerCase().includes(query);
   }
 
   private applySearchFilter() {
@@ -176,24 +343,19 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       this.dataSource.paginator.firstPage();
     }
 
-    if (this.searchQuery) {
-      this.filteredHotPairs = this.hotPairsList.filter(p =>
-        p.pairName.toLowerCase().includes(this.searchQuery)
-      );
-    } else {
-      this.filteredHotPairs = [...this.hotPairsList];
-    }
-
-    this.updateRankingsDisplay();
-  }
-
-  private updateRankingsDisplay() {
-    const source = this.searchQuery
-      ? this.allRankings.filter(r => r.name.toLowerCase().includes(this.searchQuery))
-      : this.allRankings;
-    this.filteredRankings1 = source.slice(0, 5);
-    this.filteredRankings2 = source.slice(5, 10);
-    this.rankings = source;
+    const q = this.searchQuery;
+    this.filteredWinners = q
+      ? this.winners.filter(r => this.matches(q, r.name))
+      : [...this.winners];
+    this.filteredLosers = q
+      ? this.losers.filter(r => this.matches(q, r.name))
+      : [...this.losers];
+    this.filteredUpdated = q
+      ? this.updatedRows.filter(r => this.matches(q, r.name))
+      : [...this.updatedRows];
+    this.filteredHotPairs = q
+      ? this.hotPairsList.filter(p => this.matches(q, p.pairName))
+      : [...this.hotPairsList];
   }
 
   getTokenIcon(name: string): string {
@@ -202,12 +364,6 @@ export class DashboardComponent implements OnInit, AfterViewInit {
 
   handleImgError(event: Event) {
     (event.target as HTMLImageElement).src = 'assets/coins/ETH.png';
-  }
-
-  generateAvatarInitials(name: string): string {
-    const nameParts = name.split(' ');
-    const initials = nameParts.map(part => part.charAt(0)).join('').toUpperCase();
-    return initials;
   }
 
   getTimeElapsed(dateTime: string): string {

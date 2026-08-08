@@ -31,7 +31,7 @@ describe('ApiService', () => {
       pairAddress: '0x123', price: 1.5, percentage24H: 5.2,
       score: 90, contracts: '0xabc', created: new Date().toISOString(),
       volume: '1M', swaps: '100', liquidity: '500K', marketCap: '10M',
-      dex: ['uniswap'], createdAt: new Date().toISOString(),
+      dex: ['uniswap'], chain: 'ethereum', createdAt: new Date().toISOString(),
     }];
 
     service.getDashboardData().subscribe(data => {
@@ -43,6 +43,14 @@ describe('ApiService', () => {
     req.flush(mockData);
   });
 
+  it('should fetch dashboard data filtered by chain', () => {
+    service.getDashboardData('shibarium').subscribe(() => {});
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/dashboard/data?chain=shibarium`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
   it('should fetch live pairs via GET', () => {
     const mockData: LivePair[] = [{
       id: 1, token0Name: 'WOOF', token1Name: 'SHIB',
@@ -50,7 +58,7 @@ describe('ApiService', () => {
       tokenPriceUSD: 0.001, initialLiquidity: '1 ETH',
       totalLiquidity: '50%', poolAmount: '2 ETH',
       poolVariation: 25, poolRemaining: '3 ETH',
-      contract: '0xdef', createdAt: new Date().toISOString(),
+      contract: '0xdef', chain: 'ethereum', createdAt: new Date().toISOString(),
     }];
 
     service.getLivePairs().subscribe(data => {
@@ -62,13 +70,21 @@ describe('ApiService', () => {
     req.flush(mockData);
   });
 
+  it('should fetch live pairs filtered by chain', () => {
+    service.getLivePairs('shibarium').subscribe(() => {});
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/live-pairs?chain=shibarium`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
   it('should fetch swaps via GET', () => {
     const mockData: SwapTransaction[] = [{
       id: 1, token0Name: 'WOOF', token1Name: 'SHIB',
       pairAddress: '0x789', executionTime: new Date().toISOString(),
       type: 'BUY', quantity: 1000, totalETH: 2.5,
       totalUSD: 5000, variation: 5.5, maker: '0xmkr',
-      createdAt: new Date().toISOString(),
+      chain: 'ethereum', createdAt: new Date().toISOString(),
     }];
 
     service.getSwaps().subscribe(data => {
@@ -78,6 +94,14 @@ describe('ApiService', () => {
     const req = httpMock.expectOne(`${environment.apiUrl}/api/swaps`);
     expect(req.request.method).toBe('GET');
     req.flush(mockData);
+  });
+
+  it('should fetch swaps filtered by chain', () => {
+    service.getSwaps('shibarium').subscribe(() => {});
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/swaps?chain=shibarium`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
   });
 
   it('should handle HTTP errors', () => {

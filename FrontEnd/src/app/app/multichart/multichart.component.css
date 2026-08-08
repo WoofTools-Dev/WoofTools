@@ -1,0 +1,153 @@
+.mc-root {
+  padding: 0 0 24px 0;
+}
+
+.logo-img {
+  display: block;
+  margin: 0 auto 12px;
+  max-width: 280px;
+}
+
+.heading-primary {
+  display: flex;
+  justify-content: flex-start;
+  text-transform: none;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-size: 1.25rem;
+}
+
+.subtitle-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ether {
+  color: var(--text-primary);
+  font-family: Poppins, Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 16px;
+}
+
+.ether span {
+  color: var(--primary);
+}
+
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.chart-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.token-logo {
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.chart-pair {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-primary);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chart-growth {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.chart-growth.up {
+  color: #22c55e;
+  background-color: rgba(34, 197, 94, 0.15);
+}
+
+.chart-growth.down {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.15);
+}
+
+.chart-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pop-label {
+  font-size: 10px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pop-bar {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background-color: var(--bg-hover);
+  overflow: hidden;
+}
+
+.pop-fill {
+  display: block;
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: 3px;
+}
+
+.pop-value {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.empty-state {
+  margin-top: 24px;
+  padding: 32px;
+  text-align: center;
+  color: var(--text-secondary);
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+@media (max-width: 768px) {
+  .heading-primary {
+    font-size: 1.1rem;
+  }
+
+  .charts-grid {
+    grid-template-columns: 1fr;
+  }
+}

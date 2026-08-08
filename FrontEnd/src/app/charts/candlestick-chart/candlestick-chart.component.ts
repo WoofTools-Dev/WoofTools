@@ -13,6 +13,7 @@ import { Candle } from '../candle.interfaces';
 })
 export class CandlestickChartComponent implements AfterViewInit, OnDestroy, OnChanges {
   @Input() data: number[] = [];
+  @Input() times: number[] = [];
   @Input() height: number = 160;
 
   @ViewChild('chartContainer') containerRef!: ElementRef<HTMLDivElement>;
@@ -35,9 +36,16 @@ export class CandlestickChartComponent implements AfterViewInit, OnDestroy, OnCh
     this.setupResizeObserver();
   }
 
+  private get hasTimes(): boolean {
+    return !!this.times
+      && this.times.length === this.data.length
+      && this.data.length > 1
+      && this.times.every((t, i) => typeof t === 'number' && (i === 0 || this.times[i - 1] < t));
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['data']) {
-      this.candles = this.dataService.priceArrayToCandles(this.data || [], '1h');
+    if (changes['data'] || changes['times']) {
+      this.candles = this.dataService.priceArrayToCandles(this.data || [], '1h', this.times || []);
       if (this.initialized) {
         this.updateChartData();
       }
@@ -74,7 +82,7 @@ export class CandlestickChartComponent implements AfterViewInit, OnDestroy, OnCh
           color: '#ea801e55',
           width: 1,
           style: 2,
-          labelBackgroundColor: '#ea801e',
+          labelVisible: false,
         },
         horzLine: {
           color: '#ea801e55',
@@ -89,10 +97,11 @@ export class CandlestickChartComponent implements AfterViewInit, OnDestroy, OnCh
       },
       timeScale: {
         borderColor: '#1e2d38',
-        timeVisible: true,
+        timeVisible: false,
         secondsVisible: false,
         barSpacing: 3,
         minBarSpacing: 2,
+        tickMarkFormatter: () => '',
       },
       handleScroll: { vertTouchDrag: false },
     });
@@ -139,7 +148,28 @@ export class CandlestickChartComponent implements AfterViewInit, OnDestroy, OnCh
 
     this.candleSeries.setData(candleData);
     this.volumeSeries.setData(volumeData);
-    this.chart?.timeScale().fitContent();
+
+    const hasTimes = this.hasTimes;
+    this.chart?.timeScale().applyOptions({
+      timeVisible: hasTimes,
+      secondsVisible: hasTimes,
+      tickMarkFormatter: hasTimes
+        ? (time: number) => {
+            const d = new Date(time * 1000);
+            const hh = String(d.getHours()).padStart(2, '0');
+            const mm = String(d.getMinutes()).padStart(2, '0');
+            return `${hh}:${mm}`;
+          }
+        : () => '',
+    } as any);
+
+    const len = this.candles.length;
+    const minVisible = 40;
+    if (len > minVisible) {
+      this.chart?.timeScale().setVisibleLogicalRange({ from: len - minVisible, to: len });
+    } else {
+      this.chart?.timeScale().fitContent();
+    }
   }
 
   private onCrosshairMove(param: any): void {
@@ -167,11 +197,16 @@ export class CandlestickChartComponent implements AfterViewInit, OnDestroy, OnCh
 
     const candleIdx = this.candles.findIndex(c => c.time === (param.time as number)) + 1;
 
+    const hasTimes = this.hasTimes;
+    const timeLabel = hasTimes && candleIdx > 0
+      ? new Date((param.time as number) * 1000).toLocaleString()
+      : `Vela #${candleIdx > 0 ? candleIdx : '?'}`;
+
     const fmt = (v: number) =>
       '$' + v.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 6 });
 
     tooltip.innerHTML = `
-      <div class="tooltip-time">Vela #${candleIdx > 0 ? candleIdx : '?'}</div>
+      <div class="tooltip-time">${timeLabel}</div>
       <div class="tooltip-row">
         <span>O</span><span class="val">${fmt(o)}</span>
         <span>H</span><span class="val">${fmt(h)}</span>

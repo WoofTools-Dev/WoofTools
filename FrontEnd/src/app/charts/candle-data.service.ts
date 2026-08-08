@@ -49,17 +49,21 @@ export class CandleDataService {
     return candles;
   }
 
-  priceArrayToCandles(prices: number[], interval: CandleInterval = '1h'): Candle[] {
+  priceArrayToCandles(prices: number[], interval: CandleInterval = '1h', times?: number[]): Candle[] {
     if (!prices || prices.length < 2) return [];
     const intervalSec = this.intervalToSeconds(interval);
     const now = Math.floor(Date.now() / 1000);
     const startTime = now - (prices.length - 1) * intervalSec;
 
+    const useTimes = Array.isArray(times)
+      && times.length === prices.length
+      && times.every((t, i) => typeof t === 'number' && (i === 0 || times[i - 1] < t));
+
     return prices.slice(1).map((close, i) => {
       const open = prices[i];
       const change = Math.abs(close - open);
       return {
-        time: startTime + (i + 1) * intervalSec,
+        time: useTimes ? times[i + 1] : startTime + (i + 1) * intervalSec,
         open,
         high: Math.max(open, close) * 1.005,
         low: Math.min(open, close) * 0.995,

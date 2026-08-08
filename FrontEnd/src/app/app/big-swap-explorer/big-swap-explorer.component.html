@@ -16,7 +16,43 @@
               >
             </div>
 
+            <div class="selected-chart-section chart-reveal" *ngIf="selectedPair">
+                <div class="selected-chart-header">
+                    <div class="selected-chart-title">
+                        <img [src]="getTokenIcon(selectedPair.name)" (error)="handleImgError($event)" width="24" height="24" alt="">
+                        <span>{{ selectedPair.name }}</span>
+                        <span class="selected-chart-price">${{ selectedPair.price | number: '1.2-8' }}</span>
+                        <span class="selected-chart-change" [class.text-success]="selectedPair.growthPercentage >= 0" [class.text-danger]="selectedPair.growthPercentage < 0">
+                            {{ selectedPair.growthPercentage >= 0 ? '+' : '' }}{{ selectedPair.growthPercentage | number: '1.2-2' }}%
+                        </span>
+                    </div>
+                </div>
+                <div class="selected-chart-body">
+                    <candlestick-chart
+                        [data]="selectedPair.previousPrices || []"
+                        [times]="selectedPair.previousTimes || []"
+                        [height]="160">
+                    </candlestick-chart>
+                </div>
+            </div>
+
             <div class="section-gap table-container">
+                <div class="table-toolbar">
+                    <div class="page-size-filter">
+                        <span class="page-size-label">Per page:</span>
+                        <button *ngFor="let size of pageSizeOptions"
+                                class="page-size-btn"
+                                [class.active]="size === pageSize"
+                                (click)="setPageSize(size)">{{ size }}</button>
+                    </div>
+                    <div class="page-nav">
+                        <button class="page-nav-btn" (click)="firstPage()" [disabled]="!canPrevPage()">«</button>
+                        <button class="page-nav-btn" (click)="prevPage()" [disabled]="!canPrevPage()">‹</button>
+                        <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+                        <button class="page-nav-btn" (click)="nextPage()" [disabled]="!canNextPage()">›</button>
+                        <button class="page-nav-btn" (click)="lastPage()" [disabled]="!canNextPage()">»</button>
+                    </div>
+                </div>
                 <div class="table-scroll">
                     <table mat-table [dataSource]="dataSource">
 
@@ -97,10 +133,10 @@
                         </ng-container>
 
                         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="clickable-row" (click)="selectPair(row)"></tr>
                     </table>
                 </div>
-                <mat-paginator [pageSize]="15" [pageSizeOptions]="[5, 10, 15, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+                <mat-paginator class="hidden-paginator" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons></mat-paginator>
             </div>
 
         </div>

@@ -185,4 +185,51 @@ describe('TokenChartComponent', () => {
     component.ngOnChanges({});
     expect(component.chartData!.datasets.length).toBe(1);
   });
+
+  // Timestamp tests
+  it('should use formatted first timestamp label when times are provided', () => {
+    component.data = [1, 2, 3, 4, 5];
+    component.times = [1700000000, 1700003600, 1700007200, 1700010800, 1700014400];
+    component.ngOnChanges({});
+    const labels = component.chartData!.labels as string[];
+    expect(labels[0]).not.toBe('Start');
+    expect(labels[labels.length - 1]).toBe('Now');
+  });
+
+  it('should keep Start/Now labels when times are not provided', () => {
+    component.data = [1, 2, 3, 4, 5];
+    component.ngOnChanges({});
+    const labels = component.chartData!.labels as string[];
+    expect(labels[0]).toBe('Start');
+    expect(labels[labels.length - 1]).toBe('Now');
+  });
+
+  it('should use timestamps as candlestick x values when provided', () => {
+    component.data = [100, 101, 102];
+    component.times = [1700000000, 1700003600, 1700007200];
+    component.chartType = 'candlestick';
+    component.ngOnChanges({});
+    const points = component.chartData!.datasets[0].data as any[];
+    expect(points.length).toBe(2);
+    expect(points[0].x).toBe(1700003600);
+    expect(points[1].x).toBe(1700007200);
+  });
+
+  it('should use index-based x values when times are not provided', () => {
+    component.data = [100, 101, 102];
+    component.chartType = 'candlestick';
+    component.ngOnChanges({});
+    const points = component.chartData!.datasets[0].data as any[];
+    expect(points[0].x).toBe(1);
+    expect(points[1].x).toBe(2);
+  });
+
+  it('should ignore mismatched times array', () => {
+    component.data = [1, 2, 3];
+    component.times = [1700000000];
+    component.ngOnChanges({});
+    const labels = component.chartData!.labels as string[];
+    expect(labels[0]).toBe('Start');
+    expect(labels[labels.length - 1]).toBe('Now');
+  });
 });

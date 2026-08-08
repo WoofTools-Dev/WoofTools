@@ -435,6 +435,121 @@ p {
   color: #ef4444 !important;
 }
 
+/* Mini tables grid (3 cols x 2 rows) */
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.table-container.full {
+  grid-column: 1 / -1;
+}
+
+.mini-table-icon {
+  font-size: 18px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.mini-table-icon.icon-up {
+  color: #22c55e;
+}
+
+.mini-table-icon.icon-down {
+  color: #ef4444;
+}
+
+.mini-table-icon.icon-neutral {
+  color: #38bdf8;
+}
+
+.mini-table-icon.icon-hot {
+  color: var(--primary);
+}
+
+.mini-scroll {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Ranking mini-tables: sticky header, square corners, no forced min-width */
+.mini-scroll table {
+  min-width: 0;
+}
+
+.mini-scroll th:first-child,
+.mini-scroll th:last-child {
+  border-radius: 0;
+}
+
+.mini-scroll .mat-mdc-header-row {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background-color: var(--bg-card);
+}
+
+.mini-scroll .mat-mdc-header-row .mat-mdc-header-cell {
+  background-color: var(--bg-card);
+}
+
+.mini-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 600;
+  background-color: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+.mini-rank.active {
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.mini-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.mini-name img {
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.mini-name span {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-change {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.table-heading {
+  padding: 14px 16px 0 16px;
+  margin-bottom: 0;
+}
+
 /* ========== RESPONSIVE ========== */
 
 .search-active-bar {
@@ -476,6 +591,10 @@ p {
 
 @media (max-width: 992px) {
   .hot-pairs-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .tables-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -548,6 +667,10 @@ p {
 }
 
 @media (max-width: 576px) {
+  .tables-grid {
+    grid-template-columns: 1fr;
+  }
+
   .number-tag {
     font-size: 10px;
     padding: 2px 4px;

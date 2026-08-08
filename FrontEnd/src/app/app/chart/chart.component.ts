@@ -34,6 +34,7 @@ function formatPrice(v: number): string {
 })
 export class TokenChartComponent implements OnChanges {
   @Input() data: number[] = [];
+  @Input() times: number[] = [];
   @Input() height: number = 200;
   @Input() showAxes: boolean = true;
   @Input() chartType: 'line' | 'candlestick' = 'line';
@@ -43,6 +44,15 @@ export class TokenChartComponent implements OnChanges {
   chartOptions!: ChartConfiguration['options'];
   plugins: any[] = [];
 
+  private hasTimes(): boolean {
+    return this.times && this.times.length === this.data.length && this.data.length > 0;
+  }
+
+  private formatTime(ts: number): string {
+    const d = new Date(ts * 1000);
+    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
   private generateOHLC(prices: number[]): { x: number; o: number; h: number; l: number; c: number }[] {
     const result: { x: number; o: number; h: number; l: number; c: number }[] = [];
     for (let i = 1; i < prices.length; i++) {
@@ -50,7 +60,7 @@ export class TokenChartComponent implements OnChanges {
       const c = prices[i];
       const h = Math.max(o, c) * 1.005;
       const l = Math.min(o, c) * 0.995;
-      result.push({ x: i, o, h, l, c });
+      result.push({ x: this.hasTimes() ? this.times[i] : i, o, h, l, c });
     }
     return result;
   }
@@ -71,6 +81,12 @@ export class TokenChartComponent implements OnChanges {
   }
 
   private buildLabel(i: number): string {
+    if (this.hasTimes()) {
+      const ts = this.times[i];
+      if (i === 0) return this.formatTime(ts);
+      if (i === this.data.length - 1) return 'Now';
+      return '';
+    }
     if (i === 0) return 'Start';
     if (i === this.data.length - 1) return 'Now';
     return '';
@@ -193,6 +209,10 @@ export class TokenChartComponent implements OnChanges {
           padding: 4,
           callback: (tickValue: any) => {
             const i = typeof tickValue === 'number' ? tickValue : parseFloat(tickValue);
+            if (this.hasTimes()) {
+              const d = new Date(i * 1000);
+              return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            }
             if (i === 1) return 'Start';
             if (i === totalCandles) return 'Now';
             return '';
@@ -236,7 +256,14 @@ export class TokenChartComponent implements OnChanges {
           padding: 8,
           cornerRadius: 6,
           callbacks: {
-            title: () => '',
+            title: (items: any[]) => {
+              if (this.hasTimes() && items.length > 0) {
+                const idx = items[0].dataIndex;
+                const ts = this.times[idx + 1];
+                if (ts !== undefined) return this.formatTime(ts);
+              }
+              return '';
+            },
             label: (ctx: any) => {
               const d = ctx.parsed._custom || ctx.parsed;
               return `Price: ${formatPrice(ctx.parsed.y)}  |  O:${formatPrice(d.o)}  H:${formatPrice(d.h)}  L:${formatPrice(d.l)}  C:${formatPrice(d.c)}`;

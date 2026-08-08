@@ -13,6 +13,7 @@ export interface DashboardData {
   liquidity: string;
   marketCap: string;
   dex: string[];
+  chain: string;
   createdAt: string;
 }
 
@@ -23,7 +24,9 @@ export interface HotPair {
   walletAddress?: string;
   price?: number;
   previousPrices: number[];
+  previousTimes?: number[];
   growthPercentage?: number;
+  chain: string;
 }
 
 export interface LivePair {
@@ -39,6 +42,7 @@ export interface LivePair {
   poolVariation: number;
   poolRemaining: string;
   contract: string;
+  chain: string;
   createdAt: string;
 }
 
@@ -54,5 +58,42 @@ export interface SwapTransaction {
   totalUSD: number;
   variation: number;
   maker: string;
+  chain: string;
   createdAt: string;
+}
+
+export interface DailyWinner {
+  id: number;
+  username: string;
+  date: string;
+  walletAddress?: string;
+  price?: number;
+  previousPrices: number[];
+  previousTimes?: number[];
+  growthPercentage?: number;
+  chain: string;
+}
+
+export interface DailyLoser {
+  id: number;
+  username: string;
+  date: string;
+  walletAddress?: string;
+  price?: number;
+  previousPrices: number[];
+  previousTimes?: number[];
+  growthPercentage?: number;
+  chain: string;
+}
+
+export interface UpdatedRRSS {
+  id: number;
+  profileName: string;
+  lastUpdated: string;
+  walletAddress?: string;
+  price?: number;
+  previousPrices: number[];
+  previousTimes?: number[];
+  growthPercentage?: number;
+  chain: string;
 }

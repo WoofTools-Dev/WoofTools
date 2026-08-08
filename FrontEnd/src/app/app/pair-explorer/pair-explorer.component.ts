@@ -4,28 +4,22 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { Subscription } from 'rxjs';
 import { ApiService } from 'src/app/Service/api.service';
-import { SwapTransaction } from 'src/app/Interface/api.interfaces';
-import { getTokenIcon } from 'src/app/Service/token-icons';
+import { LivePair } from 'src/app/Interface/api.interfaces';
 import { ChainService } from 'src/app/Service/chain.service';
-import { ChainKey, ChainMeta } from 'src/app/Service/chain.constants';
+import { ChainKey } from 'src/app/Service/chain.constants';
+import { getTokenIcon } from 'src/app/Service/token-icons';
 import { generateTimes } from 'src/app/charts/price-times';
 
-export interface TokenInfo {
-  pairInfo: {
-    swapIcon: string;
-    chainIcon: string;
-    token0Name: string;
-    token1Name: string;
-    pairAddress: string;
-  };
-  executionTime: string;
-  type: "SELL" | "BUY";
-  quantity: string;
-  totalETH: string;
-  totalUSD: string;
-  variation: number;
-  maker: string;
-  actions: string[];
+export interface PairInfo {
+  token0Name: string;
+  token1Name: string;
+  pairAddress: string;
+  dexIcon: string;
+  chainIcon: string;
+  chainName: string;
+  chainKey: ChainKey;
+  price: number;
+  growthPercentage: number;
 }
 
 export interface SelectedPair {
@@ -37,52 +31,44 @@ export interface SelectedPair {
 }
 
 @Component({
-  selector: 'app-big-swap-explorer',
-  templateUrl: './big-swap-explorer.component.html',
-  styleUrls: ['./big-swap-explorer.component.css']
+  selector: 'app-pair-explorer',
+  templateUrl: './pair-explorer.component.html',
+  styleUrls: ['./pair-explorer.component.css'],
 })
-export class BigSwapExplorerComponent implements OnInit, AfterViewInit, OnDestroy {
-  pairList: TokenInfo[] = [];
-  dataSource = new MatTableDataSource<TokenInfo>([]);
+export class PairExplorerComponent implements OnInit, AfterViewInit, OnDestroy {
+  pairs: PairInfo[] = [];
+  dataSource = new MatTableDataSource<PairInfo>([]);
   dataLoaded = false;
   selectedPair: SelectedPair | null = null;
 
   pageSize = 15;
   pageSizeOptions = [5, 10, 15, 25, 50, 100];
 
-  private chainSub?: Subscription;
-
   activeChain: ChainKey = this.chainService.getActiveChain();
-  activeChainMeta: ChainMeta;
+  activeChainMeta = this.chainService.getActiveChainMeta();
 
-  constructor(
-    private api: ApiService,
-    private chainService: ChainService
-  ) {
-    this.activeChain = this.chainService.getActiveChain();
-    this.activeChainMeta = this.chainService.getChainMeta(this.activeChain);
-  }
-
-  ngOnDestroy(): void {
-    this.chainSub?.unsubscribe();
-  }
-
-  displayedColumns = [
-    'pairInfo', 'executionTime', 'type', 'quantity',
-    'totalETH', 'totalUSD', 'variation', 'maker', 'actions',
-  ];
+  displayedColumns = ['pairInfo', 'dex', 'chain', 'actions'];
 
   @ViewChild(MatSort) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
+  private chainSub?: Subscription;
+
+  constructor(
+    private api: ApiService,
+    private chainService: ChainService
+  ) {}
+
   ngOnInit(): void {
-    this.dataSource.filterPredicate = (data: TokenInfo, filter: string) => {
+    this.dataSource.filterPredicate = (data: PairInfo, filter: string) => {
       const s = filter.toLowerCase();
-      return data.pairInfo.token0Name.toLowerCase().includes(s) ||
-        data.pairInfo.token1Name.toLowerCase().includes(s) ||
-        data.pairInfo.pairAddress.toLowerCase().includes(s);
+      return data.token0Name.toLowerCase().includes(s) ||
+        data.token1Name.toLowerCase().includes(s) ||
+        data.pairAddress.toLowerCase().includes(s);
     };
 
+    this.activeChain = this.chainService.getActiveChain();
+    this.activeChainMeta = this.chainService.getChainMeta(this.activeChain);
     this.fetchData();
 
     this.chainSub = this.chainService.chain$.subscribe((chain) => {
@@ -92,27 +78,25 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit, OnDestro
     });
   }
 
+  ngOnDestroy(): void {
+    this.chainSub?.unsubscribe();
+  }
+
   private fetchData() {
-    this.api.getSwaps(this.activeChain).subscribe({
-      next: (data: SwapTransaction[]) => {
-        this.pairList = data.map((item) => ({
-          pairInfo: {
-            swapIcon: this.activeChainMeta.dexIcon,
-            chainIcon: this.activeChainMeta.icon,
-            token0Name: item.token0Name,
-            token1Name: item.token1Name,
-            pairAddress: item.pairAddress,
-          },
-          executionTime: new Date(item.executionTime).toLocaleString(),
-          type: item.type as "SELL" | "BUY",
-          quantity: item.quantity.toFixed(4),
-          totalETH: item.totalETH.toFixed(4),
-          totalUSD: `$${item.totalUSD.toLocaleString()}`,
-          variation: item.variation,
-          maker: item.maker,
-          actions: [],
+    this.api.getLivePairs(this.activeChain).subscribe({
+      next: (data: LivePair[]) => {
+        this.pairs = data.map((item) => ({
+          token0Name: item.token0Name,
+          token1Name: item.token1Name,
+          pairAddress: item.pairAddress,
+          dexIcon: this.activeChainMeta.dexIcon,
+          chainIcon: this.activeChainMeta.icon,
+          chainName: this.activeChainMeta.name,
+          chainKey: this.activeChain,
+          price: item.tokenPriceUSD,
+          growthPercentage: item.poolVariation,
         }));
-        this.dataSource.data = this.pairList;
+        this.dataSource.data = this.pairs;
         this.dataLoaded = true;
         this.applySortAndPaginator();
       },
@@ -136,13 +120,12 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit, OnDestro
     }
   }
 
-  selectPair(element: TokenInfo) {
-    const price = parseFloat(element.totalUSD.replace(/[$,]/g, '')) || 0;
-    const prices = this.generatePrices(price);
+  selectPair(element: PairInfo) {
+    const prices = this.generatePrices(element.price);
     this.selectedPair = {
-      name: `${element.pairInfo.token0Name} / ${element.pairInfo.token1Name}`,
-      price,
-      growthPercentage: element.variation,
+      name: `${element.token0Name} / ${element.token1Name}`,
+      price: element.price,
+      growthPercentage: element.growthPercentage,
       previousPrices: prices,
       previousTimes: generateTimes(prices.length),
     };
@@ -210,17 +193,15 @@ export class BigSwapExplorerComponent implements OnInit, AfterViewInit, OnDestro
     }
   }
 
-  generateAvatarInitials(name: string): string {
-    const nameParts = name.split(' ');
-    const initials = nameParts.map(part => part.charAt(0)).join('').toUpperCase();
-    return initials;
-  }
-
   getTokenIcon(name: string): string {
     return getTokenIcon(name);
   }
 
   handleImgError(event: Event) {
     (event.target as HTMLImageElement).src = 'assets/coins/ETH.png';
+  }
+
+  buildExplorerUrl(pair: PairInfo): string {
+    return `${this.activeChainMeta.explorerUrl}/address/${pair.pairAddress}`;
   }
 }

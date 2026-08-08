@@ -1,0 +1,33 @@
+<div class="mc-root">
+    <img src="/assets/WoofTools-LogoText.png" class="logo-img">
+    <div class="row mx-2">
+        <div class="col-12">
+            <h1 class="heading-primary">MultiChart</h1>
+            <div class="subtitle-container">
+                <p class="ether">Hot pair charts on <span>{{ activeChainMeta.name }}</span> ({{ activeChainMeta.dex }})</p>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card" *ngFor="let card of cards">
+                    <div class="chart-header">
+                        <img [src]="card.tokenIcon" (error)="handleImgError($event)" class="token-logo" width="24" height="24" alt="">
+                        <span class="chart-pair">{{ card.pairName }}</span>
+                        <span class="chart-growth" [class.up]="card.growthPercentage >= 0" [class.down]="card.growthPercentage < 0">
+                            {{ card.growthPercentage >= 0 ? '+' : '' }}{{ card.growthPercentage | number: '1.2-2' }}%
+                        </span>
+                    </div>
+                    <token-chart [data]="card.prices" [times]="card.times" [height]="120" [showAxes]="false"></token-chart>
+                    <div class="chart-footer">
+                        <span class="pop-label">Popularity</span>
+                        <span class="pop-bar"><span class="pop-fill" [style.width.%]="Math.min(card.popularity, 100)"></span></span>
+                        <span class="pop-value">{{ card.popularity }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="empty-state" *ngIf="dataLoaded && cards.length === 0">
+                <p>No hot pairs found for {{ activeChainMeta.name }}.</p>
+            </div>
+        </div>
+    </div>
+</div>

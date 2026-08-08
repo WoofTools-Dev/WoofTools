@@ -7,27 +7,29 @@
             <div class="search-active-bar" *ngIf="searchQuery">
                 <span class="search-label">Searching: "{{ searchQuery }}"</span>
                 <span class="search-count">
-                    {{ filteredRankings1.length + filteredRankings2.length }} rankings ·
+                    {{ filteredWinners.length }} winners ·
+                    {{ filteredLosers.length }} losers ·
+                    {{ filteredUpdated.length }} recently updated ·
                     {{ filteredHotPairs.length }} hot pairs ·
                     {{ dataSource.filteredData.length || 0 }} table rows
                 </span>
             </div>
 
-            <div class="main-chart-section" *ngIf="selectedPair">
+            <div class="main-chart-section chart-reveal" *ngIf="selectedPair">
                 <div class="main-chart-header">
                     <div class="main-chart-title">
-                        <img [src]="getTokenIcon(selectedPair.pairName)" (error)="handleImgError($event)" width="24" height="24" alt="">
-                        <span>{{ selectedPair.pairName }}</span>
-                        <span class="main-chart-price">${{ selectedPair.price || 0 }}</span>
-                        <span class="main-chart-change" [class.text-success]="(selectedPair.growthPercentage || 0) >= 0" [class.text-danger]="(selectedPair.growthPercentage || 0) < 0">
-                            {{ selectedPair.growthPercentage || 0 }}%
+                        <img [src]="getTokenIcon(selectedPair.name)" (error)="handleImgError($event)" width="24" height="24" alt="">
+                        <span>{{ selectedPair.name }}</span>
+                        <span class="main-chart-price">${{ selectedPair.price | number: '1.2-8' }}</span>
+                        <span class="main-chart-change" [class.text-success]="selectedPair.growthPercentage >= 0" [class.text-danger]="selectedPair.growthPercentage < 0">
+                            {{ selectedPair.growthPercentage >= 0 ? '+' : '' }}{{ selectedPair.growthPercentage | number: '1.2-2' }}%
                         </span>
                     </div>
-                    <div class="main-chart-tabs">
-                        <button *ngFor="let pair of (filteredHotPairs.length > 0 ? filteredHotPairs : hotPairsList).slice(0, 5)"
+                    <div class="main-chart-tabs" *ngIf="filteredHotPairs.length > 0">
+                        <button *ngFor="let pair of filteredHotPairs.slice(0, 5)"
                                 class="chart-tab"
-                                [class.active]="selectedPair.pairName === pair.pairName"
-                                (click)="selectPair(pair)">
+                                [class.active]="selectedPair.name === pair.pairName"
+                                (click)="selectHotPair(pair)">
                             {{ pair.pairName.split('/')[0] }}
                         </button>
                     </div>
@@ -35,105 +37,196 @@
                 <div class="main-chart-body">
                     <candlestick-chart
                         [data]="selectedPair.previousPrices || []"
+                        [times]="selectedPair.previousTimes || []"
                         [height]="160">
                     </candlestick-chart>
                 </div>
             </div>
 
-            <div class="rankings-grid">
-                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
-                    <div class="custom-card">
-                        <ul class="tokens-list" *ngIf="filteredRankings1.length > 0; else noRankings1">
-                            <li *ngFor="let item of filteredRankings1; let i = index">
-                                <div class="list-items-custom">
-                                    <div class="list-item-left">
-                                        <div class="number-tag" [class.active]="i === 0">#{{ item.rank }}</div>
-                                        <img [src]="getTokenIcon(item.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
-                                        <p>{{ item.name }}</p>
+            <div class="tables-grid">
+                <div class="table-container">
+                    <h2 class="heading-primary table-heading">
+                        <i class="material-icons mini-table-icon icon-up">trending_up</i>
+                        Daily Winners
+                    </h2>
+                    <div class="table-scroll mini-scroll">
+                        <table mat-table [dataSource]="filteredWinners">
+                            <ng-container matColumnDef="rank">
+                                <th mat-header-cell *matHeaderCellDef>#</th>
+                                <td mat-cell *matCellDef="let row; let i = index">
+                                    <span class="mini-rank" [class.active]="i < 3">{{ row.rank }}</span>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef>Token</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div class="mini-name">
+                                        <img [src]="getTokenIcon(row.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
+                                        <span>{{ row.name }}</span>
                                     </div>
-                                    <div class="list-item-right">
-                                        <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.price }}</div>
-                                        <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.percentage }}%</div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <ng-template #noRankings1><div class="no-results">No results</div></ng-template>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="price">
+                                <th mat-header-cell *matHeaderCellDef>Price</th>
+                                <td mat-cell *matCellDef="let row">${{ row.price | number: '1.2-8' }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="change">
+                                <th mat-header-cell *matHeaderCellDef>Change</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <span class="mini-change" [class.text-success]="row.isPositive" [class.text-danger]="!row.isPositive">
+                                        {{ row.percentage >= 0 ? '+' : '' }}{{ row.percentage | number: '1.2-2' }}%
+                                    </span>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="rankingColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectRow(row)"></tr>
+                        </table>
+                        <div class="no-results" *ngIf="filteredWinners.length === 0">No results</div>
                     </div>
                 </div>
-                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4">
-                    <div class="custom-card">
-                        <ul class="tokens-list" *ngIf="filteredRankings2.length > 0; else noRankings2">
-                            <li *ngFor="let item of filteredRankings2; let i = index">
-                                <div class="list-items-custom">
-                                    <div class="list-item-left">
-                                        <div class="number-tag" [class.active]="i === 5">#{{ item.rank }}</div>
-                                        <img [src]="getTokenIcon(item.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
-                                        <p>{{ item.name }}</p>
-                                    </div>
-                                    <div class="list-item-right">
-                                        <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.price }}</div>
-                                        <div class="numbers" [class.text-success]="item.isPositive" [class.text-danger]="!item.isPositive">{{ item.percentage }}%</div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <ng-template #noRankings2><div class="no-results">No results</div></ng-template>
-                    </div>
-                </div>
-                <div class="col-sm-12 col-md-6 col-lg-4 col-xl-4" *ngIf="filteredHotPairs.length > 0 || hotPairsList.length > 0">
-                    <div class="custom-card">
-                        <ul class="tokens-list" *ngIf="filteredHotPairs.length > 0; else noHotPairs">
-                            <li *ngFor="let item of filteredHotPairs.slice(0, 5); let i = index">
-                                <div class="list-items-custom">
-                                    <div class="list-item-left">
-                                        <div class="number-tag" [class.active]="i === 0">#{{ i + 1 }}</div>
-                                        <img [src]="getTokenIcon(item.pairName.split('/')[0])" (error)="handleImgError($event)" width="20" height="20" alt="">
-                                        <p>{{ item.pairName }}</p>
-                                    </div>
-                                    <div class="list-item-right">
-                                        <div class="numbers text-success">${{ item.price || 0 }}</div>
-                                        <div class="numbers" [class.text-success]="(item.growthPercentage || 0) >= 0" [class.text-danger]="(item.growthPercentage || 0) < 0">{{ item.growthPercentage || 0 }}%</div>
-                                    </div>
-                                </div>
-                            </li>
-                        </ul>
-                        <ng-template #noHotPairs><div class="no-results">No results</div></ng-template>
-                    </div>
-                </div>
-            </div>
 
-            <div class="section-gap">
-                <h2 class="heading-primary">Hot Pairs</h2>
-                <div class="hot-pairs-wrapper" *ngIf="filteredHotPairs.length > 0; else noHotPairsFull">
-                    <div class="hot-pairs-grid">
-                        <div class="hot-pair-item" *ngFor="let item of filteredHotPairs; let i = index" (click)="selectPair(item)">
-                            <div class="list-items-custom">
-                                <div class="list-item-left">
-                                    <div class="number-tag" [class.active]="i < 5">#{{ i + 1 }}</div>
-                                    <img [src]="getTokenIcon(item.pairName)" (error)="handleImgError($event)" width="20" height="20" alt="">
-                                    <p>{{ item.pairName }}</p>
-                                </div>
-                                <div class="list-item-right">
-                                    <div class="numbers" [class.text-success]="(item.growthPercentage || 0) >= 0" [class.text-danger]="(item.growthPercentage || 0) < 0">${{ item.price || 0 }}</div>
-                                    <div class="numbers" [class.text-success]="(item.growthPercentage || 0) >= 0" [class.text-danger]="(item.growthPercentage || 0) < 0">{{ item.growthPercentage || 0 }}%</div>
-                                </div>
-                            </div>
-                            <div class="sparkline-row">
-                                <token-chart
-                                    [data]="item.previousPrices || []"
-                                    [height]="40"
-                                    [showAxes]="false"
-                                    [chartType]="'candlestick'">
-                                </token-chart>
-                            </div>
-                        </div>
+                <div class="table-container">
+                    <h2 class="heading-primary table-heading">
+                        <i class="material-icons mini-table-icon icon-down">trending_down</i>
+                        Daily Losers
+                    </h2>
+                    <div class="table-scroll mini-scroll">
+                        <table mat-table [dataSource]="filteredLosers">
+                            <ng-container matColumnDef="rank">
+                                <th mat-header-cell *matHeaderCellDef>#</th>
+                                <td mat-cell *matCellDef="let row; let i = index">
+                                    <span class="mini-rank" [class.active]="i < 3">{{ row.rank }}</span>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef>Token</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div class="mini-name">
+                                        <img [src]="getTokenIcon(row.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
+                                        <span>{{ row.name }}</span>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="price">
+                                <th mat-header-cell *matHeaderCellDef>Price</th>
+                                <td mat-cell *matCellDef="let row">${{ row.price | number: '1.2-8' }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="change">
+                                <th mat-header-cell *matHeaderCellDef>Change</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <span class="mini-change" [class.text-success]="row.isPositive" [class.text-danger]="!row.isPositive">
+                                        {{ row.percentage >= 0 ? '+' : '' }}{{ row.percentage | number: '1.2-2' }}%
+                                    </span>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="rankingColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectRow(row)"></tr>
+                        </table>
+                        <div class="no-results" *ngIf="filteredLosers.length === 0">No results</div>
                     </div>
                 </div>
-                <ng-template #noHotPairsFull><div class="no-results" *ngIf="searchQuery">No hot pairs match "{{ searchQuery }}"</div></ng-template>
+
+                <div class="table-container">
+                    <h2 class="heading-primary table-heading">
+                        <i class="material-icons mini-table-icon icon-neutral">update</i>
+                        Recently Updated
+                    </h2>
+                    <div class="table-scroll mini-scroll">
+                        <table mat-table [dataSource]="filteredUpdated">
+                            <ng-container matColumnDef="rank">
+                                <th mat-header-cell *matHeaderCellDef>#</th>
+                                <td mat-cell *matCellDef="let row; let i = index">
+                                    <span class="mini-rank" [class.active]="i < 3">{{ row.rank }}</span>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef>Token</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div class="mini-name">
+                                        <img [src]="getTokenIcon(row.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
+                                        <span>{{ row.name }}</span>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="price">
+                                <th mat-header-cell *matHeaderCellDef>Price</th>
+                                <td mat-cell *matCellDef="let row">${{ row.price | number: '1.2-8' }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="change">
+                                <th mat-header-cell *matHeaderCellDef>Change</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <span class="mini-change" [class.text-success]="row.isPositive" [class.text-danger]="!row.isPositive">
+                                        {{ row.percentage >= 0 ? '+' : '' }}{{ row.percentage | number: '1.2-2' }}%
+                                    </span>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="rankingColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectRow(row)"></tr>
+                        </table>
+                        <div class="no-results" *ngIf="filteredUpdated.length === 0">No results</div>
+                    </div>
+                </div>
+
+                <div class="table-container full">
+                    <h2 class="heading-primary table-heading">
+                        <i class="material-icons mini-table-icon icon-hot">local_fire_department</i>
+                        Hot Pairs
+                    </h2>
+                    <div class="table-scroll mini-scroll">
+                        <table mat-table [dataSource]="filteredHotPairs">
+                            <ng-container matColumnDef="rank">
+                                <th mat-header-cell *matHeaderCellDef>#</th>
+                                <td mat-cell *matCellDef="let row; let i = index">
+                                    <span class="mini-rank" [class.active]="i < 3">{{ i + 1 }}</span>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="name">
+                                <th mat-header-cell *matHeaderCellDef>Pair</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <div class="mini-name">
+                                        <img [src]="getTokenIcon(row.pairName)" (error)="handleImgError($event)" width="20" height="20" alt="">
+                                        <span>{{ row.pairName }}</span>
+                                    </div>
+                                </td>
+                            </ng-container>
+                            <ng-container matColumnDef="price">
+                                <th mat-header-cell *matHeaderCellDef>Price</th>
+                                <td mat-cell *matCellDef="let row">${{ row.price || 0 | number: '1.2-8' }}</td>
+                            </ng-container>
+                            <ng-container matColumnDef="change">
+                                <th mat-header-cell *matHeaderCellDef>Change</th>
+                                <td mat-cell *matCellDef="let row">
+                                    <span class="mini-change" [class.text-success]="(row.growthPercentage || 0) >= 0" [class.text-danger]="(row.growthPercentage || 0) < 0">
+                                        {{ row.growthPercentage >= 0 ? '+' : '' }}{{ (row.growthPercentage || 0) | number: '1.2-2' }}%
+                                    </span>
+                                </td>
+                            </ng-container>
+                            <tr mat-header-row *matHeaderRowDef="rankingColumns"></tr>
+                            <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectHotPair(row)"></tr>
+                        </table>
+                        <div class="no-results" *ngIf="filteredHotPairs.length === 0">No results</div>
+                    </div>
+                </div>
             </div>
 
             <div class="section-gap table-container">
+                <h2 class="heading-primary table-heading">Token Table</h2>
+                <div class="table-toolbar">
+                    <div class="page-size-filter">
+                        <span class="page-size-label">Per page:</span>
+                        <button *ngFor="let size of pageSizeOptions"
+                                class="page-size-btn"
+                                [class.active]="size === pageSize"
+                                (click)="setPageSize(size)">{{ size }}</button>
+                    </div>
+                    <div class="page-nav">
+                        <button class="page-nav-btn" (click)="firstPage()" [disabled]="!canPrevPage()">«</button>
+                        <button class="page-nav-btn" (click)="prevPage()" [disabled]="!canPrevPage()">‹</button>
+                        <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+                        <button class="page-nav-btn" (click)="nextPage()" [disabled]="!canNextPage()">›</button>
+                        <button class="page-nav-btn" (click)="lastPage()" [disabled]="!canNextPage()">»</button>
+                    </div>
+                </div>
                 <div class="table-scroll">
                   <table mat-table [dataSource]="dataSource">
 
@@ -143,7 +236,7 @@
                               <div class="pair-info">
                                     <div class="pair-info-inner">
                                         <img [src]="getTokenIcon(element.pairInfo.token0Name)" (error)="handleImgError($event)" class="token-logo" width="32" height="32" alt="">
-                                        <img src="../../../assets/uniswap.png" width="16" height="16" alt="dex">
+                                        <img [src]="element.pairInfo.swapIcon" (error)="handleImgError($event)" width="16" height="16" alt="dex">
                                     </div>
                                   <div>
                                       <div class="pair-name">{{element.pairInfo.token0Name}} / {{element.pairInfo.token1Name}}</div>
@@ -211,7 +304,7 @@
                           <th mat-header-cell *matHeaderCellDef>Dex</th>
                           <td mat-cell *matCellDef="let element">
                               <div class="dex-info">
-                                  <img src="../../../assets/uniswap.png" alt="" width="24" height="24">
+                                  <img [src]="element.pairInfo.swapIcon" (error)="handleImgError($event)" alt="" width="24" height="24">
                               </div>
                           </td>
                         </ng-container>
@@ -227,10 +320,10 @@
                         </ng-container>
 
                         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+                        <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="clickable-row" (click)="selectMainRow(row)"></tr>
                   </table>
                 </div>
-                <mat-paginator [pageSize]="15" [pageSizeOptions]="[5, 10, 15, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+                <mat-paginator class="hidden-paginator" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons></mat-paginator>
             </div>
 
         </div>
