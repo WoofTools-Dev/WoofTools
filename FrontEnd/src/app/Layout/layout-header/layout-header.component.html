@@ -7,15 +7,12 @@
           <div class="select-menu active">
               <div class="select-btn" (click)="toggleButton()">
                 <span class="sBtn-text">
-                  <img src="../../../assets/ether.png" width="20" height="20" *ngIf="selectedBlockChain == 'Ethereum'; else otherImage">
-                  <ng-template #otherImage>
-                      <img src="../../../assets/shib.png" width="20" height="20">
-                  </ng-template>
+                  <img [src]="activeChainIcon" width="20" height="20">
                    {{selectedBlockChain}}
               </span>
-                  <i class="material-icons" *ngIf="isToggledBlockChainButton == false; else downarrow">keyboard_arrow_up</i>
-                  <ng-template #downarrow>
-                      <i class="material-icons">keyboard_arrow_down</i>
+                  <i class="material-icons" *ngIf="isToggledBlockChainButton == false; else uparrow">keyboard_arrow_down</i>
+                  <ng-template #uparrow>
+                      <i class="material-icons">keyboard_arrow_up</i>
                   </ng-template>
               </div>
 
@@ -23,13 +20,13 @@
 
               <ng-template #openOptionBox>
                   <ul class="options">
-                      <li class="option" (click)="selectChain('Ethereum')">
+                      <li class="option" (click)="selectChain('ethereum')">
                         <span class="option-text">
                           <img src="../../../assets/ether.png" width="20" height="20">
                           Ethereum
                       </span>
                       </li>
-                      <li class="option" (click)="selectChain('Shibarium')">
+                      <li class="option" (click)="selectChain('shibarium')">
                         <span class="option-text">
                           <img src="../../../assets/shib.png" width="20" height="20">
                           Shibarium

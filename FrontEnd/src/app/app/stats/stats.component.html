@@ -1,0 +1,47 @@
+<div class="st-root">
+    <img src="/assets/WoofTools-LogoText.png" class="logo-img">
+    <div class="row mx-2">
+        <div class="col-12">
+            <h1 class="heading-primary">Stats</h1>
+            <div class="subtitle-container">
+                <p class="ether">Market statistics for <span>{{ activeChainMeta.name }}</span> ({{ activeChainMeta.dex }})</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card" *ngFor="let card of cards">
+                    <span class="stat-value" [style.color]="card.accent">{{ card.value }}</span>
+                    <span class="stat-label">{{ card.label }}</span>
+                </div>
+            </div>
+
+            <div class="lists-grid">
+                <div class="list-card">
+                    <h2 class="list-title">Top Gainers (24H)</h2>
+                    <div class="list-row" *ngFor="let row of topGainers">
+                        <span class="rank">#{{ row.rank }}</span>
+                        <span class="row-name">{{ row.name }}</span>
+                        <span class="row-price">{{ row.price }}</span>
+                        <span class="row-change" [class.up]="row.change >= 0" [class.down]="row.change < 0">
+                            {{ row.change >= 0 ? '+' : '' }}{{ row.change | number: '1.2-2' }}%
+                        </span>
+                    </div>
+                    <div class="empty-inline" *ngIf="dataLoaded && topGainers.length === 0">
+                        No data yet.
+                    </div>
+                </div>
+
+                <div class="list-card">
+                    <h2 class="list-title">Top Makers (Volume)</h2>
+                    <div class="list-row" *ngFor="let row of topMakers">
+                        <span class="rank">#{{ row.rank }}</span>
+                        <span class="row-address" [title]="row.address">{{ row.address }}</span>
+                        <span class="row-price">{{ row.volume }}</span>
+                    </div>
+                    <div class="empty-inline" *ngIf="dataLoaded && topMakers.length === 0">
+                        No data yet.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

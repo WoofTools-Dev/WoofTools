@@ -1,0 +1,142 @@
+.pd-root {
+  padding: 0 0 24px 0;
+}
+
+.logo-img {
+  display: block;
+  margin: 0 auto 12px;
+  max-width: 280px;
+}
+
+.heading-primary {
+  display: flex;
+  justify-content: flex-start;
+  text-transform: none;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-weight: 600;
+  line-height: 1.2;
+  font-size: 1.25rem;
+}
+
+.subtitle-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.ether {
+  color: var(--text-primary);
+  font-family: Poppins, Roboto, sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 16px;
+}
+
+.ether span {
+  color: var(--primary);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.product-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 16px;
+  text-decoration: none;
+  color: var(--text-primary);
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.product-card:hover {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.product-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background-color: var(--primary-light);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.product-icon mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  line-height: 22px;
+}
+
+.product-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.product-title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.product-badge {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 8px;
+  color: var(--primary);
+  background-color: var(--primary-light);
+}
+
+.product-desc {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.product-arrow {
+  color: var(--text-secondary);
+  font-size: 18px;
+  flex-shrink: 0;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.product-card:hover .product-arrow {
+  color: var(--primary);
+  transform: translateX(2px);
+}
+
+@media (max-width: 768px) {
+  .heading-primary {
+    font-size: 1.1rem;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+}

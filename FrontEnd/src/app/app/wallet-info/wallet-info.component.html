@@ -1,0 +1,65 @@
+<div class="wi-root">
+    <img src="/assets/WoofTools-LogoText.png" class="logo-img">
+    <div class="row mx-2">
+        <div class="col-12">
+            <h1 class="heading-primary">Wallet Info</h1>
+            <div class="subtitle-container">
+                <p class="ether">Wallet balances on <span>{{ activeChainMeta.name }}</span> ({{ activeChainMeta.gasSymbol }})</p>
+            </div>
+
+            <div class="wi-grid">
+                <div class="wi-card">
+                    <h2 class="wi-title">Connected Wallet</h2>
+
+                    <div class="wi-connect-state" *ngIf="!connected">
+                        <p class="wi-empty">No wallet connected.</p>
+                        <button class="wi-btn" (click)="connect()">Connect Wallet</button>
+                    </div>
+
+                    <div class="wi-connect-state" *ngIf="connected">
+                        <div class="wi-row">
+                            <span class="wi-label">Address</span>
+                            <span class="wi-addr" [title]="address">{{ truncated(address) }}</span>
+                        </div>
+                        <div class="wi-row">
+                            <span class="wi-label">Network</span>
+                            <span class="wi-value">{{ activeChainMeta.name }} ({{ activeChainMeta.chainId }})</span>
+                        </div>
+                        <div class="wi-row">
+                            <span class="wi-label">Balance</span>
+                            <span class="wi-value" *ngIf="!loading">{{ balance || '—' }}</span>
+                            <span class="wi-value" *ngIf="loading">Loading…</span>
+                        </div>
+                        <div class="wi-row">
+                            <span class="wi-label">Explorer</span>
+                            <a class="wi-link" [href]="activeChainMeta.explorerUrl + '/address/' + address" target="_blank" rel="noopener">
+                                Open on {{ activeChainMeta.name }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wi-card">
+                    <h2 class="wi-title">Lookup Address</h2>
+                    <p class="wi-hint">Check the native balance of any address on {{ activeChainMeta.name }}.</p>
+                    <div class="wi-search-row">
+                        <input
+                            class="wi-input"
+                            type="text"
+                            [(ngModel)]="searchAddress"
+                            placeholder="0x..."
+                            (keyup.enter)="searchLookup()"
+                        >
+                        <button class="wi-btn" (click)="searchLookup()" [disabled]="searchLoading">
+                            {{ searchLoading ? 'Checking…' : 'Check' }}
+                        </button>
+                    </div>
+                    <div class="wi-result" *ngIf="searchBalance">
+                        Balance: <strong>{{ searchBalance }}</strong>
+                    </div>
+                    <div class="wi-error" *ngIf="searchError">{{ searchError }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

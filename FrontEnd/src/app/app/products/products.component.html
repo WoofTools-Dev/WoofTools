@@ -1,0 +1,25 @@
+<div class="pd-root">
+    <img src="/assets/WoofTools-LogoText.png" class="logo-img">
+    <div class="row mx-2">
+        <div class="col-12">
+            <h1 class="heading-primary">Products</h1>
+            <div class="subtitle-container">
+                <p class="ether">Everything <span>WoofTools</span> has to offer</p>
+            </div>
+
+            <div class="products-grid">
+                <a class="product-card" *ngFor="let product of products" [href]="product.route ? '/' + product.route : product.url" [target]="product.route ? '_self' : '_blank'" rel="noopener">
+                    <span class="product-icon"><mat-icon>{{ product.icon }}</mat-icon></span>
+                    <div class="product-body">
+                        <div class="product-title-row">
+                            <span class="product-title">{{ product.title }}</span>
+                            <span class="product-badge" *ngIf="product.badge">{{ product.badge }}</span>
+                        </div>
+                        <p class="product-desc">{{ product.description }}</p>
+                    </div>
+                    <span class="product-arrow">→</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

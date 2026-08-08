@@ -59,11 +59,17 @@ const ICON_MAP: Record<string, string> = {
   ATOM: 'assets/coins/ATOM.png',
   NEAR: 'assets/coins/NEAR.png',
   APE: 'assets/coins/APE.png',
+  BONE: 'assets/coins/BONE.svg',
+  WBONE: 'assets/coins/WBONE.svg',
+  CHEWY: 'assets/coins/CHEWY.svg',
+  LEASH: 'assets/coins/LEASH.svg',
+  TREAT: 'assets/coins/TREAT.svg',
+  DAI: 'assets/coins/DAI.svg',
 };
 
 const FALLBACK = 'assets/coins/ETH.png';
 
 export function getTokenIcon(name: string): string {
-  const key = (name || '').toUpperCase().trim();
+  const key = (name || '').toUpperCase().trim().split('/')[0];
   return ICON_MAP[key] || FALLBACK;
 }
