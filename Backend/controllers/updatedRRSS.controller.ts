@@ -13,7 +13,8 @@ export const createUpdatedRRSS = async (req: Request, res: Response) => {
 
 export const getUpdatedRRSSList = async (req: Request, res: Response) => {
   try {
-    const updatedRRSSList = await UpdatedRRSSService.getUpdatedRRSSList();
+    const chain = typeof req.query.chain === "string" ? req.query.chain : undefined;
+    const updatedRRSSList = await UpdatedRRSSService.getUpdatedRRSSList(chain);
     res.status(200).json(updatedRRSSList);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

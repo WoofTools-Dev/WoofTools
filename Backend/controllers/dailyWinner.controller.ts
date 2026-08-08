@@ -13,7 +13,8 @@ export const createDailyWinner = async (req: Request, res: Response) => {
 
 export const getDailyWinners = async (req: Request, res: Response) => {
   try {
-    const dailyWinners = await DailyWinnerService.getDailyWinners();
+    const chain = typeof req.query.chain === "string" ? req.query.chain : undefined;
+    const dailyWinners = await DailyWinnerService.getDailyWinners(chain);
     res.status(200).json(dailyWinners);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

@@ -11,9 +11,10 @@ export const createSwapTransaction = async (req: Request, res: Response) => {
   }
 };
 
-export const getSwapTransactions = async (_req: Request, res: Response) => {
+export const getSwapTransactions = async (req: Request, res: Response) => {
   try {
-    const records = await SwapTransactionService.getSwapTransactions();
+    const chain = typeof req.query.chain === "string" ? req.query.chain : undefined;
+    const records = await SwapTransactionService.getSwapTransactions(chain);
     res.status(200).json(records);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

@@ -7,8 +7,11 @@ export const createDashboardData = async (
   return prisma.dashboardData.create({ data });
 };
 
-export const getDashboardData = async (): Promise<DashboardDataType[]> => {
-  return prisma.dashboardData.findMany({ orderBy: { createdAt: "desc" } });
+export const getDashboardData = async (chain?: string): Promise<DashboardDataType[]> => {
+  return prisma.dashboardData.findMany({
+    where: chain ? { chain } : undefined,
+    orderBy: { createdAt: "desc" },
+  });
 };
 
 export const getDashboardDataById = async (

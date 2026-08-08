@@ -11,9 +11,10 @@ export const createDashboardData = async (req: Request, res: Response) => {
   }
 };
 
-export const getDashboardData = async (_req: Request, res: Response) => {
+export const getDashboardData = async (req: Request, res: Response) => {
   try {
-    const records = await DashboardDataService.getDashboardData();
+    const chain = typeof req.query.chain === "string" ? req.query.chain : undefined;
+    const records = await DashboardDataService.getDashboardData(chain);
     res.status(200).json(records);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

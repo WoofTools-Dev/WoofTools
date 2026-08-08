@@ -17,7 +17,9 @@ model DailyWinner {
   walletAddress    String? // Optional wallet address for the winner
   price            Float? // Single price associated with the winner
   previousPrices   Float[] // Array of previous prices
+  previousTimes    Float[] // Unix timestamps (seconds) for each previous price
   growthPercentage Float? // Growth percentage for the winner
+  chain            String   @default("ethereum")
 
   // Add other relevant fields as needed
 }
@@ -29,7 +31,9 @@ model DailyLoser {
   walletAddress    String? // Optional wallet address for the loser
   price            Float? // Single price associated with the loser
   previousPrices   Float[] // Array of previous prices
+  previousTimes    Float[] // Unix timestamps (seconds) for each previous price
   growthPercentage Float? // Growth percentage for the loser
+  chain            String   @default("ethereum")
 
   // Add other relevant fields as needed
 }
@@ -41,7 +45,9 @@ model UpdatedRRSS {
   walletAddress    String? // Optional wallet address for the RRSS
   price            Float? // Single price associated with the RRSS
   previousPrices   Float[] // Array of previous prices
+  previousTimes    Float[] // Unix timestamps (seconds) for each previous price
   growthPercentage Float? // Growth percentage for the RRSS
+  chain            String   @default("ethereum")
 
   // Add other relevant fields as needed
 }
@@ -53,9 +59,9 @@ model HotPair {
   walletAddress    String? // Optional wallet address for the pair
   price            Float? // Single price associated with the pair
   previousPrices   Float[] // Array of previous prices
+  previousTimes    Float[] // Unix timestamps (seconds) for each previous price
   growthPercentage Float? // Growth percentage for the pair
-
-  // Add other relevant fields as needed
+  chain            String  @default("ethereum")
 }
 
 model DashboardData {
@@ -73,6 +79,7 @@ model DashboardData {
   liquidity     String
   marketCap     String
   dex           String[]
+  chain         String  @default("ethereum")
   createdAt     DateTime @default(now())
 }
 
@@ -89,6 +96,7 @@ model LivePair {
   poolVariation    Float
   poolRemaining    String
   contract         String
+  chain            String  @default("ethereum")
   createdAt        DateTime @default(now())
 }
 
@@ -104,6 +112,7 @@ model SwapTransaction {
   totalUSD      Float
   variation     Float
   maker         String
+  chain         String  @default("ethereum")
   createdAt     DateTime @default(now())
 }
 

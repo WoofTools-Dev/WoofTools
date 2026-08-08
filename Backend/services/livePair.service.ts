@@ -7,8 +7,11 @@ export const createLivePair = async (
   return prisma.livePair.create({ data });
 };
 
-export const getLivePairs = async (): Promise<LivePairType[]> => {
-  return prisma.livePair.findMany({ orderBy: { createdAt: "desc" } });
+export const getLivePairs = async (chain?: string): Promise<LivePairType[]> => {
+  return prisma.livePair.findMany({
+    where: chain ? { chain } : undefined,
+    orderBy: { createdAt: "desc" },
+  });
 };
 
 export const getLivePairById = async (

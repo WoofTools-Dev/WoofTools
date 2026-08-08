@@ -10,8 +10,10 @@ export const createHotPair = async (
   return hotPair;
 };
 
-export const getHotPairs = async (): Promise<HotPairType[]> => {
-  const hotPairs = await prisma.hotPair.findMany();
+export const getHotPairs = async (chain?: string): Promise<HotPairType[]> => {
+  const hotPairs = await prisma.hotPair.findMany({
+    where: chain ? { chain } : undefined,
+  });
   return hotPairs;
 };
 

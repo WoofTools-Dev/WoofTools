@@ -13,7 +13,8 @@ export const createHotPair = async (req: Request, res: Response) => {
 
 export const getHotPairs = async (req: Request, res: Response) => {
   try {
-    const hotPairs = await HotPairService.getHotPairs();
+    const chain = typeof req.query.chain === "string" ? req.query.chain : undefined;
+    const hotPairs = await HotPairService.getHotPairs(chain);
     res.status(200).json(hotPairs);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

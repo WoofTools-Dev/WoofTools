@@ -10,8 +10,10 @@ export const createDailyLoser = async (
   return dailyLoser;
 };
 
-export const getDailyLosers = async (): Promise<DailyLoserType[]> => {
-  const dailyLosers = await prisma.dailyLoser.findMany();
+export const getDailyLosers = async (chain?: string): Promise<DailyLoserType[]> => {
+  const dailyLosers = await prisma.dailyLoser.findMany({
+    where: chain ? { chain } : undefined,
+  });
   return dailyLosers;
 };
 

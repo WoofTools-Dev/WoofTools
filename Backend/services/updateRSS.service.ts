@@ -10,8 +10,10 @@ export const createUpdatedRRSS = async (
   return updatedRRSS;
 };
 
-export const getUpdatedRRSSList = async (): Promise<UpdatedRRSSType[]> => {
-  const updatedRRSSList = await prisma.updatedRRSS.findMany();
+export const getUpdatedRRSSList = async (chain?: string): Promise<UpdatedRRSSType[]> => {
+  const updatedRRSSList = await prisma.updatedRRSS.findMany({
+    where: chain ? { chain } : undefined,
+  });
   return updatedRRSSList;
 };
 

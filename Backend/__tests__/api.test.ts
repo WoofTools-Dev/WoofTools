@@ -101,6 +101,7 @@ describe("DashboardData — CRUD", () => {
     liquidity: "850K",
     marketCap: "12.5M",
     dex: ["uniswap", "eth"],
+    chain: "ethereum",
   };
 
   test("POST /api/dashboard/data — creates record", async () => {
@@ -108,6 +109,7 @@ describe("DashboardData — CRUD", () => {
     expect(status).toBe(201);
     expect(data).toHaveProperty("id");
     expect(data.token0Name).toBe("ETH");
+    expect(data.chain).toBe("ethereum");
     dashboardId = data.id;
   });
 
@@ -116,6 +118,21 @@ describe("DashboardData — CRUD", () => {
     expect(status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
     expect(data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("GET /api/dashboard/data?chain=ethereum — filters by chain", async () => {
+    const { status, data } = await request("GET", "/api/dashboard/data?chain=ethereum");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.length).toBeGreaterThanOrEqual(1);
+    expect(data.every((r: any) => r.chain === "ethereum")).toBe(true);
+  });
+
+  test("GET /api/dashboard/data?chain=shibarium — empty for unknown chain", async () => {
+    const { status, data } = await request("GET", "/api/dashboard/data?chain=shibarium");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data).toEqual([]);
   });
 
   test("GET /api/dashboard/data/:id — returns single record", async () => {
@@ -160,12 +177,14 @@ describe("LivePair — CRUD", () => {
     poolVariation: 15,
     poolRemaining: "2.1 ETH",
     contract: "0x4ae3...9c91",
+    chain: "ethereum",
   };
 
   test("POST /api/live-pairs — creates record", async () => {
     const { status, data } = await request("POST", "/api/live-pairs", payload);
     expect(status).toBe(201);
     expect(data).toHaveProperty("id");
+    expect(data.chain).toBe("ethereum");
     livePairId = data.id;
   });
 
@@ -174,6 +193,14 @@ describe("LivePair — CRUD", () => {
     expect(status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
     expect(data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("GET /api/live-pairs?chain=ethereum — filters by chain", async () => {
+    const { status, data } = await request("GET", "/api/live-pairs?chain=ethereum");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.length).toBeGreaterThanOrEqual(1);
+    expect(data.every((r: any) => r.chain === "ethereum")).toBe(true);
   });
 
   test("GET /api/live-pairs/:id — returns single", async () => {
@@ -205,12 +232,14 @@ describe("SwapTransaction — CRUD", () => {
     totalUSD: 519225,
     variation: -2.3,
     maker: "0x742d35cc6634c0532925a3b844bc427e2778e34e",
+    chain: "ethereum",
   };
 
   test("POST /api/swaps — creates record", async () => {
     const { status, data } = await request("POST", "/api/swaps", payload);
     expect(status).toBe(201);
     expect(data).toHaveProperty("id");
+    expect(data.chain).toBe("ethereum");
     swapId = data.id;
   });
 
@@ -219,6 +248,14 @@ describe("SwapTransaction — CRUD", () => {
     expect(status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
     expect(data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("GET /api/swaps?chain=ethereum — filters by chain", async () => {
+    const { status, data } = await request("GET", "/api/swaps?chain=ethereum");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.length).toBeGreaterThanOrEqual(1);
+    expect(data.every((r: any) => r.chain === "ethereum")).toBe(true);
   });
 
   test("GET /api/swaps/:id — returns single", async () => {
@@ -246,12 +283,14 @@ describe("DailyWinner — full CRUD (prefix /dailyWinner)", () => {
     price: 100.5,
     previousPrices: [95.0, 98.0],
     growthPercentage: 5.0,
+    chain: "ethereum",
   };
 
   test("POST /dailyWinner/daily-winners — creates", async () => {
     const { status, data } = await request("POST", "/dailyWinner/daily-winners", payload);
     expect(status).toBe(201);
     expect(data).toHaveProperty("id");
+    expect(data.chain).toBe("ethereum");
     winnerId = data.id;
   });
 
@@ -260,6 +299,21 @@ describe("DailyWinner — full CRUD (prefix /dailyWinner)", () => {
     expect(status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
     expect(data.length).toBeGreaterThanOrEqual(1);
+  });
+
+  test("GET /dailyWinner/daily-winners?chain=ethereum — filters by chain", async () => {
+    const { status, data } = await request("GET", "/dailyWinner/daily-winners?chain=ethereum");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.length).toBeGreaterThanOrEqual(1);
+    expect(data.every((r: any) => r.chain === "ethereum")).toBe(true);
+  });
+
+  test("GET /dailyWinner/daily-winners?chain=shibarium — empty for unknown chain", async () => {
+    const { status, data } = await request("GET", "/dailyWinner/daily-winners?chain=shibarium");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data).toEqual([]);
   });
 
   test("GET /dailyWinner/daily-winners/:id — returns single", async () => {
@@ -302,12 +356,14 @@ describe("DailyLoser — full CRUD (prefix /dailyLoser)", () => {
     price: 10.0,
     previousPrices: [15.0, 12.0],
     growthPercentage: -20.0,
+    chain: "ethereum",
   };
 
   test("POST /dailyLoser/daily-losers — creates", async () => {
     const { status, data } = await request("POST", "/dailyLoser/daily-losers", payload);
     expect(status).toBe(201);
     expect(data).toHaveProperty("id");
+    expect(data.chain).toBe("ethereum");
     loserId = data.id;
   });
 
@@ -315,6 +371,21 @@ describe("DailyLoser — full CRUD (prefix /dailyLoser)", () => {
     const { status, data } = await request("GET", "/dailyLoser/daily-losers");
     expect(status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
+  });
+
+  test("GET /dailyLoser/daily-losers?chain=ethereum — filters by chain", async () => {
+    const { status, data } = await request("GET", "/dailyLoser/daily-losers?chain=ethereum");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.length).toBeGreaterThanOrEqual(1);
+    expect(data.every((r: any) => r.chain === "ethereum")).toBe(true);
+  });
+
+  test("GET /dailyLoser/daily-losers?chain=shibarium — empty for unknown chain", async () => {
+    const { status, data } = await request("GET", "/dailyLoser/daily-losers?chain=shibarium");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data).toEqual([]);
   });
 
   test("GET /dailyLoser/daily-losers/:id — returns single", async () => {
@@ -345,12 +416,14 @@ describe("HotPair — full CRUD (prefix /hotpair)", () => {
     price: 3400.0,
     previousPrices: [3350.0, 3380.0],
     growthPercentage: 1.5,
+    chain: "ethereum",
   };
 
   test("POST /hotpair/hot-pairs — creates", async () => {
     const { status, data } = await request("POST", "/hotpair/hot-pairs", payload);
     expect(status).toBe(201);
     expect(data).toHaveProperty("id");
+    expect(data.chain).toBe("ethereum");
     hotPairId = data.id;
   });
 
@@ -358,6 +431,13 @@ describe("HotPair — full CRUD (prefix /hotpair)", () => {
     const { status, data } = await request("GET", "/hotpair/hot-pairs");
     expect(status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
+  });
+
+  test("GET /hotpair/hot-pairs?chain=ethereum — filters by chain", async () => {
+    const { status, data } = await request("GET", "/hotpair/hot-pairs?chain=ethereum");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.every((r: any) => r.chain === "ethereum")).toBe(true);
   });
 
   test("GET /hotpair/hot-pairs/:id — returns single", async () => {
@@ -388,12 +468,14 @@ describe("UpdatedRRSS — full CRUD (prefix /updatedRRSS)", () => {
     price: 50.0,
     previousPrices: [45.0, 48.0],
     growthPercentage: 10.0,
+    chain: "ethereum",
   };
 
   test("POST /updatedRRSS/updated-rrss — creates", async () => {
     const { status, data } = await request("POST", "/updatedRRSS/updated-rrss", payload);
     expect(status).toBe(201);
     expect(data).toHaveProperty("id");
+    expect(data.chain).toBe("ethereum");
     rrssId = data.id;
   });
 
@@ -401,6 +483,21 @@ describe("UpdatedRRSS — full CRUD (prefix /updatedRRSS)", () => {
     const { status, data } = await request("GET", "/updatedRRSS/updated-rrss");
     expect(status).toBe(200);
     expect(Array.isArray(data)).toBe(true);
+  });
+
+  test("GET /updatedRRSS/updated-rrss?chain=ethereum — filters by chain", async () => {
+    const { status, data } = await request("GET", "/updatedRRSS/updated-rrss?chain=ethereum");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data.length).toBeGreaterThanOrEqual(1);
+    expect(data.every((r: any) => r.chain === "ethereum")).toBe(true);
+  });
+
+  test("GET /updatedRRSS/updated-rrss?chain=shibarium — empty for unknown chain", async () => {
+    const { status, data } = await request("GET", "/updatedRRSS/updated-rrss?chain=shibarium");
+    expect(status).toBe(200);
+    expect(Array.isArray(data)).toBe(true);
+    expect(data).toEqual([]);
   });
 
   test("GET /updatedRRSS/updated-rrss/:id — returns single", async () => {

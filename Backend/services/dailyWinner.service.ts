@@ -11,8 +11,10 @@ export const createDailyWinner = async (
   return dailyWinner;
 };
 
-export const getDailyWinners = async (): Promise<DailyWinnerType[]> => {
-  const dailyWinners = await prisma.dailyWinner.findMany();
+export const getDailyWinners = async (chain?: string): Promise<DailyWinnerType[]> => {
+  const dailyWinners = await prisma.dailyWinner.findMany({
+    where: chain ? { chain } : undefined,
+  });
   return dailyWinners;
 };
 
