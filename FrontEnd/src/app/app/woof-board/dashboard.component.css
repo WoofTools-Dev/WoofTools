@@ -526,10 +526,16 @@ p {
 
 .mini-scroll .mat-mdc-row {
   height: 46px;
+  margin: 0;
 }
 
 .mini-scroll table {
   min-width: 0;
+  margin: 0;
+}
+
+.mini-scroll .mat-mdc-cell {
+  padding: 0;
 }
 
 .mini-scroll th:first-child,
@@ -558,6 +564,7 @@ p {
 .mini-rank.active {
   background-color: var(--primary);
   color: #fff;
+  border-radius: 0;
 }
 
 .mini-name {
@@ -592,8 +599,10 @@ p {
 }
 
 .table-heading {
-  padding: 14px 16px 0 16px;
-  margin-bottom: 0;
+  display: inline-flex;
+  padding: 8px 0;
+  margin: 0;
+  border: 1px solid #ffffff;
 }
 
 /* ========== RESPONSIVE ========== */
