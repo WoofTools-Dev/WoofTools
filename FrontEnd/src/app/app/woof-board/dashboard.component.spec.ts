@@ -19,13 +19,26 @@ import { CandleDataService } from 'src/app/charts/candle-data.service';
 import { ApiService } from 'src/app/Service/api.service';
 import { SearchService } from 'src/app/Service/search.service';
 import { ChainService } from 'src/app/Service/chain.service';
-import { DashboardData, HotPair, DailyWinner, DailyLoser, UpdatedRRSS } from 'src/app/Interface/api.interfaces';
+import { WalletService } from 'src/app/provider/walletprovider';
+import { DashboardData, HotPair, DailyWinner, DailyLoser, UpdatedRRSS, LikeStatus } from 'src/app/Interface/api.interfaces';
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
   let apiService: jasmine.SpyObj<ApiService>;
   let searchService: SearchService;
+  let walletConnected: boolean;
+
+  const mockLikeStatus: LikeStatus = {
+    entityType: 'dashboard',
+    entityId: 1,
+    count: 96,
+    likedByMe: true,
+    myCount: 1,
+    remaining: 19,
+    maxLikes: 20,
+    walletAddress: '0xabc',
+  };
 
   const mockDashboardData: DashboardData[] = [
     {
@@ -84,12 +97,26 @@ describe('DashboardComponent', () => {
   beforeEach(() => {
     const apiSpy = jasmine.createSpyObj('ApiService', [
       'getDashboardData', 'getHotPairs', 'getDailyWinners', 'getDailyLosers', 'getUpdatedRRSS',
+      'addLike', 'getLikeStatus',
     ]);
     apiSpy.getDashboardData.and.returnValue(of(mockDashboardData));
     apiSpy.getHotPairs.and.returnValue(of(mockHotPairs));
     apiSpy.getDailyWinners.and.returnValue(of(mockWinners));
     apiSpy.getDailyLosers.and.returnValue(of(mockLosers));
     apiSpy.getUpdatedRRSS.and.returnValue(of(mockUpdated));
+    apiSpy.addLike.and.returnValue(of(mockLikeStatus));
+    apiSpy.getLikeStatus.and.returnValue(of(mockLikeStatus));
+
+    walletConnected = false;
+    const walletSpy = {
+      get address(): string {
+        return walletConnected ? '0xabc' : '';
+      },
+      connectWallet: jasmine.createSpy('connectWallet').and.callFake(async () => {
+        walletConnected = true;
+      }),
+      isWalletConnected: jasmine.createSpy('isWalletConnected').and.callFake(() => walletConnected),
+    };
 
     TestBed.configureTestingModule({
       declarations: [DashboardComponent, TokenChartComponent],
@@ -104,6 +131,7 @@ describe('DashboardComponent', () => {
       ],
       providers: [
         { provide: ApiService, useValue: apiSpy },
+        { provide: WalletService, useValue: walletSpy },
         SearchService,
         ChainService,
         CandleDataService,
@@ -240,5 +268,46 @@ describe('DashboardComponent', () => {
     apiService.getUpdatedRRSS.and.returnValue(of([]));
     component['loadData']('ethereum');
     expect(component.dataLoaded).toBe(true);
+  });
+
+  it('should pass wallet address to API calls when connected', () => {
+    walletConnected = true;
+    component['loadData']('ethereum');
+    expect(apiService.getDashboardData).toHaveBeenCalledWith('ethereum', '0xabc');
+    expect(apiService.getHotPairs).toHaveBeenCalledWith('ethereum', '0xabc');
+  });
+
+  it('should connect wallet before liking when not connected', async () => {
+    walletConnected = false;
+    await component.connectWallet();
+    expect(walletConnected).toBe(true);
+    expect(apiService.getDashboardData).toHaveBeenCalled();
+  });
+
+  it('should like a hot pair and update its popularity', () => {
+    walletConnected = true;
+    const pair = component.hotPairsList[0];
+    component.likeHotPair(pair);
+    expect(apiService.addLike).toHaveBeenCalledWith('hotpair', 1, '0xabc');
+    expect(pair.popularity).toBe(96);
+    expect(pair.likedByMe).toBe(true);
+  });
+
+  it('should like a dashboard row and update its score', () => {
+    walletConnected = true;
+    const element = component.tokensList[0];
+    component.likeDashboard(element);
+    expect(apiService.addLike).toHaveBeenCalledWith('dashboard', 1, '0xabc');
+    expect(element.score).toBe(96);
+    expect(element.likedByMe).toBe(true);
+    expect(element.remainingLikes).toBe(19);
+  });
+
+  it('should not like a dashboard row when like limit is reached', () => {
+    walletConnected = true;
+    const element = component.tokensList[0];
+    element.remainingLikes = 0;
+    component.likeDashboard(element);
+    expect(apiService.addLike).not.toHaveBeenCalledWith('dashboard', 1, '0xabc');
   });
 });

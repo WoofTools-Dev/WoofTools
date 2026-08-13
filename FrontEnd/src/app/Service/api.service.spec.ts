@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
-import { DashboardData, LivePair, SwapTransaction } from '../Interface/api.interfaces';
+import { DashboardData, HotPair, LivePair, SwapTransaction, LikeStatus } from '../Interface/api.interfaces';
 
 describe('ApiService', () => {
   let service: ApiService;
@@ -47,6 +47,38 @@ describe('ApiService', () => {
     service.getDashboardData('shibarium').subscribe(() => {});
 
     const req = httpMock.expectOne(`${environment.apiUrl}/api/dashboard/data?chain=shibarium`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
+  it('should fetch dashboard data with wallet address for like info', () => {
+    service.getDashboardData('ethereum', '0xwallet').subscribe(() => {});
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/dashboard/data?chain=ethereum&walletAddress=0xwallet`);
+    expect(req.request.method).toBe('GET');
+    req.flush([]);
+  });
+
+  it('should fetch hot pairs via GET', () => {
+    const mockData: HotPair[] = [{
+      id: 1, pairName: 'WOOF/SHIB', popularity: 100,
+      price: 0.001, previousPrices: [1, 2, 3], growthPercentage: 5,
+      chain: 'ethereum',
+    }];
+
+    service.getHotPairs().subscribe(data => {
+      expect(data).toEqual(mockData);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/hotpair/hot-pairs`);
+    expect(req.request.method).toBe('GET');
+    req.flush(mockData);
+  });
+
+  it('should fetch hot pairs with wallet address for like info', () => {
+    service.getHotPairs('ethereum', '0xwallet').subscribe(() => {});
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/hotpair/hot-pairs?chain=ethereum&walletAddress=0xwallet`);
     expect(req.request.method).toBe('GET');
     req.flush([]);
   });
@@ -117,5 +149,44 @@ describe('ApiService', () => {
 
     const req = httpMock.expectOne(`${environment.apiUrl}/api/dashboard/data`);
     req.flush('Server error', { status: 500, statusText: 'Internal Server Error' });
+  });
+
+  it('should post a like', () => {
+    const mockStatus: LikeStatus = {
+      entityType: 'hotpair',
+      entityId: 7,
+      count: 101,
+      likedByMe: true,
+      myCount: 1,
+      remaining: 19,
+      maxLikes: 20,
+      walletAddress: '0xwallet',
+    };
+
+    service.addLike('hotpair', 7, '0xwallet').subscribe(status => {
+      expect(status).toEqual(mockStatus);
+    });
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/likes`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ entityType: 'hotpair', entityId: 7, walletAddress: '0xwallet' });
+    req.flush(mockStatus);
+  });
+
+  it('should fetch like status via GET', () => {
+    service.getLikeStatus('dashboard', 1, '0xwallet').subscribe(() => {});
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/api/likes/status?entityType=dashboard&entityId=1&walletAddress=0xwallet`);
+    expect(req.request.method).toBe('GET');
+    req.flush({
+      entityType: 'dashboard',
+      entityId: 1,
+      count: 5,
+      likedByMe: false,
+      myCount: 0,
+      remaining: 20,
+      maxLikes: 20,
+      walletAddress: '0xwallet',
+    });
   });
 });

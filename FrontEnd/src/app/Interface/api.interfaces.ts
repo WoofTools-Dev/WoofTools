@@ -14,7 +14,11 @@ export interface DashboardData {
   marketCap: string;
   dex: string[];
   chain: string;
+  chainId?: number;
   createdAt: string;
+  likedByMe?: boolean;
+  myCount?: number;
+  remainingLikes?: number;
 }
 
 export interface HotPair {
@@ -27,6 +31,21 @@ export interface HotPair {
   previousTimes?: number[];
   growthPercentage?: number;
   chain: string;
+  chainId?: number;
+  likedByMe?: boolean;
+  myCount?: number;
+  remainingLikes?: number;
+}
+
+export interface LikeStatus {
+  entityType: string;
+  entityId: number;
+  count: number;
+  likedByMe: boolean;
+  myCount: number;
+  remaining: number;
+  maxLikes: number;
+  walletAddress: string;
 }
 
 export interface LivePair {

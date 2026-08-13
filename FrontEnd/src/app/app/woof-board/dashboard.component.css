@@ -313,6 +313,55 @@ p {
   color: var(--primary);
 }
 
+.like-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 2px 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1;
+}
+
+.like-btn:hover:not(:disabled) {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.like-btn.liked {
+  border-color: var(--danger);
+  color: var(--danger);
+  background: rgba(244, 67, 54, 0.1);
+}
+
+.like-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.like-btn .material-icons {
+  font-size: 16px;
+}
+
+.like-count {
+  font-size: 12px;
+  font-weight: 600;
+  min-width: 14px;
+  text-align: center;
+}
+
+.mini-like {
+  padding: 1px 6px;
+}
+
+.mini-like .material-icons {
+  font-size: 14px;
+}
+
 /* Token ranking cards */
 .custom-card {
   background-color: var(--bg-card);

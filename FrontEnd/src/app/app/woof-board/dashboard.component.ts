@@ -17,6 +17,7 @@ import { SearchService } from 'src/app/Service/search.service';
 import { ChainService } from 'src/app/Service/chain.service';
 import { ChainMeta } from 'src/app/Service/chain.constants';
 import { generateTimes } from 'src/app/charts/price-times';
+import { WalletService } from 'src/app/provider/walletprovider';
 
 export interface TokenInfo {
   pairInfo: {
@@ -26,9 +27,13 @@ export interface TokenInfo {
     token1Name: string;
     pairAddress: string;
   };
+  id: number;
   price: string;
   percentage24H: number;
   score: number;
+  likedByMe: boolean;
+  myLikes: number;
+  remainingLikes: number;
   contracts: string;
   created: string;
   volume: string;
@@ -86,7 +91,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private api: ApiService,
     private searchService: SearchService,
-    private chainService: ChainService
+    private chainService: ChainService,
+    private wallet: WalletService
   ) {
     this.activeChainMeta = this.chainService.getActiveChainMeta();
   }
@@ -98,6 +104,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   ];
 
   rankingColumns = ['rank', 'name', 'price', 'change'];
+  hotPairColumns = ['rank', 'name', 'price', 'change', 'likes'];
 
   pageSize = 15;
   pageSizeOptions = [5, 10, 15, 25, 50, 100];
@@ -128,9 +135,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadData(chain: string) {
+    const wallet = this.wallet.address || undefined;
     forkJoin({
-      dashboard: this.api.getDashboardData(chain),
-      hotPairs: this.api.getHotPairs(chain),
+      dashboard: this.api.getDashboardData(chain, wallet),
+      hotPairs: this.api.getHotPairs(chain, wallet),
       winners: this.api.getDailyWinners(chain),
       losers: this.api.getDailyLosers(chain),
       updated: this.api.getUpdatedRRSS(chain),
@@ -177,9 +185,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         token1Name: item.token1Name,
         pairAddress: item.pairAddress,
       },
+      id: item.id,
       price: `$${item.price}`,
       percentage24H: item.percentage24H,
       score: item.score,
+      likedByMe: item.likedByMe ?? false,
+      myLikes: item.myCount ?? 0,
+      remainingLikes: item.remainingLikes ?? 20,
       contracts: item.contracts,
       created: item.created,
       volume: item.volume,
@@ -190,6 +202,59 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       actions: [],
     }));
     this.dataSource.data = this.tokensList;
+  }
+
+  get walletAddress(): string {
+    return this.wallet.address;
+  }
+
+  isWalletConnected(): boolean {
+    return this.wallet.isWalletConnected();
+  }
+
+  async connectWallet(): Promise<void> {
+    await this.wallet.connectWallet();
+    if (this.wallet.isWalletConnected()) {
+      await this.loadData(this.chainService.getActiveChain());
+    }
+  }
+
+  likeDashboard(element: TokenInfo) {
+    if (!this.isWalletConnected()) {
+      this.connectWallet();
+      return;
+    }
+    if (element.remainingLikes <= 0) return;
+    this.api.addLike('dashboard', element.id, this.wallet.address).subscribe({
+      next: (res) => {
+        element.score = res.count;
+        element.likedByMe = res.likedByMe;
+        element.myLikes = res.myCount;
+        element.remainingLikes = res.remaining;
+      },
+      error: () => {
+        // keep the row as-is on failure
+      },
+    });
+  }
+
+  likeHotPair(pair: HotPair) {
+    if (!this.isWalletConnected()) {
+      this.connectWallet();
+      return;
+    }
+    if (pair.remainingLikes !== undefined && pair.remainingLikes <= 0) return;
+    this.api.addLike('hotpair', pair.id, this.wallet.address).subscribe({
+      next: (res) => {
+        pair.popularity = res.count;
+        pair.likedByMe = res.likedByMe;
+        pair.myCount = res.myCount;
+        pair.remainingLikes = res.remaining;
+      },
+      error: () => {
+        // keep the row as-is on failure
+      },
+    });
   }
 
   private toRankRow(name: string, price: number | undefined, growth: number | undefined, previousPrices: number[], previousTimes: number[] | undefined, index: number): RankRow {
