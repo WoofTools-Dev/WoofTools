@@ -10,6 +10,7 @@ import { PairExplorerComponent } from './pair-explorer.component';
 import { ApiService } from 'src/app/Service/api.service';
 import { ChainService } from 'src/app/Service/chain.service';
 import { LivePair } from 'src/app/Interface/api.interfaces';
+import { Router } from '@angular/router';
 
 describe('PairExplorerComponent', () => {
   let component: PairExplorerComponent;
@@ -22,7 +23,7 @@ describe('PairExplorerComponent', () => {
       tokenPriceUSD: 0.5, initialLiquidity: '1 BONE',
       totalLiquidity: '50%', poolAmount: '2 BONE',
       poolVariation: 10, poolRemaining: '3 BONE',
-      contract: '0xabc', chain: 'ethereum', createdAt: new Date().toISOString(),
+      contract: '0xabc', chain: 'shibarium', createdAt: new Date().toISOString(),
     },
   ];
 
@@ -42,6 +43,7 @@ describe('PairExplorerComponent', () => {
       providers: [
         { provide: ApiService, useValue: apiSpy },
         ChainService,
+        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
       ],
     });
     fixture = TestBed.createComponent(PairExplorerComponent);
@@ -56,6 +58,7 @@ describe('PairExplorerComponent', () => {
   it('should load pairs for the active chain', () => {
     expect(component.pairs.length).toBe(1);
     expect(component.pairs[0].token0Name).toBe('BONE');
+    expect(component.pairs[0].id).toBe(1);
     expect(component.activeChain).toBe('shibarium');
   });
 
@@ -68,5 +71,13 @@ describe('PairExplorerComponent', () => {
     const url = component.buildExplorerUrl(component.pairs[0]);
     expect(url).toContain('shibariumscan.io');
     expect(url).toContain('0x111');
+  });
+
+  it('should navigate to multichart adding the pair by id', () => {
+    const router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    component.addToMultiChart(component.pairs[0]);
+    expect(router.navigate).toHaveBeenCalledWith(['/multichart'], {
+      queryParams: { network: 'shibarium', add: 'live-1' },
+    });
   });
 });

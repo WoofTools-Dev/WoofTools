@@ -215,6 +215,37 @@ p {
   color: var(--primary);
 }
 
+.pe-multichart-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-hover);
+  color: var(--text-primary);
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.pe-multichart-btn i {
+  font-size: 16px;
+  color: var(--primary);
+}
+
+.pe-multichart-btn:hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.pe-multichart-btn:hover i {
+  color: #fff;
+}
+
 @media (max-width: 768px) {
   .subtitle-container {
     flex-direction: column;

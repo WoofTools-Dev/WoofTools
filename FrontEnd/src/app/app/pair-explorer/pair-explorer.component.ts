@@ -1,4 +1,5 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -11,6 +12,7 @@ import { getTokenIcon } from 'src/app/Service/token-icons';
 import { generateTimes } from 'src/app/charts/price-times';
 
 export interface PairInfo {
+  id: number;
   token0Name: string;
   token1Name: string;
   pairAddress: string;
@@ -56,7 +58,8 @@ export class PairExplorerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private api: ApiService,
-    private chainService: ChainService
+    private chainService: ChainService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -86,6 +89,7 @@ export class PairExplorerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.api.getLivePairs(this.activeChain).subscribe({
       next: (data: LivePair[]) => {
         this.pairs = data.map((item) => ({
+          id: item.id,
           token0Name: item.token0Name,
           token1Name: item.token1Name,
           pairAddress: item.pairAddress,
@@ -203,5 +207,11 @@ export class PairExplorerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   buildExplorerUrl(pair: PairInfo): string {
     return `${this.activeChainMeta.explorerUrl}/address/${pair.pairAddress}`;
+  }
+
+  addToMultiChart(pair: PairInfo): void {
+    this.router.navigate(['/multichart'], {
+      queryParams: { network: pair.chainKey, add: `live-${pair.id}` },
+    });
   }
 }

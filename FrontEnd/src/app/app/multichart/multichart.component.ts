@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 import { ApiService } from 'src/app/Service/api.service';
 import { HotPair, LivePair } from 'src/app/Interface/api.interfaces';
@@ -9,6 +9,7 @@ import { getTokenIcon } from 'src/app/Service/token-icons';
 import { generateTimes } from 'src/app/charts/price-times';
 
 export interface PairOption {
+  id: string;
   name: string;
   token0: string;
   token1: string;
@@ -21,9 +22,7 @@ export interface PairOption {
   metricLabel: string;
 }
 
-export interface ChartCard extends PairOption {
-  id: string;
-}
+export interface ChartCard extends PairOption {}
 
 @Component({
   selector: 'app-multichart',
@@ -44,6 +43,7 @@ export class MultiChartComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private api: ApiService,
     private chainService: ChainService
   ) {}
@@ -93,7 +93,7 @@ export class MultiChartComponent implements OnInit, OnDestroy {
       }
       const arr = JSON.parse(raw);
       this.cards = Array.isArray(arr)
-        ? arr.filter((c) => c && c.name && c.token0).slice(0, 2)
+        ? arr.filter((c) => c && c.id && c.name && c.token0).slice(0, 2)
         : [];
     } catch {
       this.cards = [];
@@ -111,6 +111,7 @@ export class MultiChartComponent implements OnInit, OnDestroy {
         live.forEach((item: LivePair) => {
           const prices = this.generatePrices(item.tokenPriceUSD);
           options.push({
+            id: `live-${item.id}`,
             name: `${item.token0Name} / ${item.token1Name}`,
             token0: item.token0Name,
             token1: item.token1Name,
@@ -135,6 +136,7 @@ export class MultiChartComponent implements OnInit, OnDestroy {
               : generateTimes(prices.length);
           const [token0, token1] = this.splitPairName(item.pairName);
           options.push({
+            id: `hot-${item.id}`,
             name: item.pairName,
             token0,
             token1,
@@ -150,7 +152,9 @@ export class MultiChartComponent implements OnInit, OnDestroy {
 
         this.pool = this.dedupeByName(options);
         this.dataLoaded = true;
+        this.revalidateCards();
         this.applyQueryFilter();
+        this.addRequested();
       },
       error: () => {
         this.dataLoaded = true;
@@ -158,6 +162,37 @@ export class MultiChartComponent implements OnInit, OnDestroy {
         this.filteredOptions = [];
       },
     });
+  }
+
+  private revalidateCards(): void {
+    this.restore();
+    if (this.cards.length === 0) return;
+    const byId = new Map(this.pool.map((o) => [o.id, o]));
+    const kept = this.cards
+      .map((c) => byId.get(c.id))
+      .filter((o): o is PairOption => !!o)
+      .slice(0, 2);
+    this.cards = kept.map((o) => ({ ...o }));
+    this.persist();
+  }
+
+  private addRequested(): void {
+    const params = this.route.snapshot.queryParams;
+    const addId = params['add'] as string | undefined;
+    if (!addId) return;
+    const network = params['network'] as string | undefined;
+    if (network && network !== this.activeChain) {
+      this.chainService.selectChain(network);
+      return;
+    }
+    const option = this.pool.find((o) => o.id === addId);
+    if (option) {
+      this.addCard(option);
+      this.router.navigate([], {
+        queryParams: { add: null, network: null },
+        queryParamsHandling: 'merge',
+      });
+    }
   }
 
   private readonly RECENT_POINTS = 30;
@@ -210,8 +245,10 @@ export class MultiChartComponent implements OnInit, OnDestroy {
 
   addCard(option: PairOption): void {
     if (this.cards.length >= 2) return;
-    const id = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-    this.cards = [...this.cards, { ...option, id }];
+    if (this.cards.some((c) => c.id === option.id)) return;
+    this.cards = [...this.cards, { ...option }];
+    this.query = '';
+    this.filteredOptions = [];
     this.persist();
   }
 

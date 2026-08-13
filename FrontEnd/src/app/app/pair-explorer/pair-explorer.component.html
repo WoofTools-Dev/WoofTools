@@ -99,6 +99,11 @@
                                     <a [href]="buildExplorerUrl(element)" target="_blank" rel="noopener">
                                         <i class="material-icons action-icon">analytics</i>
                                     </a>
+                                    <button class="pe-multichart-btn" (click)="$event.stopPropagation(); addToMultiChart(element)"
+                                            title="Añadir al MultiChart" aria-label="Añadir al MultiChart">
+                                        <i class="material-icons">ssid_chart</i>
+                                        <span>MultiChart</span>
+                                    </button>
                                 </div>
                             </td>
                         </ng-container>

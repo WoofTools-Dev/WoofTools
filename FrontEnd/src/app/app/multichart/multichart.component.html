@@ -40,7 +40,7 @@
                         </span>
                         <button class="card-remove" (click)="removeCard(card.id)" title="Remove chart" aria-label="Remove chart">✕</button>
                     </div>
-                    <token-chart [data]="card.prices" [times]="card.times" [height]="120" [showAxes]="false"></token-chart>
+                    <candlestick-chart [data]="card.prices" [times]="card.times" [height]="150"></candlestick-chart>
                     <div class="chart-footer">
                         <span class="pop-label">{{ card.metricLabel }}</span>
                         <span class="pop-bar"><span class="pop-fill" [style.width.%]="Math.min(card.metric ?? 0, 100)"></span></span>
