@@ -216,7 +216,7 @@ describe('DashboardComponent', () => {
   it('should filter table via search service', fakeAsync(() => {
     searchService.setQuery('BONK');
     tick();
-    expect(component.dataSource.filter).toBe('bonk');
+    expect(component.dataSource.filter).toBe('q:bonk');
   }));
 
   it('should filter winners via search', fakeAsync(() => {
@@ -309,5 +309,75 @@ describe('DashboardComponent', () => {
     element.remainingLikes = 0;
     component.likeDashboard(element);
     expect(apiService.addLike).not.toHaveBeenCalledWith('dashboard', 1, '0xabc');
+  });
+
+  it('should sort daily winners by biggest gain first', () => {
+    apiService.getDailyWinners.and.returnValue(of([
+      { id: 1, username: 'A', date: new Date().toISOString(), price: 1, previousPrices: [1, 2, 3], growthPercentage: 5, chain: 'ethereum' },
+      { id: 2, username: 'B', date: new Date().toISOString(), price: 1, previousPrices: [1, 2, 3], growthPercentage: 30, chain: 'ethereum' },
+      { id: 3, username: 'C', date: new Date().toISOString(), price: 1, previousPrices: [1, 2, 3], growthPercentage: 12, chain: 'ethereum' },
+    ]));
+    component['loadData']('ethereum');
+    expect(component.winners.map((w) => w.name)).toEqual(['B', 'C', 'A']);
+  });
+
+  it('should sort daily losers by biggest loss first', () => {
+    apiService.getDailyLosers.and.returnValue(of([
+      { id: 1, username: 'A', date: new Date().toISOString(), price: 1, previousPrices: [1, 2, 3], growthPercentage: -3, chain: 'ethereum' },
+      { id: 2, username: 'B', date: new Date().toISOString(), price: 1, previousPrices: [1, 2, 3], growthPercentage: -25, chain: 'ethereum' },
+      { id: 3, username: 'C', date: new Date().toISOString(), price: 1, previousPrices: [1, 2, 3], growthPercentage: -8, chain: 'ethereum' },
+    ]));
+    component['loadData']('ethereum');
+    expect(component.losers.map((l) => l.name)).toEqual(['B', 'C', 'A']);
+  });
+
+  it('should sort recently updated by most recent first', () => {
+    const base = Date.now();
+    apiService.getUpdatedRRSS.and.returnValue(of([
+      { id: 1, profileName: 'OLD', lastUpdated: new Date(base - 3600000 * 5).toISOString(), price: 1, previousPrices: [1, 2, 3], growthPercentage: 1, chain: 'ethereum' },
+      { id: 2, profileName: 'NEW', lastUpdated: new Date(base).toISOString(), price: 1, previousPrices: [1, 2, 3], growthPercentage: 1, chain: 'ethereum' },
+    ]));
+    component['loadData']('ethereum');
+    expect(component.updatedRows.map((u) => u.name)).toEqual(['NEW', 'OLD']);
+  });
+
+  it('should sort hot pairs by popularity descending', () => {
+    apiService.getHotPairs.and.returnValue(of([
+      { id: 1, pairName: 'A/WETH', popularity: 10, previousPrices: [1, 2, 3], growthPercentage: 1, chain: 'ethereum' },
+      { id: 2, pairName: 'B/WETH', popularity: 500, previousPrices: [1, 2, 3], growthPercentage: 1, chain: 'ethereum' },
+    ]));
+    component['loadData']('ethereum');
+    expect(component.hotPairsList.map((h) => h.pairName)).toEqual(['B/WETH', 'A/WETH']);
+  });
+
+  it('should filter token table by minimum score', () => {
+    component.onScoreFilter({ target: { value: '90' } } as any);
+    expect(component.dataSource.filteredData.length).toBe(1);
+    expect(component.dataSource.filteredData[0].pairInfo.token0Name).toBe('BONK');
+  });
+
+  it('should filter token table by text input', () => {
+    component.onMainSearch({ target: { value: 'DOGE' } } as any);
+    expect(component.dataSource.filteredData.length).toBe(1);
+    expect(component.dataSource.filteredData[0].pairInfo.token0Name).toBe('DOGE');
+  });
+
+  it('should build dex options and filter token table by dex', () => {
+    const extra = { ...mockDashboardData[0], id: 3, token0Name: 'PEPE', token1Name: 'WETH', pairAddress: '0x3333', dex: ['pancakeswap'] };
+    apiService.getDashboardData.and.returnValue(of([...mockDashboardData, extra]));
+    component['loadData']('ethereum');
+    expect(component.dexOptions).toEqual(['uniswap', 'pancakeswap']);
+    component.onDexFilter({ target: { value: 'pancakeswap' } } as any);
+    expect(component.dataSource.filteredData.length).toBe(1);
+    expect(component.dataSource.filteredData[0].pairInfo.token0Name).toBe('PEPE');
+  });
+
+  it('should clear token filters', () => {
+    component.onScoreFilter({ target: { value: '90' } } as any);
+    component.onMainSearch({ target: { value: 'BONK' } } as any);
+    expect(component.hasTokenFilters).toBe(true);
+    component.clearTokenFilters();
+    expect(component.hasTokenFilters).toBe(false);
+    expect(component.dataSource.filteredData.length).toBe(2);
   });
 });

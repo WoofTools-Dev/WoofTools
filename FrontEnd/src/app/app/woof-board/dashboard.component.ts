@@ -82,6 +82,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   hotPairsSource = new MatTableDataSource<HotPair>([]);
   selectedPair: ChartSelectable | null = null;
   searchQuery = '';
+  mainFilter = '';
+  scoreFilter: number | null = null;
+  dexFilter = '';
+  dexOptions: string[] = [];
   likeError: string | null = null;
 
   activeChainMeta: ChainMeta;
@@ -119,14 +123,35 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.dataSource.filterPredicate = (data: TokenInfo, filter: string) => {
-      const s = filter.toLowerCase();
-      return data.pairInfo.token0Name.toLowerCase().includes(s) ||
-        data.pairInfo.token1Name.toLowerCase().includes(s) ||
-        data.pairInfo.pairAddress.toLowerCase().includes(s) ||
-        data.price.toLowerCase().includes(s);
+      if (!filter) return true;
+      const parts = filter.split('|');
+      for (const part of parts) {
+        if (!part) continue;
+        const sep = part.indexOf(':');
+        if (sep < 0) continue;
+        const key = part.slice(0, sep);
+        const value = part.slice(sep + 1);
+        if (key === 'q' || key === 'm') {
+          const haystack = [
+            data.pairInfo.token0Name,
+            data.pairInfo.token1Name,
+            data.pairInfo.pairAddress,
+            data.price,
+            data.contracts,
+            (data.Dex || []).join(','),
+          ].join(' ').toLowerCase();
+          if (!haystack.includes(value)) return false;
+        } else if (key === 's') {
+          if (data.score < Number(value)) return false;
+        } else if (key === 'd') {
+          if (!(data.Dex || []).includes(value)) return false;
+        }
+      }
+      return true;
     };
     this.dataSource.sortingDataAccessor = (data: TokenInfo, header: string) => {
       switch (header) {
+        case 'pairInfo': return data.pairInfo.token0Name.toLowerCase();
         case 'price': return this.parseCompact(data.price);
         case 'volume': return this.parseCompact(data.volume);
         case 'swaps': return this.parseCompact(data.swaps);
@@ -135,6 +160,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         case 'created': return new Date(data.created).getTime();
         case 'percentage24H': return data.percentage24H;
         case 'score': return data.score;
+        case 'contracts': return data.contracts.toLowerCase();
+        case 'Dex': return (data.Dex && data.Dex[0]) ? data.Dex[0].toLowerCase() : '';
         default: return (data as any)[header] ?? '';
       }
     };
@@ -188,10 +215,15 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       next: ({ dashboard, hotPairs, winners, losers, updated }) => {
         this.buildMainTable(dashboard);
 
-        this.winners = winners.map((w, i) => this.toRankRow(w.username, w.price, w.growthPercentage, w.previousPrices, w.previousTimes, i));
-        this.losers = losers.map((l, i) => this.toRankRow(l.username, l.price, l.growthPercentage, l.previousPrices, l.previousTimes, i));
-        this.updatedRows = updated.map((u, i) => this.toRankRow(u.profileName, u.price, u.growthPercentage, u.previousPrices, u.previousTimes, i));
-        this.hotPairsList = hotPairs;
+        const sortedWinners = [...winners].sort((a, b) => (b.growthPercentage ?? 0) - (a.growthPercentage ?? 0));
+        const sortedLosers = [...losers].sort((a, b) => (a.growthPercentage ?? 0) - (b.growthPercentage ?? 0));
+        const sortedUpdated = [...updated].sort((a, b) => new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime());
+        const sortedHot = [...hotPairs].sort((a, b) => (b.popularity ?? 0) - (a.popularity ?? 0));
+
+        this.winners = sortedWinners.map((w, i) => this.toRankRow(w.username, w.price, w.growthPercentage, w.previousPrices, w.previousTimes, i));
+        this.losers = sortedLosers.map((l, i) => this.toRankRow(l.username, l.price, l.growthPercentage, l.previousPrices, l.previousTimes, i));
+        this.updatedRows = sortedUpdated.map((u, i) => this.toRankRow(u.profileName, u.price, u.growthPercentage, u.previousPrices, u.previousTimes, i));
+        this.hotPairsList = sortedHot;
 
         this.winnersSource.data = this.winners;
         this.losersSource.data = this.losers;
@@ -203,8 +235,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.applySearchFilter();
 
         if (!this.selectedPair) {
-          if (hotPairs.length > 0) {
-            this.selectHotPair(hotPairs[0]);
+          if (this.hotPairsList.length > 0) {
+            this.selectHotPair(this.hotPairsList[0]);
           } else if (this.winners.length > 0) {
             this.selectRow(this.winners[0]);
           }
@@ -228,6 +260,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private buildMainTable(data: DashboardData[]) {
+    const dexSet = new Set<string>();
+    data.forEach((item) => (item.dex || []).forEach((d) => dexSet.add(d)));
+    this.dexOptions = Array.from(dexSet);
+
     this.tokensList = data.map((item) => ({
       pairInfo: {
         swapIcon: this.activeChainMeta.dexIcon,
@@ -403,12 +439,31 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.applySortAndPaginator();
   }
 
-  search(event: any) {
-    const value = event.target.value.trim().toLowerCase();
-    this.dataSource.filter = value;
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+  onMainSearch(event: Event): void {
+    this.mainFilter = (event.target as HTMLInputElement).value;
+    this.applyMainFilters();
+  }
+
+  onScoreFilter(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.scoreFilter = value === '' || value === null ? null : Number(value);
+    this.applyMainFilters();
+  }
+
+  onDexFilter(event: Event): void {
+    this.dexFilter = (event.target as HTMLSelectElement).value;
+    this.applyMainFilters();
+  }
+
+  clearTokenFilters(): void {
+    this.mainFilter = '';
+    this.scoreFilter = null;
+    this.dexFilter = '';
+    this.applyMainFilters();
+  }
+
+  get hasTokenFilters(): boolean {
+    return !!(this.mainFilter || this.scoreFilter !== null || this.dexFilter);
   }
 
   get currentPage(): number {
@@ -478,15 +533,23 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private applySearchFilter() {
-    this.dataSource.filter = this.searchQuery;
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
-
+    this.applyMainFilters();
     this.winnersSource.filter = this.searchQuery;
     this.losersSource.filter = this.searchQuery;
     this.updatedSource.filter = this.searchQuery;
     this.hotPairsSource.filter = this.searchQuery;
+  }
+
+  private applyMainFilters() {
+    const parts: string[] = [];
+    if (this.searchQuery) parts.push(`q:${this.searchQuery}`);
+    if (this.mainFilter.trim()) parts.push(`m:${this.mainFilter.trim().toLowerCase()}`);
+    if (this.scoreFilter !== null && this.scoreFilter !== undefined) parts.push(`s:${this.scoreFilter}`);
+    if (this.dexFilter) parts.push(`d:${this.dexFilter}`);
+    this.dataSource.filter = parts.join('|');
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   private parseCompact(value: string): number {
