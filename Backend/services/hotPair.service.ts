@@ -1,5 +1,6 @@
 import { HotPair as HotPairType } from "@prisma/client";
 import prisma from "../configs/prisma.config";
+import { attachLikeInfo } from "./like.service";
 
 export const createHotPair = async (
   data: Omit<HotPairType, "id">
@@ -10,11 +11,16 @@ export const createHotPair = async (
   return hotPair;
 };
 
-export const getHotPairs = async (chain?: string): Promise<HotPairType[]> => {
+export const getHotPairs = async (
+  chain?: string,
+  walletAddress?: string
+): Promise<
+  (HotPairType & { likedByMe: boolean; myCount: number; remainingLikes: number })[]
+> => {
   const hotPairs = await prisma.hotPair.findMany({
-    where: chain ? { chain } : undefined,
+    where: chain ? { chain, isVisible: true } : { isVisible: true },
   });
-  return hotPairs;
+  return attachLikeInfo(hotPairs, "hotpair", walletAddress);
 };
 
 export const getHotPairById = async (

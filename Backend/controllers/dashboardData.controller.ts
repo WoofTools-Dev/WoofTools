@@ -14,7 +14,9 @@ export const createDashboardData = async (req: Request, res: Response) => {
 export const getDashboardData = async (req: Request, res: Response) => {
   try {
     const chain = typeof req.query.chain === "string" ? req.query.chain : undefined;
-    const records = await DashboardDataService.getDashboardData(chain);
+    const walletAddress =
+      typeof req.query.walletAddress === "string" ? req.query.walletAddress : undefined;
+    const records = await DashboardDataService.getDashboardData(chain, walletAddress);
     res.status(200).json(records);
   } catch (error) {
     res.status(500).json({ error: "Internal server error" });

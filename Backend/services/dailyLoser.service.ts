@@ -12,7 +12,7 @@ export const createDailyLoser = async (
 
 export const getDailyLosers = async (chain?: string): Promise<DailyLoserType[]> => {
   const dailyLosers = await prisma.dailyLoser.findMany({
-    where: chain ? { chain } : undefined,
+    where: chain ? { chain, isVisible: true } : { isVisible: true },
   });
   return dailyLosers;
 };

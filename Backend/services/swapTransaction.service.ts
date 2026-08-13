@@ -9,7 +9,7 @@ export const createSwapTransaction = async (
 
 export const getSwapTransactions = async (chain?: string): Promise<SwapTransactionType[]> => {
   return prisma.swapTransaction.findMany({
-    where: chain ? { chain } : undefined,
+    where: chain ? { chain, isVisible: true } : { isVisible: true },
     orderBy: { createdAt: "desc" },
   });
 };

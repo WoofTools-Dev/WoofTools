@@ -93,7 +93,7 @@ describe("DashboardData — CRUD", () => {
     pairAddress: "0x8ad599c3a0ff1de082011efddc58f1908eb6e6d8",
     price: 3450.5,
     percentage24H: 5.2,
-    score: 92,
+    score: 0,
     contracts: "0x8ad5...e6d8",
     created: now.toISOString(),
     volume: "45.2M",
@@ -517,6 +517,354 @@ describe("UpdatedRRSS — full CRUD (prefix /updatedRRSS)", () => {
   test("DELETE /updatedRRSS/updated-rrss/:id — deletes", async () => {
     const { status } = await request("DELETE", `/updatedRRSS/updated-rrss/${rrssId}`);
     expect(status).toBe(204);
+  });
+});
+
+describe("Likes — system", () => {
+  const WALLET = "0x1111111111111111111111111111111111111111";
+  let likeDashboardId: number;
+  let likeHotPairId: number;
+
+  const dashboardPayload = {
+    token0Name: "LIKE",
+    token1Name: "USDC",
+    pairAddress: "0xabcef0123456789012345678901234567890abc1",
+    price: 1.0,
+    percentage24H: 0.1,
+    score: 0,
+    contracts: "0xabce...abc1",
+    created: now.toISOString(),
+    volume: "1M",
+    swaps: "1K",
+    liquidity: "1K",
+    marketCap: "1M",
+    dex: ["uniswap", "eth"],
+    chain: "ethereum",
+  };
+
+  test("POST /api/dashboard/data — creates a fresh record with score 0", async () => {
+    const { status, data } = await request("POST", "/api/dashboard/data", dashboardPayload);
+    expect(status).toBe(201);
+    expect(data.score).toBe(0);
+    likeDashboardId = data.id;
+  });
+
+  test("POST /api/likes — first like increments count", async () => {
+    const { status, data } = await request("POST", "/api/likes", {
+      entityType: "dashboard",
+      entityId: likeDashboardId,
+      walletAddress: WALLET,
+    });
+    expect(status).toBe(200);
+    expect(data.count).toBe(1);
+    expect(data.likedByMe).toBe(true);
+    expect(data.myCount).toBe(1);
+    expect(data.remaining).toBe(19);
+  });
+
+  test("POST /api/likes — fills up to the limit (20)", async () => {
+    for (let i = 2; i <= 20; i++) {
+      const { status, data } = await request("POST", "/api/likes", {
+        entityType: "dashboard",
+        entityId: likeDashboardId,
+        walletAddress: WALLET,
+      });
+      expect(status).toBe(200);
+      expect(data.count).toBe(i);
+    }
+    const { status, data } = await request("POST", "/api/likes", {
+      entityType: "dashboard",
+      entityId: likeDashboardId,
+      walletAddress: WALLET,
+    });
+    expect(status).toBe(400);
+    expect(data.error).toContain("limit");
+  });
+
+  test("GET /api/likes/status — reports remaining likes", async () => {
+    const { status, data } = await request(
+      "GET",
+      `/api/likes/status?entityType=dashboard&entityId=${likeDashboardId}&walletAddress=${WALLET}`
+    );
+    expect(status).toBe(200);
+    expect(data.count).toBe(20);
+    expect(data.myCount).toBe(20);
+    expect(data.remaining).toBe(0);
+    expect(data.maxLikes).toBe(20);
+  });
+
+  test("GET /api/dashboard/data?walletAddress= — enriches list with like info", async () => {
+    const { status, data } = await request(
+      "GET",
+      `/api/dashboard/data?walletAddress=${WALLET}`
+    );
+    expect(status).toBe(200);
+    const row = data.find((r: any) => r.id === likeDashboardId);
+    expect(row).toBeDefined();
+    expect(row.likedByMe).toBe(true);
+    expect(row.myCount).toBe(20);
+    expect(row.remainingLikes).toBe(0);
+  });
+
+  test("POST /api/likes — rejects invalid wallet address", async () => {
+    const { status, data } = await request("POST", "/api/likes", {
+      entityType: "dashboard",
+      entityId: likeDashboardId,
+      walletAddress: "not-an-address",
+    });
+    expect(status).toBe(400);
+    expect(data.error).toContain("wallet");
+  });
+
+  test("POST /api/likes — rejects invalid entityType", async () => {
+    const { status, data } = await request("POST", "/api/likes", {
+      entityType: "unknown",
+      entityId: likeDashboardId,
+      walletAddress: WALLET,
+    });
+    expect(status).toBe(400);
+    expect(data.error).toContain("entityType");
+  });
+
+  test("POST /api/likes — 404 for missing entity", async () => {
+    const { status, data } = await request("POST", "/api/likes", {
+      entityType: "dashboard",
+      entityId: 999999,
+      walletAddress: WALLET,
+    });
+    expect(status).toBe(404);
+    expect(data.error).toContain("not found");
+  });
+
+  test("POST /api/hotpair/hot-pairs — popularity starts at 0", async () => {
+    const { status, data } = await request("POST", "/hotpair/hot-pairs", {
+      pairName: "LIKE/USDC",
+      popularity: 0,
+      price: 1.0,
+      previousPrices: [1.0, 1.1],
+      previousTimes: [1000, 2000],
+      growthPercentage: 1.0,
+      chain: "ethereum",
+    });
+    expect(status).toBe(201);
+    expect(data.popularity).toBe(0);
+    likeHotPairId = data.id;
+  });
+
+  test("POST /api/likes — increments hotpair popularity", async () => {
+    const { status, data } = await request("POST", "/api/likes", {
+      entityType: "hotpair",
+      entityId: likeHotPairId,
+      walletAddress: WALLET,
+    });
+    expect(status).toBe(200);
+    expect(data.count).toBe(1);
+  });
+
+  test("GET /hotpair/hot-pairs?walletAddress= — enriches list with like info", async () => {
+    const { status, data } = await request(
+      "GET",
+      `/hotpair/hot-pairs?walletAddress=${WALLET}`
+    );
+    expect(status).toBe(200);
+    const row = data.find((r: any) => r.id === likeHotPairId);
+    expect(row).toBeDefined();
+    expect(row.likedByMe).toBe(true);
+    expect(row.myCount).toBe(1);
+    expect(row.remainingLikes).toBe(19);
+    expect(row.popularity).toBe(1);
+  });
+
+  afterAll(async () => {
+    await request("DELETE", `/api/dashboard/data/${likeDashboardId}`);
+    await request("DELETE", `/hotpair/hot-pairs/${likeHotPairId}`);
+  });
+});
+
+describe("isVisible — read filtering", () => {
+  const created: string[] = [];
+
+  const entities = [
+    {
+      name: "dashboard",
+      post: "/api/dashboard/data",
+      list: "/api/dashboard/data",
+      idField: "pairAddress",
+      payload: (tag: string) => ({
+        token0Name: tag,
+        token1Name: "USDT",
+        pairAddress: `0x${"abc".repeat(14)}${tag.slice(-4)}`,
+        price: 1.0,
+        percentage24H: 0.1,
+        score: 0,
+        contracts: "0xhidden",
+        created: now.toISOString(),
+        volume: "1M",
+        swaps: "1K",
+        liquidity: "1K",
+        marketCap: "1M",
+        dex: ["uniswap", "eth"],
+        chain: "ethereum",
+        isVisible: false,
+      }),
+    },
+    {
+      name: "livePair",
+      post: "/api/live-pairs",
+      list: "/api/live-pairs",
+      idField: "pairAddress",
+      payload: (tag: string) => ({
+        token0Name: tag,
+        token1Name: "WETH",
+        pairAddress: `0x${"cde".repeat(14)}${tag.slice(-4)}`,
+        listedSince: now.toISOString(),
+        tokenPriceUSD: 0.001,
+        initialLiquidity: "0.5 ETH",
+        totalLiquidity: "15%",
+        poolAmount: "0.575 ETH",
+        poolVariation: 15,
+        poolRemaining: "2.1 ETH",
+        contract: "0xhidden",
+        chain: "ethereum",
+        isVisible: false,
+      }),
+    },
+    {
+      name: "swap",
+      post: "/api/swaps",
+      list: "/api/swaps",
+      idField: "txHash",
+      payload: (tag: string) => ({
+        token0Name: tag,
+        token1Name: "USDT",
+        pairAddress: `0x${"def".repeat(14)}${tag.slice(-4)}`,
+        executionTime: now.toISOString(),
+        type: "BUY",
+        quantity: 10,
+        totalETH: 1.0,
+        totalUSD: 2500,
+        variation: 2.0,
+        maker: "0xmaker",
+        txHash: `0x${"fee".repeat(14)}${tag.slice(-4)}`,
+        chain: "ethereum",
+        isVisible: false,
+      }),
+    },
+    {
+      name: "dailyWinner",
+      post: "/dailyWinner/daily-winners",
+      list: "/dailyWinner/daily-winners",
+      idField: "username",
+      payload: (tag: string) => ({
+        username: tag,
+        date: now.toISOString(),
+        walletAddress: "0xwinner",
+        price: 100.5,
+        previousPrices: [95.0, 98.0],
+        growthPercentage: 5.0,
+        chain: "ethereum",
+        isVisible: false,
+      }),
+    },
+    {
+      name: "dailyLoser",
+      post: "/dailyLoser/daily-losers",
+      list: "/dailyLoser/daily-losers",
+      idField: "username",
+      payload: (tag: string) => ({
+        username: tag,
+        date: now.toISOString(),
+        walletAddress: "0xloser",
+        price: 10.0,
+        previousPrices: [15.0, 12.0],
+        growthPercentage: -20.0,
+        chain: "ethereum",
+        isVisible: false,
+      }),
+    },
+    {
+      name: "updatedRRSS",
+      post: "/updatedRRSS/updated-rrss",
+      list: "/updatedRRSS/updated-rrss",
+      idField: "profileName",
+      payload: (tag: string) => ({
+        profileName: tag,
+        lastUpdated: now.toISOString(),
+        walletAddress: "0xrrss",
+        price: 50.0,
+        previousPrices: [45.0, 48.0],
+        growthPercentage: 10.0,
+        chain: "ethereum",
+        isVisible: false,
+      }),
+    },
+    {
+      name: "hotpair",
+      post: "/hotpair/hot-pairs",
+      list: "/hotpair/hot-pairs",
+      idField: "pairName",
+      payload: (tag: string) => ({
+        pairName: tag,
+        popularity: 0,
+        price: 1.0,
+        previousPrices: [1.0, 1.1],
+        growthPercentage: 1.0,
+        chain: "ethereum",
+        isVisible: false,
+      }),
+    },
+  ];
+
+  afterAll(async () => {
+    for (const deletePath of created) {
+      await request("DELETE", deletePath);
+    }
+  });
+
+  test("rows with isVisible=false are excluded from every read endpoint", async () => {
+    for (const entity of entities) {
+      const tag = `HID_${entity.name}`;
+      const { status, data } = await request("POST", entity.post, entity.payload(tag));
+      expect(status).toBe(201);
+      expect(data.isVisible).toBe(false);
+      created.push(`/${entity.post.split("/").filter(Boolean).join("/")}/${data.id}`);
+
+      const listRes = await request("GET", entity.list);
+      expect(listRes.status).toBe(200);
+      const found = (listRes.data as any[]).find(
+        (row: any) => row[entity.idField] === tag
+      );
+      expect(found).toBeUndefined();
+    }
+  });
+
+  test("rows with isVisible=true remain visible in read endpoints", async () => {
+    const { status, data } = await request("POST", "/api/dashboard/data", {
+      token0Name: "VISIBLE",
+      token1Name: "USDT",
+      pairAddress: "0xbabababababababababababababababababababe",
+      price: 1.0,
+      percentage24H: 0.1,
+      score: 0,
+      contracts: "0xvisible",
+      created: now.toISOString(),
+      volume: "1M",
+      swaps: "1K",
+      liquidity: "1K",
+      marketCap: "1M",
+      dex: ["uniswap", "eth"],
+      chain: "ethereum",
+      isVisible: true,
+    });
+    expect(status).toBe(201);
+    created.push(`/api/dashboard/data/${data.id}`);
+
+    const listRes = await request("GET", "/api/dashboard/data");
+    expect(listRes.status).toBe(200);
+    const found = (listRes.data as any[]).find(
+      (row: any) => row.pairAddress === "0xbabababababababababababababababababababe"
+    );
+    expect(found).toBeDefined();
   });
 });
 

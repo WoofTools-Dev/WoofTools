@@ -11,6 +11,8 @@ import hotpairRoutes from "./routes/hotPair.routes";
 import dashboardDataRoutes from "./routes/dashboardData.routes";
 import livePairRoutes from "./routes/livePair.routes";
 import swapTransactionRoutes from "./routes/swapTransaction.routes";
+import goplusRoutes from "./routes/goplus.routes";
+import likeRoutes from "./routes/like.routes";
 
 import swaggerFile from "./swagger/swagger.json";
 
@@ -32,6 +34,8 @@ app.use("/hotpair", hotpairRoutes);
 app.use("/api", dashboardDataRoutes);
 app.use("/api", livePairRoutes);
 app.use("/api", swapTransactionRoutes);
+app.use("/api", goplusRoutes);
+app.use("/api", likeRoutes);
 
 app.get("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 

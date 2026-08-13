@@ -1,5 +1,6 @@
 import { DashboardData as DashboardDataType } from "@prisma/client";
 import prisma from "../configs/prisma.config";
+import { attachLikeInfo } from "./like.service";
 
 export const createDashboardData = async (
   data: Omit<DashboardDataType, "id" | "createdAt">
@@ -7,11 +8,17 @@ export const createDashboardData = async (
   return prisma.dashboardData.create({ data });
 };
 
-export const getDashboardData = async (chain?: string): Promise<DashboardDataType[]> => {
-  return prisma.dashboardData.findMany({
-    where: chain ? { chain } : undefined,
+export const getDashboardData = async (
+  chain?: string,
+  walletAddress?: string
+): Promise<
+  (DashboardDataType & { likedByMe: boolean; myCount: number; remainingLikes: number })[]
+> => {
+  const records = await prisma.dashboardData.findMany({
+    where: chain ? { chain, isVisible: true } : { isVisible: true },
     orderBy: { createdAt: "desc" },
   });
+  return attachLikeInfo(records, "dashboard", walletAddress);
 };
 
 export const getDashboardDataById = async (
