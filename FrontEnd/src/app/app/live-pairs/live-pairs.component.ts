@@ -84,6 +84,23 @@ export class LivePairsComponent implements OnInit, AfterViewInit, OnDestroy {
         data.pairInfo.pairAddress.toLowerCase().includes(s) ||
         data.tokenPriceUSD.toLowerCase().includes(s);
     };
+    this.dataSource.sortingDataAccessor = (data: TokenInfo, header: string) => {
+      switch (header) {
+        case 'tokenPriceUSD':
+          return parseFloat(String(data.tokenPriceUSD).replace(/[$,\s]/g, '')) || 0;
+        case 'initialLiquidity':
+        case 'totalLiquidity':
+        case 'poolAmount':
+        case 'poolRemaining':
+          return this.parseLeadingNumber(data[header as keyof TokenInfo] as unknown as string);
+        case 'poolVariation':
+          return data.poolVariation;
+        case 'listedSince':
+          return new Date(data.listedSince).getTime();
+        default:
+          return (data as any)[header] ?? '';
+      }
+    };
 
     this.fetchData();
     this.pollSub = interval(this.POLL_INTERVAL).subscribe(() => {
@@ -219,6 +236,12 @@ export class LivePairsComponent implements OnInit, AfterViewInit, OnDestroy {
         this.dataSource.sort = this.sort;
       }
     }
+  }
+
+  private parseLeadingNumber(value: string): number {
+    if (!value) return 0;
+    const match = String(value).match(/(\d*\.?\d+)/);
+    return match ? parseFloat(match[1]) : 0;
   }
 
   generateAvatarInitials(name: string): string {

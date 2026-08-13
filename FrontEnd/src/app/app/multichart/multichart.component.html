@@ -4,29 +4,54 @@
         <div class="col-12">
             <h1 class="heading-primary">MultiChart</h1>
             <div class="subtitle-container">
-                <p class="ether">Hot pair charts on <span>{{ activeChainMeta.name }}</span> ({{ activeChainMeta.dex }})</p>
+                <p class="ether">Add charts from live new pairs on <span>{{ activeChainMeta.name }}</span> ({{ activeChainMeta.dex }}) and trade up to 2 pairs at the same time</p>
+            </div>
+
+            <div class="picker-bar" *ngIf="!pickerLocked">
+                <input
+                    class="picker-input"
+                    type="text"
+                    [value]="query"
+                    (input)="onQuery($event)"
+                    placeholder="Search a pair (live new pairs / hot pairs)..."
+                    maxlength="64">
+                <ul class="picker-results" *ngIf="query">
+                    <li *ngFor="let opt of filteredOptions" (click)="addCard(opt)">
+                        <img [src]="opt.tokenIcon" (error)="handleImgError($event)" width="18" height="18" alt="">
+                        <span class="picker-name">{{ opt.name }}</span>
+                        <span class="picker-price">${{ opt.price | number: '1.2-8' }}</span>
+                        <span class="picker-add">Add</span>
+                    </li>
+                    <li class="picker-empty" *ngIf="query && filteredOptions.length === 0">No pairs match "{{ query }}"</li>
+                </ul>
+            </div>
+            <div class="picker-locked" *ngIf="pickerLocked">
+                <span>Maximum of 2 charts added.</span>
+                <button class="link-btn" (click)="clearCards()">Clear charts</button>
             </div>
 
             <div class="charts-grid">
                 <div class="chart-card" *ngFor="let card of cards">
                     <div class="chart-header">
                         <img [src]="card.tokenIcon" (error)="handleImgError($event)" class="token-logo" width="24" height="24" alt="">
-                        <span class="chart-pair">{{ card.pairName }}</span>
+                        <span class="chart-pair">{{ card.name }}</span>
                         <span class="chart-growth" [class.up]="card.growthPercentage >= 0" [class.down]="card.growthPercentage < 0">
                             {{ card.growthPercentage >= 0 ? '+' : '' }}{{ card.growthPercentage | number: '1.2-2' }}%
                         </span>
+                        <button class="card-remove" (click)="removeCard(card.id)" title="Remove chart" aria-label="Remove chart">✕</button>
                     </div>
                     <token-chart [data]="card.prices" [times]="card.times" [height]="120" [showAxes]="false"></token-chart>
                     <div class="chart-footer">
-                        <span class="pop-label">Popularity</span>
-                        <span class="pop-bar"><span class="pop-fill" [style.width.%]="Math.min(card.popularity, 100)"></span></span>
-                        <span class="pop-value">{{ card.popularity }}</span>
+                        <span class="pop-label">{{ card.metricLabel }}</span>
+                        <span class="pop-bar"><span class="pop-fill" [style.width.%]="Math.min(card.metric ?? 0, 100)"></span></span>
+                        <span class="pop-value">{{ card.metric }}</span>
                     </div>
+                    <button class="swap-btn" (click)="swapCard(card)">Swap</button>
                 </div>
             </div>
 
             <div class="empty-state" *ngIf="dataLoaded && cards.length === 0">
-                <p>No hot pairs found for {{ activeChainMeta.name }}.</p>
+                <p>Add a pair from live new pairs (or hot pairs) to start. Up to 2 charts at the same time.</p>
             </div>
         </div>
     </div>

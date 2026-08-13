@@ -10,10 +10,15 @@
 }
 
 /* Widget outer wrapper */
-.customReactComponentContainer > span {
+.customReactComponentContainer {
   display: flex;
   justify-content: center;
   width: 100%;
+}
+
+.customReactComponentContainer .swap-zone {
+  width: 100%;
+  max-width: 440px;
 }
 
 /* Widget main container */

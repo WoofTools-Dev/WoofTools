@@ -76,10 +76,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   losers: RankRow[] = [];
   updatedRows: RankRow[] = [];
   hotPairsList: HotPair[] = [];
-  filteredWinners: RankRow[] = [];
-  filteredLosers: RankRow[] = [];
-  filteredUpdated: RankRow[] = [];
-  filteredHotPairs: HotPair[] = [];
+  winnersSource = new MatTableDataSource<RankRow>([]);
+  losersSource = new MatTableDataSource<RankRow>([]);
+  updatedSource = new MatTableDataSource<RankRow>([]);
+  hotPairsSource = new MatTableDataSource<HotPair>([]);
   selectedPair: ChartSelectable | null = null;
   searchQuery = '';
   likeError: string | null = null;
@@ -110,8 +110,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   pageSize = 15;
   pageSizeOptions = [5, 10, 15, 25, 50, 100];
 
-  @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild('mainSort', { static: false }) sort!: MatSort;
   @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild('winnersSort', { static: false }) winnersSort!: MatSort;
+  @ViewChild('losersSort', { static: false }) losersSort!: MatSort;
+  @ViewChild('updatedSort', { static: false }) updatedSort!: MatSort;
+  @ViewChild('hotPairsSort', { static: false }) hotPairsSort!: MatSort;
 
   ngOnInit(): void {
     this.dataSource.filterPredicate = (data: TokenInfo, filter: string) => {
@@ -120,6 +124,43 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         data.pairInfo.token1Name.toLowerCase().includes(s) ||
         data.pairInfo.pairAddress.toLowerCase().includes(s) ||
         data.price.toLowerCase().includes(s);
+    };
+    this.dataSource.sortingDataAccessor = (data: TokenInfo, header: string) => {
+      switch (header) {
+        case 'price': return this.parseCompact(data.price);
+        case 'volume': return this.parseCompact(data.volume);
+        case 'swaps': return this.parseCompact(data.swaps);
+        case 'liquidity': return this.parseCompact(data.liquidity);
+        case 'TMCap': return this.parseCompact(data.TMCap);
+        case 'created': return new Date(data.created).getTime();
+        case 'percentage24H': return data.percentage24H;
+        case 'score': return data.score;
+        default: return (data as any)[header] ?? '';
+      }
+    };
+
+    this.winnersSource.filterPredicate = (row: RankRow, filter: string) => this.matches(filter, row.name);
+    this.losersSource.filterPredicate = (row: RankRow, filter: string) => this.matches(filter, row.name);
+    this.updatedSource.filterPredicate = (row: RankRow, filter: string) => this.matches(filter, row.name);
+    this.hotPairsSource.filterPredicate = (pair: HotPair, filter: string) => this.matches(filter, pair.pairName);
+
+    this.winnersSource.sortingDataAccessor = (row: RankRow, header: string) => {
+      switch (header) {
+        case 'rank': return row.rank;
+        case 'price': return row.price;
+        case 'change': return row.percentage;
+        default: return row.name;
+      }
+    };
+    this.losersSource.sortingDataAccessor = this.winnersSource.sortingDataAccessor;
+    this.updatedSource.sortingDataAccessor = this.winnersSource.sortingDataAccessor;
+    this.hotPairsSource.sortingDataAccessor = (pair: HotPair, header: string) => {
+      switch (header) {
+        case 'price': return pair.price ?? 0;
+        case 'change': return pair.growthPercentage ?? 0;
+        case 'likes': return pair.popularity ?? 0;
+        default: return pair.pairName;
+      }
     };
 
     this.chainSub = this.chainService.chain$.subscribe((chain) => {
@@ -152,6 +193,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.updatedRows = updated.map((u, i) => this.toRankRow(u.profileName, u.price, u.growthPercentage, u.previousPrices, u.previousTimes, i));
         this.hotPairsList = hotPairs;
 
+        this.winnersSource.data = this.winners;
+        this.losersSource.data = this.losers;
+        this.updatedSource.data = this.updatedRows;
+        this.hotPairsSource.data = this.hotPairsList;
+
         this.dataLoaded = true;
         this.applySortAndPaginator();
         this.applySearchFilter();
@@ -171,6 +217,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.losers = [];
         this.updatedRows = [];
         this.hotPairsList = [];
+        this.winnersSource.data = [];
+        this.losersSource.data = [];
+        this.updatedSource.data = [];
+        this.hotPairsSource.data = [];
         this.applySortAndPaginator();
         this.applySearchFilter();
       },
@@ -409,6 +459,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.dataSource.sort = this.sort;
       }
     }
+    if (this.winnersSort) {
+      this.winnersSource.sort = this.winnersSort;
+    }
+    if (this.losersSort) {
+      this.losersSource.sort = this.losersSort;
+    }
+    if (this.updatedSort) {
+      this.updatedSource.sort = this.updatedSort;
+    }
+    if (this.hotPairsSort) {
+      this.hotPairsSource.sort = this.hotPairsSort;
+    }
   }
 
   private matches(query: string, value: string): boolean {
@@ -421,19 +483,21 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.dataSource.paginator.firstPage();
     }
 
-    const q = this.searchQuery;
-    this.filteredWinners = q
-      ? this.winners.filter(r => this.matches(q, r.name))
-      : [...this.winners];
-    this.filteredLosers = q
-      ? this.losers.filter(r => this.matches(q, r.name))
-      : [...this.losers];
-    this.filteredUpdated = q
-      ? this.updatedRows.filter(r => this.matches(q, r.name))
-      : [...this.updatedRows];
-    this.filteredHotPairs = q
-      ? this.hotPairsList.filter(p => this.matches(q, p.pairName))
-      : [...this.hotPairsList];
+    this.winnersSource.filter = this.searchQuery;
+    this.losersSource.filter = this.searchQuery;
+    this.updatedSource.filter = this.searchQuery;
+    this.hotPairsSource.filter = this.searchQuery;
+  }
+
+  private parseCompact(value: string): number {
+    if (!value) return 0;
+    const s = String(value).replace(/[$,\s]/g, '');
+    const match = s.match(/^(-?\d*\.?\d+)([kKmMbBtT]?)$/);
+    if (!match) return parseFloat(s) || 0;
+    const num = parseFloat(match[1]);
+    const suffix = match[2].toLowerCase();
+    const mult = suffix === 'k' ? 1e3 : suffix === 'm' ? 1e6 : suffix === 'b' ? 1e9 : suffix === 't' ? 1e12 : 1;
+    return num * mult;
   }
 
   getTokenIcon(name: string): string {

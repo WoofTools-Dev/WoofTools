@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BrowserProvider, Contract, formatUnits, parseUnits } from "ethers";
 import {
   SHIBASWAP,
@@ -26,6 +26,7 @@ import TokenSecurityBanner from "./token-security-banner";
 
 interface ShibaSwapWidgetProps {
   provider: BrowserProvider | null;
+  initialTokenSymbol?: string;
 }
 
 const SHIBARIUM_CHAIN_ID = CHAINS.shibarium.chainId;
@@ -39,7 +40,7 @@ function getTokenByAddress(address: string): ShibaToken {
   return hit || WBONE;
 }
 
-export default function ShibaSwapWidget({ provider }: ShibaSwapWidgetProps) {
+export default function ShibaSwapWidget({ provider, initialTokenSymbol }: ShibaSwapWidgetProps) {
   const [tokenIn, setTokenIn] = useState<ShibaToken>(SHIBARIUM_TOKENS[0]);
   const [tokenOut, setTokenOut] = useState<ShibaToken>(SHIBARIUM_TOKENS[4]);
   const [amountIn, setAmountIn] = useState("");
@@ -321,6 +322,14 @@ export default function ShibaSwapWidget({ provider }: ShibaSwapWidgetProps) {
     setAmountIn("");
     setAmountOut("");
   };
+
+  const preselectApplied = useRef<string | null>(null);
+  useEffect(() => {
+    if (initialTokenSymbol && preselectApplied.current !== initialTokenSymbol) {
+      selectTokenIn(initialTokenSymbol);
+      preselectApplied.current = initialTokenSymbol;
+    }
+  }, [initialTokenSymbol]);
 
   const swapDisabled = loading || (securityStatus === "available" && riskSummary?.level === "critical");
 

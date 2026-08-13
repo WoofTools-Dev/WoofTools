@@ -7,10 +7,10 @@
             <div class="search-active-bar" *ngIf="searchQuery">
                 <span class="search-label">Searching: "{{ searchQuery }}"</span>
                 <span class="search-count">
-                    {{ filteredWinners.length }} winners ·
-                    {{ filteredLosers.length }} losers ·
-                    {{ filteredUpdated.length }} recently updated ·
-                    {{ filteredHotPairs.length }} hot pairs ·
+                    {{ winnersSource.filteredData.length }} winners ·
+                    {{ losersSource.filteredData.length }} losers ·
+                    {{ updatedSource.filteredData.length }} recently updated ·
+                    {{ hotPairsSource.filteredData.length }} hot pairs ·
                     {{ dataSource.filteredData.length || 0 }} table rows
                 </span>
             </div>
@@ -27,8 +27,8 @@
                             {{ selectedPair.growthPercentage >= 0 ? '+' : '' }}{{ selectedPair.growthPercentage | number: '1.2-2' }}%
                         </span>
                     </div>
-                    <div class="main-chart-tabs" *ngIf="filteredHotPairs.length > 0">
-                        <button *ngFor="let pair of filteredHotPairs.slice(0, 5)"
+                    <div class="main-chart-tabs" *ngIf="hotPairsSource.filteredData.length > 0">
+                        <button *ngFor="let pair of hotPairsSource.filteredData.slice(0, 5)"
                                 class="chart-tab"
                                 [class.active]="selectedPair.name === pair.pairName"
                                 (click)="selectHotPair(pair)">
@@ -52,15 +52,15 @@
                         Daily Winners
                     </h2>
                     <div class="table-scroll mini-scroll">
-                        <table mat-table [dataSource]="filteredWinners">
+                        <table mat-table [dataSource]="winnersSource" matSort #winnersSort="matSort">
                             <ng-container matColumnDef="rank">
-                                <th mat-header-cell *matHeaderCellDef>#</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
                                 <td mat-cell *matCellDef="let row; let i = index">
                                     <span class="mini-rank" [class.active]="i < 3">{{ row.rank }}</span>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="name">
-                                <th mat-header-cell *matHeaderCellDef>Token</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Token</th>
                                 <td mat-cell *matCellDef="let row">
                                     <div class="mini-name">
                                         <img [src]="getTokenIcon(row.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
@@ -69,11 +69,11 @@
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="price">
-                                <th mat-header-cell *matHeaderCellDef>Price</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
                                 <td mat-cell *matCellDef="let row">${{ row.price | number: '1.2-8' }}</td>
                             </ng-container>
                             <ng-container matColumnDef="change">
-                                <th mat-header-cell *matHeaderCellDef>Change</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Change</th>
                                 <td mat-cell *matCellDef="let row">
                                     <span class="mini-change" [class.text-success]="row.isPositive" [class.text-danger]="!row.isPositive">
                                         {{ row.percentage >= 0 ? '+' : '' }}{{ row.percentage | number: '1.2-2' }}%
@@ -82,7 +82,7 @@
                             </ng-container>
                             <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectRow(row)"></tr>
                         </table>
-                        <div class="no-results" *ngIf="filteredWinners.length === 0">No results</div>
+                        <div class="no-results" *ngIf="winnersSource.filteredData.length === 0">No results</div>
                     </div>
                 </div>
 
@@ -92,15 +92,15 @@
                         Daily Losers
                     </h2>
                     <div class="table-scroll mini-scroll">
-                        <table mat-table [dataSource]="filteredLosers">
+                        <table mat-table [dataSource]="losersSource" matSort #losersSort="matSort">
                             <ng-container matColumnDef="rank">
-                                <th mat-header-cell *matHeaderCellDef>#</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
                                 <td mat-cell *matCellDef="let row; let i = index">
                                     <span class="mini-rank" [class.active]="i < 3">{{ row.rank }}</span>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="name">
-                                <th mat-header-cell *matHeaderCellDef>Token</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Token</th>
                                 <td mat-cell *matCellDef="let row">
                                     <div class="mini-name">
                                         <img [src]="getTokenIcon(row.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
@@ -109,11 +109,11 @@
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="price">
-                                <th mat-header-cell *matHeaderCellDef>Price</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
                                 <td mat-cell *matCellDef="let row">${{ row.price | number: '1.2-8' }}</td>
                             </ng-container>
                             <ng-container matColumnDef="change">
-                                <th mat-header-cell *matHeaderCellDef>Change</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Change</th>
                                 <td mat-cell *matCellDef="let row">
                                     <span class="mini-change" [class.text-success]="row.isPositive" [class.text-danger]="!row.isPositive">
                                         {{ row.percentage >= 0 ? '+' : '' }}{{ row.percentage | number: '1.2-2' }}%
@@ -122,7 +122,7 @@
                             </ng-container>
                             <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectRow(row)"></tr>
                         </table>
-                        <div class="no-results" *ngIf="filteredLosers.length === 0">No results</div>
+                        <div class="no-results" *ngIf="losersSource.filteredData.length === 0">No results</div>
                     </div>
                 </div>
 
@@ -132,15 +132,15 @@
                         Recently Updated
                     </h2>
                     <div class="table-scroll mini-scroll">
-                        <table mat-table [dataSource]="filteredUpdated">
+                        <table mat-table [dataSource]="updatedSource" matSort #updatedSort="matSort">
                             <ng-container matColumnDef="rank">
-                                <th mat-header-cell *matHeaderCellDef>#</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
                                 <td mat-cell *matCellDef="let row; let i = index">
                                     <span class="mini-rank" [class.active]="i < 3">{{ row.rank }}</span>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="name">
-                                <th mat-header-cell *matHeaderCellDef>Token</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Token</th>
                                 <td mat-cell *matCellDef="let row">
                                     <div class="mini-name">
                                         <img [src]="getTokenIcon(row.name)" (error)="handleImgError($event)" width="20" height="20" alt="">
@@ -149,11 +149,11 @@
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="price">
-                                <th mat-header-cell *matHeaderCellDef>Price</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
                                 <td mat-cell *matCellDef="let row">${{ row.price | number: '1.2-8' }}</td>
                             </ng-container>
                             <ng-container matColumnDef="change">
-                                <th mat-header-cell *matHeaderCellDef>Change</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Change</th>
                                 <td mat-cell *matCellDef="let row">
                                     <span class="mini-change" [class.text-success]="row.isPositive" [class.text-danger]="!row.isPositive">
                                         {{ row.percentage >= 0 ? '+' : '' }}{{ row.percentage | number: '1.2-2' }}%
@@ -162,7 +162,7 @@
                             </ng-container>
                             <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectRow(row)"></tr>
                         </table>
-                        <div class="no-results" *ngIf="filteredUpdated.length === 0">No results</div>
+                        <div class="no-results" *ngIf="updatedSource.filteredData.length === 0">No results</div>
                     </div>
                 </div>
 
@@ -172,15 +172,15 @@
                         Hot Pairs
                     </h2>
                     <div class="table-scroll mini-scroll">
-                        <table mat-table [dataSource]="filteredHotPairs">
+                        <table mat-table [dataSource]="hotPairsSource" matSort #hotPairsSort="matSort">
                             <ng-container matColumnDef="rank">
-                                <th mat-header-cell *matHeaderCellDef>#</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
                                 <td mat-cell *matCellDef="let row; let i = index">
                                     <span class="mini-rank" [class.active]="i < 3">{{ i + 1 }}</span>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="name">
-                                <th mat-header-cell *matHeaderCellDef>Pair</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Pair</th>
                                 <td mat-cell *matCellDef="let row">
                                     <div class="mini-name">
                                         <img [src]="getTokenIcon(row.pairName)" (error)="handleImgError($event)" width="20" height="20" alt="">
@@ -189,11 +189,11 @@
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="price">
-                                <th mat-header-cell *matHeaderCellDef>Price</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
                                 <td mat-cell *matCellDef="let row">${{ row.price || 0 | number: '1.2-8' }}</td>
                             </ng-container>
                             <ng-container matColumnDef="change">
-                                <th mat-header-cell *matHeaderCellDef>Change</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Change</th>
                                 <td mat-cell *matCellDef="let row">
                                     <span class="mini-change" [class.text-success]="(row.growthPercentage || 0) >= 0" [class.text-danger]="(row.growthPercentage || 0) < 0">
                                         {{ row.growthPercentage >= 0 ? '+' : '' }}{{ (row.growthPercentage || 0) | number: '1.2-2' }}%
@@ -201,7 +201,7 @@
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="likes">
-                                <th mat-header-cell *matHeaderCellDef>Likes</th>
+                                <th mat-header-cell *matHeaderCellDef mat-sort-header>Likes</th>
                                 <td mat-cell *matCellDef="let row">
                                     <button class="like-btn mini-like"
                                             [class.liked]="row.likedByMe"
@@ -215,7 +215,7 @@
                             </ng-container>
                             <tr mat-row *matRowDef="let row; columns: hotPairColumns;" class="clickable-row" (click)="selectHotPair(row)"></tr>
                         </table>
-                        <div class="no-results" *ngIf="filteredHotPairs.length === 0">No results</div>
+                        <div class="no-results" *ngIf="hotPairsSource.filteredData.length === 0">No results</div>
                     </div>
                 </div>
             </div>
@@ -239,7 +239,7 @@
                     </div>
                 </div>
                 <div class="table-scroll">
-                  <table mat-table [dataSource]="dataSource">
+                  <table mat-table [dataSource]="dataSource" matSort #mainSort="matSort">
 
                       <ng-container matColumnDef="pairInfo">
                           <th mat-header-cell *matHeaderCellDef>Pair Info</th>
@@ -258,12 +258,12 @@
                         </ng-container>
 
                         <ng-container matColumnDef="price">
-                          <th mat-header-cell *matHeaderCellDef>Price</th>
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Price</th>
                           <td mat-cell *matCellDef="let element">{{element.price}}</td>
                         </ng-container>
 
                         <ng-container matColumnDef="percentage24H">
-                          <th mat-header-cell *matHeaderCellDef>%24h</th>
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>%24h</th>
                           <td mat-cell *matCellDef="let element">
                               <span [ngClass]="{
                                   'text-danger': element.percentage24H < 0,
@@ -273,7 +273,7 @@
                         </ng-container>
 
                         <ng-container matColumnDef="score">
-                          <th mat-header-cell *matHeaderCellDef>Score</th>
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Score</th>
                           <td mat-cell *matCellDef="let element">
                               <div class="score-badge">{{ element.score }}</div>
                           </td>
@@ -287,27 +287,27 @@
                         </ng-container>
 
                         <ng-container matColumnDef="created">
-                          <th mat-header-cell *matHeaderCellDef>Created</th>
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
                           <td mat-cell *matCellDef="let element">{{ getTimeElapsed(element.created) }}</td>
                         </ng-container>
 
                         <ng-container matColumnDef="volume">
-                          <th mat-header-cell *matHeaderCellDef>Volume</th>
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Volume</th>
                           <td mat-cell *matCellDef="let element">{{ element.volume }}</td>
                         </ng-container>
 
                         <ng-container matColumnDef="swaps">
-                          <th mat-header-cell *matHeaderCellDef>Swaps</th>
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Swaps</th>
                           <td mat-cell *matCellDef="let element">{{ element.swaps }}</td>
                         </ng-container>
 
                         <ng-container matColumnDef="liquidity">
-                          <th mat-header-cell *matHeaderCellDef>Liquidity</th>
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>Liquidity</th>
                           <td mat-cell *matCellDef="let element">{{ element.liquidity }}</td>
                         </ng-container>
 
                         <ng-container matColumnDef="TMCap">
-                          <th mat-header-cell *matHeaderCellDef>T.M.Cap</th>
+                          <th mat-header-cell *matHeaderCellDef mat-sort-header>T.M.Cap</th>
                           <td mat-cell *matCellDef="let element">{{ element.TMCap }}</td>
                         </ng-container>
 

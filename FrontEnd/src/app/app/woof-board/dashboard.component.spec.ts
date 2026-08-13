@@ -158,7 +158,7 @@ describe('DashboardComponent', () => {
   it('should load daily winners', () => {
     expect(component.winners.length).toBe(1);
     expect(component.winners[0].name).toBe('BONK');
-    expect(component.filteredWinners.length).toBe(1);
+    expect(component.winnersSource.filteredData.length).toBe(1);
   });
 
   it('should load daily losers', () => {
@@ -174,7 +174,7 @@ describe('DashboardComponent', () => {
 
   it('should load hot pairs', () => {
     expect(component.hotPairsList.length).toBe(2);
-    expect(component.filteredHotPairs.length).toBe(2);
+    expect(component.hotPairsSource.filteredData.length).toBe(2);
   });
 
   it('should auto-select the first hot pair so the main chart is visible', () => {
@@ -222,29 +222,29 @@ describe('DashboardComponent', () => {
   it('should filter winners via search', fakeAsync(() => {
     searchService.setQuery('DOGE');
     tick();
-    expect(component.filteredWinners.length).toBe(0);
-    expect(component.filteredLosers.length).toBe(1);
-    expect(component.filteredLosers[0].name).toBe('DOGE');
+    expect(component.winnersSource.filteredData.length).toBe(0);
+    expect(component.losersSource.filteredData.length).toBe(1);
+    expect(component.losersSource.filteredData[0].name).toBe('DOGE');
   }));
 
   it('should filter hot pairs via search', fakeAsync(() => {
     searchService.setQuery('BONK');
     tick();
-    expect(component.filteredHotPairs.length).toBe(1);
-    expect(component.filteredHotPairs[0].pairName).toBe('BONK/WETH');
+    expect(component.hotPairsSource.filteredData.length).toBe(1);
+    expect(component.hotPairsSource.filteredData[0].pairName).toBe('BONK/WETH');
   }));
 
   it('should reset filters when search is cleared', fakeAsync(() => {
     searchService.setQuery('BONK');
     tick();
-    expect(component.filteredWinners.length).toBe(1);
-    expect(component.filteredHotPairs.length).toBe(1);
+    expect(component.winnersSource.filteredData.length).toBe(1);
+    expect(component.hotPairsSource.filteredData.length).toBe(1);
 
     searchService.setQuery('');
     tick();
-    expect(component.filteredWinners.length).toBe(1);
-    expect(component.filteredLosers.length).toBe(1);
-    expect(component.filteredHotPairs.length).toBe(2);
+    expect(component.winnersSource.filteredData.length).toBe(1);
+    expect(component.losersSource.filteredData.length).toBe(1);
+    expect(component.hotPairsSource.filteredData.length).toBe(2);
   }));
 
   it('should format time elapsed correctly', () => {

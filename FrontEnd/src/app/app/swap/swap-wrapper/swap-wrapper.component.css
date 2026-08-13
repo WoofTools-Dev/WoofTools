@@ -2,7 +2,13 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
   min-height: calc(100vh - 180px);
   padding: 24px;
   font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif;
+}
+
+.myReactComponentContainer app-swap-wrapper {
+  display: block;
+  width: 100%;
 }

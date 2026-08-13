@@ -12,7 +12,8 @@ import { MultiChartComponent } from './multichart.component';
 import { TokenChartComponent } from '../chart/chart.component';
 import { ApiService } from 'src/app/Service/api.service';
 import { ChainService } from 'src/app/Service/chain.service';
-import { HotPair } from 'src/app/Interface/api.interfaces';
+import { HotPair, LivePair } from 'src/app/Interface/api.interfaces';
+import { Router } from '@angular/router';
 
 describe('MultiChartComponent', () => {
   let component: MultiChartComponent;
@@ -27,9 +28,21 @@ describe('MultiChartComponent', () => {
     },
   ];
 
+  const mockLivePairs: LivePair[] = [
+    {
+      id: 10, token0Name: 'FLUFFY', token1Name: 'WETH', pairAddress: '0xabc',
+      listedSince: new Date().toISOString(), tokenPriceUSD: 0.001,
+      initialLiquidity: '10 ETH', totalLiquidity: '25 ETH', poolAmount: '12 ETH',
+      poolVariation: 45, poolRemaining: '8 ETH', contract: '0xdef',
+      chain: 'ethereum', createdAt: new Date().toISOString(),
+    },
+  ];
+
   beforeEach(() => {
-    apiSpy = jasmine.createSpyObj('ApiService', ['getHotPairs']);
+    localStorage.clear();
+    apiSpy = jasmine.createSpyObj('ApiService', ['getHotPairs', 'getLivePairs']);
     apiSpy.getHotPairs.and.returnValue(of(mockHotPairs));
+    apiSpy.getLivePairs.and.returnValue(of(mockLivePairs));
 
     TestBed.configureTestingModule({
       declarations: [MultiChartComponent, TokenChartComponent],
@@ -41,6 +54,7 @@ describe('MultiChartComponent', () => {
       providers: [
         { provide: ApiService, useValue: apiSpy },
         ChainService,
+        { provide: Router, useValue: { url: '/multichart', navigate: jasmine.createSpy('navigate') } },
       ],
     });
     fixture = TestBed.createComponent(MultiChartComponent);
@@ -52,18 +66,74 @@ describe('MultiChartComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load chart cards for the active chain', () => {
+  it('should load hot and live pair options for the active chain', () => {
+    expect(component.pool.length).toBe(2);
+    expect(component.pool.some((o) => o.name === 'BONE/WETH')).toBe(true);
+    expect(component.pool.some((o) => o.name === 'FLUFFY / WETH')).toBe(true);
+  });
+
+  it('should filter options by query', () => {
+    component.query = 'fluffy';
+    component['applyQueryFilter']();
+    expect(component.filteredOptions.length).toBe(1);
+    expect(component.filteredOptions[0].name).toBe('FLUFFY / WETH');
+  });
+
+  it('should add a card from an option', () => {
+    const option = component.pool.find((o) => o.name === 'BONE/WETH')!;
+    component.addCard(option);
     expect(component.cards.length).toBe(1);
-    expect(component.cards[0].pairName).toBe('BONE/WETH');
+    expect(component.cards[0].name).toBe('BONE/WETH');
+    expect(component.cards[0].id).toBeDefined();
+  });
+
+  it('should not add more than two cards', () => {
+    component.addCard(component.pool[0]);
+    component.addCard(component.pool[1]);
+    component.addCard(component.pool[0]);
+    expect(component.cards.length).toBe(2);
+    expect(component.pickerLocked).toBe(true);
+  });
+
+  it('should remove a card', () => {
+    component.addCard(component.pool[0]);
+    component.addCard(component.pool[1]);
+    component.removeCard(component.cards[0].id);
+    expect(component.cards.length).toBe(1);
+  });
+
+  it('should clear all cards', () => {
+    component.addCard(component.pool[0]);
+    component.clearCards();
+    expect(component.cards.length).toBe(0);
+  });
+
+  it('should persist cards to localStorage per chain', () => {
+    component.addCard(component.pool[0]);
+    const raw = localStorage.getItem(component['storageKey']());
+    expect(raw).toBeDefined();
+    expect(JSON.parse(raw!).length).toBe(1);
+  });
+
+  it('should navigate to swap with the token query params', () => {
+    const router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    const option = component.pool.find((o) => o.name === 'BONE/WETH')!;
+    component.addCard(option);
+    component.swapCard(component.cards[0]);
+    expect(router.navigate).toHaveBeenCalledWith(['/multiswap'], {
+      queryParams: { network: component.activeChain, token: 'BONE', pair: 'BONE/WETH' },
+    });
   });
 
   it('should use previousPrices for the chart data', () => {
-    expect(component.cards[0].prices).toEqual([1, 2, 3, 4, 5]);
+    const card = component.pool.find((o) => o.name === 'BONE/WETH')!;
+    expect(card.prices).toEqual([1, 2, 3, 4, 5]);
   });
 
   it('should fallback to generated timestamps when previousTimes are absent', () => {
-    expect(component.cards[0].times.length).toBe(5);
-    expect(component.cards[0].times[1] - component.cards[0].times[0]).toBe(3600);
+    const card = component.pool.find((o) => o.name === 'BONE/WETH')!;
+    expect(card.times.length).toBe(5);
+    expect(card.times[1] - card.times[0]).toBe(3600);
   });
 
   it('should use previousTimes when provided', () => {
@@ -72,16 +142,9 @@ describe('MultiChartComponent', () => {
       previousPrices: [1, 2, 3], previousTimes: [1000, 2000, 3000],
       growthPercentage: 0, chain: 'ethereum',
     }]));
+    apiSpy.getLivePairs.and.returnValue(of([]));
     component['fetchData']();
-    expect(component.cards[0].times).toEqual([1000, 2000, 3000]);
-  });
-
-  it('should fallback to default series when prices are too short', () => {
-    apiSpy.getHotPairs.and.returnValue(of([{
-      id: 2, pairName: 'X/Y', popularity: 10,
-      previousPrices: [1], growthPercentage: 0, chain: 'ethereum',
-    }]));
-    component['fetchData']();
-    expect(component.cards[0].prices.length).toBeGreaterThan(1);
+    const card = component.pool.find((o) => o.name === 'Y/Z')!;
+    expect(card.times).toEqual([1000, 2000, 3000]);
   });
 });
