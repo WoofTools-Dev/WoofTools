@@ -157,10 +157,10 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.applySearchFilter();
 
         if (!this.selectedPair) {
-          if (this.winners.length > 0) {
-            this.selectRow(this.winners[0]);
-          } else if (hotPairs.length > 0) {
+          if (hotPairs.length > 0) {
             this.selectHotPair(hotPairs[0]);
+          } else if (this.winners.length > 0) {
+            this.selectRow(this.winners[0]);
           }
         }
       },
@@ -335,10 +335,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   selectHotPair(pair: HotPair) {
-    const fallback = this.generatePricesWithTimes(pair.price ?? 0);
     const prices = pair.previousPrices && pair.previousPrices.length >= 2
       ? pair.previousPrices
-      : fallback.prices;
+      : this.generatePrices(pair.price ?? 0);
     this.selectedPair = {
       name: pair.pairName,
       price: pair.price ?? 0,
@@ -346,7 +345,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       previousPrices: prices,
       previousTimes: pair.previousTimes && pair.previousTimes.length === prices.length
         ? pair.previousTimes
-        : fallback.times,
+        : generateTimes(prices.length),
     };
   }
 

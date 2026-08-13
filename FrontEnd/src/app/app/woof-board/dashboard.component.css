@@ -192,8 +192,12 @@ p {
 .table-container {
   background-color: var(--bg-card);
   border-radius: 12px;
-  border: 1px solid #ffffff;
+  border: 1px solid var(--border-color);
   overflow: hidden;
+}
+
+.tables-grid .table-container {
+  border: 1px solid #ffffff;
 }
 
 .table-scroll {
@@ -500,22 +504,7 @@ p {
   font-size: 18px;
   margin-right: 4px;
   vertical-align: middle;
-}
-
-.mini-table-icon.icon-up {
-  color: #22c55e;
-}
-
-.mini-table-icon.icon-down {
-  color: #ef4444;
-}
-
-.mini-table-icon.icon-neutral {
-  color: #38bdf8;
-}
-
-.mini-table-icon.icon-hot {
-  color: var(--primary);
+  color: #fff;
 }
 
 /* Ranking mini-tables: headerless, 3 visible rows (5 on Hot Pairs) with scroll */
@@ -552,7 +541,7 @@ p {
   align-items: center;
   justify-content: center;
   min-width: 26px;
-  height: 22px;
+  height: 100%;
   padding: 0 6px;
   border-radius: 7px;
   font-size: 11px;
@@ -604,6 +593,9 @@ p {
   width: 100%;
   padding: 8px 0 8px 10px;
   margin: 0;
+}
+
+.tables-grid .table-heading {
   border-bottom: 1px solid #ffffff;
 }
 

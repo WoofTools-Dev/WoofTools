@@ -177,9 +177,9 @@ describe('DashboardComponent', () => {
     expect(component.filteredHotPairs.length).toBe(2);
   });
 
-  it('should auto-select the first winner so the main chart is visible', () => {
-    expect(component.selectedPair?.name).toBe('BONK');
-    expect(component.selectedPair?.previousPrices).toEqual(component.winners[0].previousPrices);
+  it('should auto-select the first hot pair so the main chart is visible', () => {
+    expect(component.selectedPair?.name).toBe('BONK/WETH');
+    expect(component.selectedPair?.previousPrices).toEqual(component.hotPairsList[0].previousPrices);
   });
 
   it('should fallback to generated timestamps when previousTimes are absent', () => {
