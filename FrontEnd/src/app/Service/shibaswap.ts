@@ -1,11 +1,10 @@
-export const CHEWYSWAP = {
-  router: '0x2875F2D86d83635A859029872e745581530cEec7',
-  factory: '0xEDedDbde5ffA62545eDF97054edC11013ED72125',
-  initCodeHash: '0xa2ef75f706f4aa0c026dd9371dab1bac975a91bc8f0852a86e6f330eedd30848',
+export const SHIBASWAP = {
+  router: '0xEF83bbB63E8A7442E3a4a5d28d9bBf32D7c813c8',
+  factory: '0xc2b4218F137e3A5A9B98ab3AE804108F0D312CBC',
   explorerUrl: 'https://www.shibariumscan.io',
 };
 
-export interface ChewyToken {
+export interface ShibaToken {
   symbol: string;
   name: string;
   address: string;
@@ -15,7 +14,7 @@ export interface ChewyToken {
 
 export const BONE_NATIVE_ADDRESS = '0x0000000000000000000000000000000000001010';
 
-export const SHIBARIUM_TOKENS: ChewyToken[] = [
+export const SHIBARIUM_TOKENS: ShibaToken[] = [
   { symbol: 'BONE', name: 'BONE', address: BONE_NATIVE_ADDRESS, decimals: 18, isNative: true },
   { symbol: 'WBONE', name: 'Wrapped BONE', address: '0xC76F4c819D820369Fb2d7C1531aB3Bb18e6fE8d8', decimals: 18 },
   { symbol: 'SHIB', name: 'Shiba Inu', address: '0x495eea66B0f8b636D441dC6a98d8F5C3D455C4c0', decimals: 18 },
@@ -57,7 +56,7 @@ export const ERC20_ABI = [
   'function approve(address spender, uint256 amount) external returns (bool)',
 ];
 
-export function getChewyTokenBySymbol(symbol: string): ChewyToken | undefined {
+export function getShibaTokenBySymbol(symbol: string): ShibaToken | undefined {
   const key = symbol.toUpperCase();
   return SHIBARIUM_TOKENS.find((t) => t.symbol === key);
 }

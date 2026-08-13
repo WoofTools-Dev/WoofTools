@@ -5,7 +5,8 @@ import { Widget } from "@kyberswap/widgets";
 import { WalletService } from "src/app/provider/walletprovider";
 import { BrowserProvider } from "ethers";
 import { ChainService } from "src/app/Service/chain.service";
-import ChewySwapWidget from "./chewy-swap.widget";
+import ShibaSwapWidget from "./shiba-swap.widget";
+import SecurityPanel from "./security-panel";
 
 const containerElementRef = "customReactComponentContainer";
 
@@ -181,12 +182,13 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     ) : this.activeChain === 'shibarium' ? (
       <div style={{display : "flex" , alignContent: "center" , justifyContent:"center", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif", paddingTop: 16}}>
         <WidgetErrorBoundary onError={this.handleWidgetError}>
-          <ChewySwapWidget provider={this.provider} />
+          <ShibaSwapWidget provider={this.provider} />
         </WidgetErrorBoundary>
       </div>
     ) : (
-      <div style={{display : "flex" , alignContent: "center" , justifyContent:"center", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
+      <div style={{display : "flex" , flexDirection: "column", alignContent: "center" , justifyContent:"center", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
         <WidgetErrorBoundary onError={this.handleWidgetError}>
+          <SecurityPanel chainId={this.chainId!} />
           <Widget
               client="WoofTools"
               enableRoute={true}

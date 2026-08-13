@@ -48,7 +48,7 @@ export class ProductsComponent {
     },
     {
       title: 'MultiSwap',
-      description: 'Swap tokens using KyberSwap on Ethereum and ChewySwap on Shibarium.',
+      description: 'Swap tokens using KyberSwap on Ethereum and ShibaSwap on Shibarium.',
       icon: 'data_saver_on',
       route: 'multiswap',
     },

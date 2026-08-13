@@ -1,30 +1,47 @@
 import * as React from "react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { BrowserProvider, Contract, formatUnits, parseUnits, getAddress } from "ethers";
+import { BrowserProvider, Contract, formatUnits, parseUnits } from "ethers";
 import {
-  CHEWYSWAP,
+  SHIBASWAP,
   ROUTER_ABI,
   ERC20_ABI,
   SHIBARIUM_TOKENS,
-  ChewyToken,
+  ShibaToken,
   BONE_NATIVE_ADDRESS,
-} from "src/app/Service/chewyswap";
+} from "src/app/Service/shibaswap";
+import { CHAINS } from "src/app/Service/chain.constants";
+import {
+  getApprovalSecurity,
+  getTokenSecurity,
+  simulateTransaction,
+} from "src/app/Service/goplus-api";
+import {
+  evaluateTokenRisk,
+  getSimulationReceived,
+  GoPlusRiskSummary,
+  GoPlusSimulationResult,
+  GoPlusTokenSecurity,
+} from "src/app/Interface/goplus.interface";
+import TokenSecurityBanner from "./token-security-banner";
 
-interface ChewySwapWidgetProps {
+interface ShibaSwapWidgetProps {
   provider: BrowserProvider | null;
 }
 
+const SHIBARIUM_CHAIN_ID = CHAINS.shibarium.chainId;
+const SHIBARIUM_RPC_URL = CHAINS.shibarium.rpcUrl;
+
 const WBONE = SHIBARIUM_TOKENS.find((t) => t.symbol === "WBONE")!;
 
-function getTokenByAddress(address: string): ChewyToken {
+function getTokenByAddress(address: string): ShibaToken {
   const key = address.toLowerCase();
   const hit = SHIBARIUM_TOKENS.find((t) => t.address.toLowerCase() === key);
   return hit || WBONE;
 }
 
-export default function ChewySwapWidget({ provider }: ChewySwapWidgetProps) {
-  const [tokenIn, setTokenIn] = useState<ChewyToken>(SHIBARIUM_TOKENS[0]);
-  const [tokenOut, setTokenOut] = useState<ChewyToken>(SHIBARIUM_TOKENS[4]);
+export default function ShibaSwapWidget({ provider }: ShibaSwapWidgetProps) {
+  const [tokenIn, setTokenIn] = useState<ShibaToken>(SHIBARIUM_TOKENS[0]);
+  const [tokenOut, setTokenOut] = useState<ShibaToken>(SHIBARIUM_TOKENS[4]);
   const [amountIn, setAmountIn] = useState("");
   const [amountOut, setAmountOut] = useState("");
   const [balance, setBalance] = useState<string>("");
@@ -33,8 +50,17 @@ export default function ChewySwapWidget({ provider }: ChewySwapWidgetProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
+  const [securityStatus, setSecurityStatus] = useState<"idle" | "loading" | "available" | "unavailable">("idle");
+  const [tokenSecurity, setTokenSecurity] = useState<GoPlusTokenSecurity | null>(null);
+  const [riskSummary, setRiskSummary] = useState<GoPlusRiskSummary | null>(null);
+
+  const [simResult, setSimResult] = useState<GoPlusSimulationResult | null>(null);
+  const [simWarning, setSimWarning] = useState<string | null>(null);
+  const [simReceived, setSimReceived] = useState<string | null>(null);
+  const [confirmOverride, setConfirmOverride] = useState(false);
+
   const router = useMemo(
-    () => (provider ? (new Contract(CHEWYSWAP.router, ROUTER_ABI, provider) as any) : null),
+    () => (provider ? (new Contract(SHIBASWAP.router, ROUTER_ABI, provider) as any) : null),
     [provider]
   );
 
@@ -72,6 +98,32 @@ export default function ChewySwapWidget({ provider }: ChewySwapWidgetProps) {
     loadBalance();
   }, [loadBalance]);
 
+  const checkTokenSecurity = useCallback(async () => {
+    const address = tokenIn.isNative ? "" : tokenIn.address;
+    if (!address) {
+      setSecurityStatus("idle");
+      setTokenSecurity(null);
+      setRiskSummary(null);
+      return;
+    }
+    setSecurityStatus("loading");
+    const result = await getTokenSecurity(SHIBARIUM_CHAIN_ID, address);
+    if (result) {
+      setTokenSecurity(result);
+      setRiskSummary(evaluateTokenRisk(result));
+      setSecurityStatus("available");
+    } else {
+      setTokenSecurity(null);
+      setRiskSummary(null);
+      setSecurityStatus("unavailable");
+    }
+  }, [tokenIn]);
+
+  useEffect(() => {
+    const t = setTimeout(checkTokenSecurity, 500);
+    return () => clearTimeout(t);
+  }, [checkTokenSecurity]);
+
   const getQuote = useCallback(async () => {
     if (!router || !amountIn || !path.length) {
       setAmountOut("");
@@ -80,6 +132,10 @@ export default function ChewySwapWidget({ provider }: ChewySwapWidgetProps) {
     try {
       setLoading(true);
       setError(null);
+      setSimResult(null);
+      setSimWarning(null);
+      setSimReceived(null);
+      setConfirmOverride(false);
       const parsed = parseUnits(amountIn, tokenIn.decimals);
       const amounts = await router.getAmountsOut(parsed, path);
       const out = amounts[amounts.length - 1];
@@ -119,33 +175,110 @@ export default function ChewySwapWidget({ provider }: ChewySwapWidgetProps) {
       const minOut = (amounts[amounts.length - 1] * BigInt(Math.round((100 - slippage) * 100))) / BigInt(10000);
 
       const connectedRouter = (await signerRouter)!;
-      let tx;
+      const iface = (new Contract(SHIBASWAP.router, ROUTER_ABI, provider) as any).interface;
+
+      let data: string;
+      let value = "0";
+      let swapCall: () => Promise<any>;
 
       if (tokenIn.isNative) {
-        tx = await connectedRouter.swapExactETHForTokens(minOut, path, signerAddress, deadline, {
-          value: parsedIn,
-        });
+        data = iface.encodeFunctionData("swapExactETHForTokens", [
+          minOut.toString(),
+          path,
+          signerAddress,
+          deadline,
+        ]);
+        value = parsedIn.toString();
+        swapCall = () =>
+          connectedRouter.swapExactETHForTokens(minOut, path, signerAddress, deadline, {
+            value: parsedIn,
+          });
       } else if (tokenOut.isNative) {
-        const token = new Contract(tokenIn.address, ERC20_ABI, signer) as any;
-        const allowance = await token.allowance(signerAddress, CHEWYSWAP.router);
-        if (allowance < parsedIn) {
-          const approveTx = await token.approve(CHEWYSWAP.router, "115792089237316195423570985008687907853269984665640564039457584007913129639935");
-          await approveTx.wait();
-        }
-        tx = await connectedRouter.swapExactTokensForETH(parsedIn, minOut, path, signerAddress, deadline);
+        data = iface.encodeFunctionData("swapExactTokensForETH", [
+          parsedIn.toString(),
+          minOut.toString(),
+          path,
+          signerAddress,
+          deadline,
+        ]);
+        swapCall = () =>
+          connectedRouter.swapExactTokensForETH(parsedIn, minOut, path, signerAddress, deadline);
       } else {
-        const token = new Contract(tokenIn.address, ERC20_ABI, signer) as any;
-        const allowance = await token.allowance(signerAddress, CHEWYSWAP.router);
-        if (allowance < parsedIn) {
-          const approveTx = await token.approve(CHEWYSWAP.router, "115792089237316195423570985008687907853269984665640564039457584007913129639935");
-          await approveTx.wait();
-        }
-        tx = await connectedRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(
-          parsedIn, minOut, path, signerAddress, deadline
-        );
+        data = iface.encodeFunctionData("swapExactTokensForTokensSupportingFeeOnTransferTokens", [
+          parsedIn.toString(),
+          minOut.toString(),
+          path,
+          signerAddress,
+          deadline,
+        ]);
+        swapCall = () =>
+          connectedRouter.swapExactTokensForTokensSupportingFeeOnTransferTokens(
+            parsedIn,
+            minOut,
+            path,
+            signerAddress,
+            deadline
+          );
       }
 
+      // Transaction Simulation (GoPlus capa 2)
+      const sim = await simulateTransaction({
+        chain_id: String(SHIBARIUM_CHAIN_ID),
+        url: SHIBARIUM_RPC_URL,
+        from: signerAddress,
+        to: SHIBASWAP.router,
+        data,
+        value,
+      });
+      setSimResult(sim);
+      if (sim) {
+        const flags = sim.flagged || [];
+        if (sim.is_revert) {
+          setError("La simulación indica que la transacción fallaría (revert). Operación cancelada.");
+          setLoading(false);
+          return;
+        }
+        if (flags.length > 0 && !confirmOverride) {
+          setSimWarning(
+            `La simulación detectó riesgos: ${flags.map((f) => f.message || f.type).join(" · ")}`
+          );
+          setConfirmOverride(true);
+          setError("Revisa las advertencias y pulsa Swap de nuevo para continuar de todos modos.");
+          setLoading(false);
+          return;
+        }
+        if (flags.length === 0) setSimWarning(null);
+        if (!tokenOut.isNative) {
+          const recv = getSimulationReceived(sim, signerAddress, tokenOut.address);
+          if (recv !== null) setSimReceived(formatUnits(recv, tokenOut.decimals));
+        }
+      }
+
+      // Approval Security (GoPlus capa 3) + approve por monto exacto
+      if (!tokenIn.isNative) {
+        const token = new Contract(tokenIn.address, ERC20_ABI, signer) as any;
+        const allowance = await token.allowance(signerAddress, SHIBASWAP.router);
+        if (allowance < parsedIn) {
+          const approval = await getApprovalSecurity(SHIBARIUM_CHAIN_ID, SHIBASWAP.router);
+          if (
+            approval &&
+            (approval.doubt_list === "1" ||
+              (approval.malicious_behavior && approval.malicious_behavior !== "0"))
+          ) {
+            setError(
+              "Approval Security: el contrato spender tiene riesgos detectados. Operación bloqueada."
+            );
+            setLoading(false);
+            return;
+          }
+          const approveTx = await token.approve(SHIBASWAP.router, parsedIn.toString());
+          await approveTx.wait();
+        }
+      }
+
+      const tx = await swapCall();
       const receipt = await tx.wait();
+      setConfirmOverride(false);
       setSuccess(`Swap confirmed! Tx: ${receipt.hash.slice(0, 10)}...${receipt.hash.slice(-8)}`);
       loadBalance();
     } catch (e: any) {
@@ -188,6 +321,8 @@ export default function ChewySwapWidget({ provider }: ChewySwapWidgetProps) {
     setAmountIn("");
     setAmountOut("");
   };
+
+  const swapDisabled = loading || (securityStatus === "available" && riskSummary?.level === "critical");
 
   const styles: {
     card: React.CSSProperties;
@@ -267,6 +402,13 @@ export default function ChewySwapWidget({ provider }: ChewySwapWidgetProps) {
 
   return (
     <div style={styles.card}>
+      <TokenSecurityBanner
+        status={securityStatus}
+        data={tokenSecurity}
+        summary={riskSummary}
+        tokenSymbol={tokenIn.symbol}
+      />
+
       <div style={styles.field}>
         <div style={styles.label}>
           <span>From</span>
@@ -329,11 +471,22 @@ export default function ChewySwapWidget({ provider }: ChewySwapWidgetProps) {
 
       <div style={styles.meta}>
         <span>Route</span>
-        <span>ChewySwap · gas {tokenIn.isNative || tokenOut.isNative ? "BONE" : tokenIn.symbol}</span>
+        <span>ShibaSwap · gas {tokenIn.isNative || tokenOut.isNative ? "BONE" : tokenIn.symbol}</span>
       </div>
 
-      <button style={styles.swapBtn} disabled={loading} onClick={doSwap}>
-        {loading ? "Processing…" : `Swap on ChewySwap`}
+      {simReceived && (
+        <div style={{ ...styles.meta, color: "#4ade80" }}>
+          <span>Simulación recibirás ≈</span>
+          <span>{simReceived} {tokenOut.symbol}</span>
+        </div>
+      )}
+
+      {simWarning && (
+        <div style={{ ...styles.msg, color: "#ffd166" }}>⚠ {simWarning}</div>
+      )}
+
+      <button style={styles.swapBtn} disabled={swapDisabled} onClick={doSwap}>
+        {loading ? "Processing…" : "Swap on ShibaSwap"}
       </button>
 
       {error && <div style={{ ...styles.msg, color: "#ff6b6b" }}>{error}</div>}

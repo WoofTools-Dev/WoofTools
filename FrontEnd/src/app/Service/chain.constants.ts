@@ -31,8 +31,8 @@ export const CHAINS: Record<ChainKey, ChainMeta> = {
     rpcUrl: 'https://rpc.shibarium.shib.io',
     explorerUrl: 'https://shibariumscan.io',
     icon: 'assets/shib.png',
-    dex: 'chewyswap',
-    dexIcon: 'assets/chewyswap.svg',
+    dex: 'shibaswap',
+    dexIcon: 'assets/shibaswap.svg',
     gasSymbol: 'BONE',
   },
 };
