@@ -15,6 +15,8 @@
                 </span>
             </div>
 
+            <div class="like-feedback" *ngIf="likeError">{{ likeError }}</div>
+
             <div class="main-chart-section chart-reveal" *ngIf="selectedPair">
                 <div class="main-chart-header">
                     <div class="main-chart-title">
@@ -78,7 +80,6 @@
                                     </span>
                                 </td>
                             </ng-container>
-                            <tr mat-header-row *matHeaderRowDef="rankingColumns"></tr>
                             <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectRow(row)"></tr>
                         </table>
                         <div class="no-results" *ngIf="filteredWinners.length === 0">No results</div>
@@ -119,7 +120,6 @@
                                     </span>
                                 </td>
                             </ng-container>
-                            <tr mat-header-row *matHeaderRowDef="rankingColumns"></tr>
                             <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectRow(row)"></tr>
                         </table>
                         <div class="no-results" *ngIf="filteredLosers.length === 0">No results</div>
@@ -160,7 +160,6 @@
                                     </span>
                                 </td>
                             </ng-container>
-                            <tr mat-header-row *matHeaderRowDef="rankingColumns"></tr>
                             <tr mat-row *matRowDef="let row; columns: rankingColumns;" class="clickable-row" (click)="selectRow(row)"></tr>
                         </table>
                         <div class="no-results" *ngIf="filteredUpdated.length === 0">No results</div>
@@ -214,7 +213,6 @@
                                     </button>
                                 </td>
                             </ng-container>
-                            <tr mat-header-row *matHeaderRowDef="hotPairColumns"></tr>
                             <tr mat-row *matRowDef="let row; columns: hotPairColumns;" class="clickable-row" (click)="selectHotPair(row)"></tr>
                         </table>
                         <div class="no-results" *ngIf="filteredHotPairs.length === 0">No results</div>

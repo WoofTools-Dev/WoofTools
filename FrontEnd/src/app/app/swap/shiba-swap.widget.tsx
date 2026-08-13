@@ -402,12 +402,14 @@ export default function ShibaSwapWidget({ provider }: ShibaSwapWidgetProps) {
 
   return (
     <div style={styles.card}>
-      <TokenSecurityBanner
-        status={securityStatus}
-        data={tokenSecurity}
-        summary={riskSummary}
-        tokenSymbol={tokenIn.symbol}
-      />
+      {securityStatus === "available" && (
+        <TokenSecurityBanner
+          status={securityStatus}
+          data={tokenSecurity}
+          summary={riskSummary}
+          tokenSymbol={tokenIn.symbol}
+        />
+      )}
 
       <div style={styles.field}>
         <div style={styles.label}>

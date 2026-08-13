@@ -192,7 +192,7 @@ p {
 .table-container {
   background-color: var(--bg-card);
   border-radius: 12px;
-  border: 1px solid var(--border-color);
+  border: 1px solid #ffffff;
   overflow: hidden;
 }
 
@@ -518,12 +518,16 @@ p {
   color: var(--primary);
 }
 
+/* Ranking mini-tables: headerless, 3 visible rows (5 on Hot Pairs) with scroll */
 .mini-scroll {
-  max-height: 320px;
+  max-height: calc(46px * 3 + 2px);
   overflow-y: auto;
 }
 
-/* Ranking mini-tables: sticky header, square corners, no forced min-width */
+.mini-scroll .mat-mdc-row {
+  height: 46px;
+}
+
 .mini-scroll table {
   min-width: 0;
 }
@@ -533,15 +537,8 @@ p {
   border-radius: 0;
 }
 
-.mini-scroll .mat-mdc-header-row {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background-color: var(--bg-card);
-}
-
-.mini-scroll .mat-mdc-header-row .mat-mdc-header-cell {
-  background-color: var(--bg-card);
+.table-container.full .mini-scroll {
+  max-height: calc(46px * 5 + 2px);
 }
 
 .mini-rank {
@@ -600,6 +597,16 @@ p {
 }
 
 /* ========== RESPONSIVE ========== */
+
+.like-feedback {
+  background-color: rgba(244, 67, 54, 0.12);
+  border: 1px solid rgba(244, 67, 54, 0.4);
+  color: #ff8f8f;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-bottom: 12px;
+  font-size: 13px;
+}
 
 .search-active-bar {
   display: flex;

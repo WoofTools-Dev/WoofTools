@@ -82,6 +82,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   filteredHotPairs: HotPair[] = [];
   selectedPair: ChartSelectable | null = null;
   searchQuery = '';
+  likeError: string | null = null;
 
   activeChainMeta: ChainMeta;
   private chainSub: Subscription | null = null;
@@ -219,10 +220,20 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  likeDashboard(element: TokenInfo) {
+  private showLikeError(message: string): void {
+    this.likeError = message;
+    setTimeout(() => {
+      if (this.likeError === message) this.likeError = null;
+    }, 4000);
+  }
+
+  async likeDashboard(element: TokenInfo) {
     if (!this.isWalletConnected()) {
-      this.connectWallet();
-      return;
+      await this.connectWallet();
+      if (!this.isWalletConnected()) {
+        this.showLikeError('Conecta tu wallet para dar like');
+        return;
+      }
     }
     if (element.remainingLikes <= 0) return;
     this.api.addLike('dashboard', element.id, this.wallet.address).subscribe({
@@ -233,15 +244,18 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         element.remainingLikes = res.remaining;
       },
       error: () => {
-        // keep the row as-is on failure
+        this.showLikeError('No se pudo registrar el like. Revisa que el backend esté activo.');
       },
     });
   }
 
-  likeHotPair(pair: HotPair) {
+  async likeHotPair(pair: HotPair) {
     if (!this.isWalletConnected()) {
-      this.connectWallet();
-      return;
+      await this.connectWallet();
+      if (!this.isWalletConnected()) {
+        this.showLikeError('Conecta tu wallet para dar like');
+        return;
+      }
     }
     if (pair.remainingLikes !== undefined && pair.remainingLikes <= 0) return;
     this.api.addLike('hotpair', pair.id, this.wallet.address).subscribe({
@@ -252,7 +266,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         pair.remainingLikes = res.remaining;
       },
       error: () => {
-        // keep the row as-is on failure
+        this.showLikeError('No se pudo registrar el like. Revisa que el backend esté activo.');
       },
     });
   }

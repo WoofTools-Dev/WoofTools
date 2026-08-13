@@ -183,6 +183,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
       <div style={{display : "flex" , alignContent: "center" , justifyContent:"center", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif", paddingTop: 16}}>
         <WidgetErrorBoundary onError={this.handleWidgetError}>
           <ShibaSwapWidget provider={this.provider} />
+          <SecurityPanel chainId={this.chainId!} mode="simulation" />
         </WidgetErrorBoundary>
       </div>
     ) : (
@@ -208,7 +209,9 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
 
     this.root.render(
       <React.StrictMode>
-        {content}
+        <div className="swap-zone">
+          {content}
+        </div>
       </React.StrictMode>
     );
   }

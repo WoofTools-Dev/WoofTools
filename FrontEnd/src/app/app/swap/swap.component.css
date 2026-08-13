@@ -135,3 +135,83 @@
   border-radius: 8px !important;
   font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
 }
+
+/* ===== SecurityPanel (collapsible drawer) ===== */
+.swap-zone {
+  position: relative;
+}
+
+.swap-security-fab {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--primary, #ea801e);
+  color: #fff;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.swap-security-fab:hover {
+  filter: brightness(1.08);
+}
+
+.swap-security-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1199;
+}
+
+.swap-security-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(400px, 92vw);
+  background: #161616;
+  border-left: 1px solid #333;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.4);
+  z-index: 1200;
+  padding: 14px;
+  overflow-y: auto;
+  font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif;
+  color: #fff;
+  text-align: left;
+  animation: swapDrawerIn 0.25s ease;
+}
+
+@keyframes swapDrawerIn {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.swap-security-drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.swap-security-close {
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.swap-security-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
