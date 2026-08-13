@@ -599,10 +599,13 @@ p {
 }
 
 .table-heading {
-  display: inline-flex;
+  display: flex;
+  align-items: center;
+  width: 100%;
   padding: 8px 0;
   margin: 0;
   border: 1px solid #ffffff;
+  border-radius: 12px;
 }
 
 /* ========== RESPONSIVE ========== */
