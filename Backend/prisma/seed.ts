@@ -24,6 +24,21 @@ function generateTimes(count: number): number[] {
   return times;
 }
 
+function parseCompact(value: string): number {
+  if (!value) return 0;
+  const trimmed = value.trim().toUpperCase();
+  const multipliers: Record<string, number> = { K: 1e3, M: 1e6, B: 1e9, T: 1e12 };
+  const match = trimmed.match(/^([\d.]+)\s*([KMBT])?$/);
+  if (!match) return 0;
+  const num = parseFloat(match[1]);
+  const mult = match[2] ? multipliers[match[2]] : 1;
+  return Math.round(num * mult);
+}
+
+function chainIdFor(chain: string): number {
+  return chain === "shibarium" ? 109 : 1;
+}
+
 function pairAddress(tokenA: string, tokenB: string, seed: number): string {
   const a = tokenA.toLowerCase().replace("0x", "");
   const b = tokenB.toLowerCase().replace("0x", "");
@@ -69,13 +84,13 @@ const ethereumDashboard = [
   { token0Name: "SAND", token1Name: "WETH", pairAddress: "0xe2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1", price: 0.52, percentage24H: -7.5, score: 28, contracts: "0xe2f3...0f1", created: new Date("2026-06-30 06:00:00"), volume: "12.1M", swaps: "6.8K", liquidity: "95K", marketCap: "385M" },
   { token0Name: "MANA", token1Name: "USDT", pairAddress: "0xf3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2", price: 0.68, percentage24H: -4.8, score: 31, contracts: "0xf3a4...f1a2", created: new Date("2026-06-30 05:00:00"), volume: "8.9M", swaps: "4.2K", liquidity: "110K", marketCap: "280M" },
   { token0Name: "GALA", token1Name: "WETH", pairAddress: "0x0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9", price: 0.045, percentage24H: 22.5, score: 87, contracts: "0x0a1b...f8a9", created: new Date("2026-06-30 04:00:00"), volume: "78.5M", swaps: "42.3K", liquidity: "420K", marketCap: "1.2B" },
-  { token0Name: "AXS", token1Name: "WETH", pairAddress: "0x2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1", price: 9.40, percentage24H: -3.5, score: 48, contracts: "0x2c3d...0c1", created: new Date("2026-06-30 02:00:00"), volume: "10.2M", swaps: "3.5K", liquidity: "165K", marketCap: "890M" },
-  { token0Name: "CHZ", token1Name: "USDC", pairAddress: "0x3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2", price: 0.18, percentage24H: 15.2, score: 84, contracts: "0x3d4e...1d2", created: new Date("2026-06-30 01:00:00"), volume: "56.8M", swaps: "28.4K", liquidity: "380K", marketCap: "1.5B" },
+  { token0Name: "AXS", token1Name: "WETH", pairAddress: "0x2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c2", price: 9.40, percentage24H: -3.5, score: 48, contracts: "0x2c3d...0c2", created: new Date("2026-06-30 02:00:00"), volume: "10.2M", swaps: "3.5K", liquidity: "165K", marketCap: "890M" },
+  { token0Name: "CHZ", token1Name: "USDC", pairAddress: "0x3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d3", price: 0.18, percentage24H: 15.2, score: 84, contracts: "0x3d4e...1d3", created: new Date("2026-06-30 01:00:00"), volume: "56.8M", swaps: "28.4K", liquidity: "380K", marketCap: "1.5B" },
   { token0Name: "FIL", token1Name: "USDC", pairAddress: "0x5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4", price: 8.15, percentage24H: 2.8, score: 59, contracts: "0x5f6a...3f4", created: new Date("2026-06-29 23:00:00"), volume: "13.4M", swaps: "4.8K", liquidity: "210K", marketCap: "3.8B" },
   { token0Name: "VET", token1Name: "USDT", pairAddress: "0x6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5", price: 0.042, percentage24H: 6.5, score: 71, contracts: "0x6a7b...4a5", created: new Date("2026-06-29 22:00:00"), volume: "16.9M", swaps: "8.2K", liquidity: "175K", marketCap: "3.1B" },
   { token0Name: "THETA", token1Name: "WETH", pairAddress: "0x7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6", price: 2.35, percentage24H: -1.5, score: 56, contracts: "0x7b8c...5b6", created: new Date("2026-06-29 21:00:00"), volume: "11.8M", swaps: "4.5K", liquidity: "155K", marketCap: "2.4B" },
   { token0Name: "EOS", token1Name: "USDC", pairAddress: "0x8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7", price: 1.28, percentage24H: 0.2, score: 44, contracts: "0x8c9d...6c7", created: new Date("2026-06-29 20:00:00"), volume: "5.6M", swaps: "2.3K", liquidity: "78K", marketCap: "1.2B" },
-  { token0Name: "EGLD", token1Name: "USDT", pairAddress: "0x9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8", price: 52.40, percentage24H: 8.5, score: 78, contracts: "0x9d0e...7d8", created: new Date("2026-06-29 19:00:00"), volume: "24.6M", swaps: "5.7K", liquidity: "490K", marketCap: "1.4B" },
+  { token0Name: "EGLD", token1Name: "USDT", pairAddress: "0x9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d9", price: 52.40, percentage24H: 8.5, score: 78, contracts: "0x9d0e...7d9", created: new Date("2026-06-29 19:00:00"), volume: "24.6M", swaps: "5.7K", liquidity: "490K", marketCap: "1.4B" },
   { token0Name: "RUNE", token1Name: "WETH", pairAddress: "0x1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0", price: 6.80, percentage24H: 5.5, score: 76, contracts: "0x1b2c...9b0", created: new Date("2026-06-29 11:00:00"), volume: "18.7M", swaps: "6.9K", liquidity: "290K", marketCap: "980M" },
   { token0Name: "FET", token1Name: "USDC", pairAddress: "0x2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1", price: 2.15, percentage24H: 18.5, score: 91, contracts: "0x2c3d...0c1", created: new Date("2026-06-29 10:00:00"), volume: "62.4M", swaps: "24.8K", liquidity: "680K", marketCap: "5.2B" },
   { token0Name: "AGIX", token1Name: "WETH", pairAddress: "0x3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2", price: 0.85, percentage24H: 21.0, score: 92, contracts: "0x3d4e...1d2", created: new Date("2026-06-29 09:00:00"), volume: "41.5M", swaps: "18.2K", liquidity: "350K", marketCap: "2.4B" },
@@ -116,13 +131,13 @@ const ethereumLivePair = [
   { token0Name: "FET", token1Name: "USDC", pairAddress: "0x2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1", listedSince: new Date("2026-06-27 10:00:00"), tokenPriceUSD: 2.15, initialLiquidity: "4 ETH", totalLiquidity: "63%", poolAmount: "6.52 ETH", poolVariation: 63, poolRemaining: "9.5 ETH", contract: "0x2c3d...0c1" },
   { token0Name: "LDO", token1Name: "WETH", pairAddress: "0x3b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6", listedSince: new Date("2026-06-27 08:30:00"), tokenPriceUSD: 2.85, initialLiquidity: "1.6 ETH", totalLiquidity: "47%", poolAmount: "2.352 ETH", poolVariation: 47, poolRemaining: "4.8 ETH", contract: "0x3b8c...5b6" },
   { token0Name: "GALA", token1Name: "WETH", pairAddress: "0x0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9", listedSince: new Date("2026-06-27 06:15:00"), tokenPriceUSD: 0.045, initialLiquidity: "0.6 ETH", totalLiquidity: "52%", poolAmount: "0.912 ETH", poolVariation: 52, poolRemaining: "2.3 ETH", contract: "0x0a1b...f8a9" },
-  { token0Name: "CHZ", token1Name: "USDC", pairAddress: "0x3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2", listedSince: new Date("2026-06-27 04:45:00"), tokenPriceUSD: 0.18, initialLiquidity: "0.9 ETH", totalLiquidity: "38%", poolAmount: "1.242 ETH", poolVariation: 38, poolRemaining: "3.1 ETH", contract: "0x3d4e...1d2" },
-  { token0Name: "PENDLE", token1Name: "WETH", pairAddress: "0x9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8", listedSince: new Date("2026-06-27 02:30:00"), tokenPriceUSD: 8.95, initialLiquidity: "2.8 ETH", totalLiquidity: "71%", poolAmount: "4.788 ETH", poolVariation: 71, poolRemaining: "5.2 ETH", contract: "0x9d0e...7d8" },
+  { token0Name: "CHZ", token1Name: "USDC", pairAddress: "0x3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d3", listedSince: new Date("2026-06-27 04:45:00"), tokenPriceUSD: 0.18, initialLiquidity: "0.9 ETH", totalLiquidity: "38%", poolAmount: "1.242 ETH", poolVariation: 38, poolRemaining: "3.1 ETH", contract: "0x3d4e...1d3" },
+  { token0Name: "PENDLE", token1Name: "WETH", pairAddress: "0x9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d9", listedSince: new Date("2026-06-27 02:30:00"), tokenPriceUSD: 8.95, initialLiquidity: "2.8 ETH", totalLiquidity: "71%", poolAmount: "4.788 ETH", poolVariation: 71, poolRemaining: "5.2 ETH", contract: "0x9d0e...7d9" },
   { token0Name: "STX", token1Name: "WETH", pairAddress: "0xe2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1", listedSince: new Date("2026-06-27 00:15:00"), tokenPriceUSD: 3.25, initialLiquidity: "1.4 ETH", totalLiquidity: "59%", poolAmount: "2.226 ETH", poolVariation: 59, poolRemaining: "4.6 ETH", contract: "0xe2f3...0f1" },
   { token0Name: "RUNE", token1Name: "WETH", pairAddress: "0x1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0", listedSince: new Date("2026-06-26 20:30:00"), tokenPriceUSD: 6.80, initialLiquidity: "3.2 ETH", totalLiquidity: "44%", poolAmount: "4.608 ETH", poolVariation: 44, poolRemaining: "7.1 ETH", contract: "0x1b2c...9b0" },
   { token0Name: "EGLD", token1Name: "USDT", pairAddress: "0x9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8", listedSince: new Date("2026-06-26 08:30:00"), tokenPriceUSD: 52.40, initialLiquidity: "2.1 ETH", totalLiquidity: "67%", poolAmount: "3.507 ETH", poolVariation: 67, poolRemaining: "4.8 ETH", contract: "0x9d0e...7d8" },
   { token0Name: "AGIX", token1Name: "WETH", pairAddress: "0x3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2", listedSince: new Date("2026-06-26 01:30:00"), tokenPriceUSD: 0.85, initialLiquidity: "0.5 ETH", totalLiquidity: "65%", poolAmount: "0.825 ETH", poolVariation: 65, poolRemaining: "1.2 ETH", contract: "0x3d4e...1d2" },
-  { token0Name: "DOGE", token1Name: "USDT", pairAddress: "0xb4a81261b16b92af0b9f7c4a83f1e885132d3de3", listedSince: new Date("2026-06-26 22:00:00"), tokenPriceUSD: 0.38, initialLiquidity: "0.75 ETH", totalLiquidity: "85%", poolAmount: "1.387 ETH", poolVariation: 85, poolRemaining: "1.8 ETH", contract: "0xb4a8...dde3" },
+  { token0Name: "DOGE", token1Name: "USDT", pairAddress: "0xb4a81261b16b92af0b9f7c4a83f1e885132d3de4", listedSince: new Date("2026-06-26 22:00:00"), tokenPriceUSD: 0.38, initialLiquidity: "0.75 ETH", totalLiquidity: "85%", poolAmount: "1.387 ETH", poolVariation: 85, poolRemaining: "1.8 ETH", contract: "0xb4a8...dde4" },
 ];
 
 const shibariumLivePair = [
@@ -347,33 +362,53 @@ async function main() {
   await prisma.updatedRRSS.deleteMany();
   await prisma.user.deleteMany();
 
-  const dashboardEth = ethereumDashboard.map((d) => ({ ...d, dex: ["uniswap", "eth"], chain: "ethereum" }));
-  const dashboardShib = shibariumDashboard.map((d) => ({ ...d, dex: ["chewyswap", "shibarium"], chain: "shibarium" }));
+  const dashboardEth = ethereumDashboard.map((d) => ({
+    ...d,
+    score: 0,
+    volumeNumeric: parseCompact(d.volume),
+    swapsNumeric: parseCompact(d.swaps),
+    liquidityNumeric: parseCompact(d.liquidity),
+    marketCapNumeric: parseCompact(d.marketCap),
+    dex: ["uniswap", "eth"],
+    chain: "ethereum",
+    chainId: 1,
+  }));
+  const dashboardShib = shibariumDashboard.map((d) => ({
+    ...d,
+    score: 0,
+    volumeNumeric: parseCompact(d.volume),
+    swapsNumeric: parseCompact(d.swaps),
+    liquidityNumeric: parseCompact(d.liquidity),
+    marketCapNumeric: parseCompact(d.marketCap),
+    dex: ["chewyswap", "shibarium"],
+    chain: "shibarium",
+    chainId: 109,
+  }));
   await prisma.dashboardData.createMany({ data: [...dashboardEth, ...dashboardShib] });
   console.log(`  ✓ DashboardData (${dashboardEth.length + dashboardShib.length} pairs)`);
 
-  const liveEth = ethereumLivePair.map((d) => ({ ...d, chain: "ethereum" }));
-  const liveShib = shibariumLivePair.map((d) => ({ ...d, chain: "shibarium" }));
+  const liveEth = ethereumLivePair.map((d) => ({ ...d, chain: "ethereum", chainId: 1 }));
+  const liveShib = shibariumLivePair.map((d) => ({ ...d, chain: "shibarium", chainId: 109 }));
   await prisma.livePair.createMany({ data: [...liveEth, ...liveShib] });
   console.log(`  ✓ LivePair (${liveEth.length + liveShib.length} pairs)`);
 
-  const swapEth = ethereumSwapTransactions.map((d) => ({ ...d, chain: "ethereum" }));
-  const swapShib = shibariumSwapTransactions.map((d) => ({ ...d, chain: "shibarium" }));
+  const swapEth = ethereumSwapTransactions.map((d) => ({ ...d, chain: "ethereum", chainId: 1 }));
+  const swapShib = shibariumSwapTransactions.map((d) => ({ ...d, chain: "shibarium", chainId: 109 }));
   await prisma.swapTransaction.createMany({ data: [...swapEth, ...swapShib] });
   console.log(`  ✓ SwapTransaction (${swapEth.length + swapShib.length} transactions)`);
 
-  const hotEth = ethereumHotPair.map((d) => ({ ...d, chain: "ethereum", previousTimes: generateTimes(d.previousPrices.length) }));
-  const hotShib = shibariumHotPair.map((d) => ({ ...d, chain: "shibarium", previousTimes: generateTimes(d.previousPrices.length) }));
+  const hotEth = ethereumHotPair.map((d) => ({ ...d, popularity: 0, chain: "ethereum", chainId: 1, previousTimes: generateTimes(d.previousPrices.length) }));
+  const hotShib = shibariumHotPair.map((d) => ({ ...d, popularity: 0, chain: "shibarium", chainId: 109, previousTimes: generateTimes(d.previousPrices.length) }));
   await prisma.hotPair.createMany({ data: [...hotEth, ...hotShib] });
   console.log(`  ✓ HotPair (${hotEth.length + hotShib.length} pairs)`);
 
-  await prisma.dailyWinner.createMany({ data: [...ethereumWinner, ...shibariumWinner].map((d) => ({ ...d, previousTimes: generateTimes(d.previousPrices.length) })) });
+  await prisma.dailyWinner.createMany({ data: [...ethereumWinner, ...shibariumWinner].map((d) => ({ ...d, previousTimes: generateTimes(d.previousPrices.length), chainId: chainIdFor(d.chain) })) });
   console.log(`  ✓ DailyWinner (${ethereumWinner.length + shibariumWinner.length} winners)`);
 
-  await prisma.dailyLoser.createMany({ data: [...ethereumLoser, ...shibariumLoser].map((d) => ({ ...d, previousTimes: generateTimes(d.previousPrices.length) })) });
+  await prisma.dailyLoser.createMany({ data: [...ethereumLoser, ...shibariumLoser].map((d) => ({ ...d, previousTimes: generateTimes(d.previousPrices.length), chainId: chainIdFor(d.chain) })) });
   console.log(`  ✓ DailyLoser (${ethereumLoser.length + shibariumLoser.length} losers)`);
 
-  await prisma.updatedRRSS.createMany({ data: [...ethereumUpdated, ...shibariumUpdated].map((d) => ({ ...d, previousTimes: generateTimes(d.previousPrices.length) })) });
+  await prisma.updatedRRSS.createMany({ data: [...ethereumUpdated, ...shibariumUpdated].map((d) => ({ ...d, previousTimes: generateTimes(d.previousPrices.length), chainId: chainIdFor(d.chain) })) });
   console.log(`  ✓ UpdatedRRSS (${ethereumUpdated.length + shibariumUpdated.length} profiles)`);
 
   await prisma.user.createMany({

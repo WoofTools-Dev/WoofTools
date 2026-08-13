@@ -20,8 +20,16 @@ model DailyWinner {
   previousTimes    Float[] // Unix timestamps (seconds) for each previous price
   growthPercentage Float? // Growth percentage for the winner
   chain            String   @default("ethereum")
+  chainId          Int      @default(1)
+  source           String   @default("seed")
+  lastSyncedAt     DateTime?
+  updatedAt        DateTime @updatedAt
+  isVisible        Boolean  @default(true)
+  isPinned         Boolean  @default(false)
+  displayOrder     Int      @default(0)
 
-  // Add other relevant fields as needed
+  @@unique([chainId, date, username])
+  @@index([chainId, isVisible])
 }
 
 model DailyLoser {
@@ -34,8 +42,16 @@ model DailyLoser {
   previousTimes    Float[] // Unix timestamps (seconds) for each previous price
   growthPercentage Float? // Growth percentage for the loser
   chain            String   @default("ethereum")
+  chainId          Int      @default(1)
+  source           String   @default("seed")
+  lastSyncedAt     DateTime?
+  updatedAt        DateTime @updatedAt
+  isVisible        Boolean  @default(true)
+  isPinned         Boolean  @default(false)
+  displayOrder     Int      @default(0)
 
-  // Add other relevant fields as needed
+  @@unique([chainId, date, username])
+  @@index([chainId, isVisible])
 }
 
 model UpdatedRRSS {
@@ -48,39 +64,71 @@ model UpdatedRRSS {
   previousTimes    Float[] // Unix timestamps (seconds) for each previous price
   growthPercentage Float? // Growth percentage for the RRSS
   chain            String   @default("ethereum")
+  chainId          Int      @default(1)
+  source           String   @default("seed")
+  lastSyncedAt     DateTime?
+  updatedAt        DateTime @updatedAt
+  isVisible        Boolean  @default(true)
+  isPinned         Boolean  @default(false)
+  displayOrder     Int      @default(0)
 
-  // Add other relevant fields as needed
+  @@unique([chainId, profileName])
+  @@index([chainId, isVisible])
 }
 
 model HotPair {
-  id               Int     @id @default(autoincrement())
+  id               Int      @id @default(autoincrement())
   pairName         String
-  popularity       Int // You can use this field to represent the popularity of the pair
+  popularity       Int      @default(0) // like counter, starts at 0
   walletAddress    String? // Optional wallet address for the pair
   price            Float? // Single price associated with the pair
   previousPrices   Float[] // Array of previous prices
   previousTimes    Float[] // Unix timestamps (seconds) for each previous price
   growthPercentage Float? // Growth percentage for the pair
-  chain            String  @default("ethereum")
+  chain            String   @default("ethereum")
+  chainId          Int      @default(1)
+  source           String   @default("seed")
+  lastSyncedAt     DateTime?
+  updatedAt        DateTime @updatedAt
+  isVisible        Boolean  @default(true)
+  isPinned         Boolean  @default(false)
+  displayOrder     Int      @default(0)
+
+  @@unique([chainId, pairName])
+  @@index([chainId, isVisible])
 }
 
 model DashboardData {
-  id            Int      @id @default(autoincrement())
-  token0Name    String
-  token1Name    String
-  pairAddress   String
-  price         Float
-  percentage24H Float
-  score         Int
-  contracts     String
-  created       DateTime
-  volume        String
-  swaps         String
-  liquidity     String
-  marketCap     String
-  dex           String[]
-  chain         String  @default("ethereum")
-  createdAt     DateTime @default(now())
+  id             Int      @id @default(autoincrement())
+  token0Name     String
+  token1Name     String
+  pairAddress    String
+  price          Float
+  percentage24H  Float
+  score          Int      @default(0) // like counter, starts at 0
+  contracts      String
+  created        DateTime
+  volume         String
+  swaps          String
+  liquidity      String
+  marketCap      String
+  volumeNumeric  Decimal?
+  swapsNumeric   Int?
+  liquidityNumeric Decimal?
+  marketCapNumeric Decimal?
+  dex            String[]
+  chain          String   @default("ethereum")
+  chainId        Int      @default(1)
+  source         String   @default("seed")
+  lastSyncedAt   DateTime?
+  updatedAt      DateTime @updatedAt
+  isVisible      Boolean  @default(true)
+  isPinned       Boolean  @default(false)
+  displayOrder   Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  @@unique([chainId, pairAddress])
+  @@index([chainId, isVisible])
 }
 
 model LivePair {
@@ -96,8 +144,18 @@ model LivePair {
   poolVariation    Float
   poolRemaining    String
   contract         String
-  chain            String  @default("ethereum")
+  chain            String   @default("ethereum")
+  chainId          Int      @default(1)
+  source           String   @default("seed")
+  lastSyncedAt     DateTime?
+  updatedAt        DateTime @updatedAt
+  isVisible        Boolean  @default(true)
+  isPinned         Boolean  @default(false)
+  displayOrder     Int      @default(0)
   createdAt        DateTime @default(now())
+
+  @@unique([chainId, pairAddress])
+  @@index([chainId, isVisible])
 }
 
 model SwapTransaction {
@@ -112,8 +170,32 @@ model SwapTransaction {
   totalUSD      Float
   variation     Float
   maker         String
-  chain         String  @default("ethereum")
+  txHash        String?
+  chain         String   @default("ethereum")
+  chainId       Int      @default(1)
+  source        String   @default("seed")
+  lastSyncedAt  DateTime?
+  updatedAt     DateTime @updatedAt
+  isVisible     Boolean  @default(true)
+  isPinned      Boolean  @default(false)
+  displayOrder  Int      @default(0)
   createdAt     DateTime @default(now())
+
+  @@unique([chainId, txHash])
+  @@index([chainId, isVisible])
+}
+
+model EntityLike {
+  id            Int      @id @default(autoincrement())
+  entityType    String // 'dashboard' | 'hotpair'
+  entityId      Int
+  walletAddress String
+  count         Int      @default(1)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([entityType, entityId, walletAddress])
+  @@index([entityType, entityId])
 }
 
 model User {
