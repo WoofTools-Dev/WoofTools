@@ -192,7 +192,7 @@ p {
 .table-container {
   background-color: var(--bg-card);
   border-radius: 12px;
-  border: 1px solid #ffffff;
+  border: 2px solid #ffffff;
   overflow: hidden;
 }
 
@@ -602,9 +602,10 @@ p {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 8px 0;
+  padding: 8px 0 8px 10px;
   margin: 0;
-  border: 1px solid #ffffff;
+  border: 2px solid #ffffff;
+  border-bottom: none;
   border-radius: 12px;
 }
 
