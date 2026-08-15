@@ -277,7 +277,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
               defaultTokenIn={this.preselectMeta?.symbol}
               feeSetting={{
                 feeAmount: 100,
-                feeReceiver: "0xDcFCD5dD752492b95ac8C1964C83F992e7e39FA9",
+                feeReceiver: "0x635C13080E1fF5B04C8FdFdE474a0346Fd06ed32",
                 chargeFeeBy: "currency_in",
                 isInBps: true,
             }}
