@@ -64,12 +64,19 @@ export default function SwapChart({ tokenAddress, tokenSymbol, chain }: SwapChar
   const [currentPrice, setCurrentPrice] = useState<number | null>(null);
   const [change24h, setChange24h] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   const initChart = useCallback(() => {
     const container = containerRef.current;
     if (!container || chartRef.current) return;
 
+    const rect = container.getBoundingClientRect();
+    const w = rect.width || 400;
+    const h = rect.height || 300;
+
     const chart = createChart(container, {
+      width: w,
+      height: h,
       layout: {
         background: { color: "#0d0e14" },
         textColor: "#a0b4c0",
@@ -139,17 +146,31 @@ export default function SwapChart({ tokenAddress, tokenSymbol, chain }: SwapChar
   }, [initChart]);
 
   useEffect(() => {
-    if (!tokenAddress || !chain) return;
+    const isAddress = /^0x[a-fA-F0-9]{40}$/.test(tokenAddress);
+    if (!chain || !isAddress) {
+      if (!chain) return;
+      setHasError(true);
+      setLoading(false);
+      return;
+    }
 
     let cancelled = false;
     setLoading(true);
+    setHasError(false);
 
     fetch(
       `${environment.apiUrl}/api/price-history?chain=${chain}&token=${tokenAddress}&days=7`
     )
       .then((r) => r.json() as Promise<PriceHistoryResponse>)
       .then((res) => {
-        if (cancelled || !res.available || !res.data) return;
+        if (cancelled) return;
+
+        if (!res.available || !res.data || res.data.prices.length < 2) {
+          setHasError(true);
+          setLoading(false);
+          return;
+        }
+
         const candles = pricesToCandles(res.data.prices, res.data.times);
         if (cancelled || candles.length === 0) return;
 
@@ -185,7 +206,9 @@ export default function SwapChart({ tokenAddress, tokenSymbol, chain }: SwapChar
         setLoading(false);
       })
       .catch(() => {
-        if (!cancelled) setLoading(false);
+        if (cancelled) return;
+        setHasError(true);
+        setLoading(false);
       });
 
     return () => { cancelled = true; };
@@ -259,7 +282,29 @@ export default function SwapChart({ tokenAddress, tokenSymbol, chain }: SwapChar
               borderRadius: "0 0 12px 12px",
             }}
           >
-            Loading chart…
+            Cargando gráfico…
+          </div>
+        )}
+        {!loading && hasError && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              color: "#6b7280",
+              fontSize: 13,
+              background: "rgba(13,14,20,0.8)",
+              borderRadius: "0 0 12px 12px",
+              padding: 20,
+              textAlign: "center",
+            }}
+          >
+            <span>No se pudieron cargar los datos de precios</span>
+            <span style={{ fontSize: 11, color: "#4b5563" }}>Intenta de nuevo más tarde</span>
           </div>
         )}
       </div>

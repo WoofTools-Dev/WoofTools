@@ -12,9 +12,9 @@
 }
 
 .swap-chart-col {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
-  min-height: 320px;
+  height: 420px;
   background: #0d0e14;
   border: 1px solid var(--border-color, #1e2d38);
   border-radius: 12px;
@@ -39,7 +39,7 @@
     width: 100%;
   }
   .swap-chart-col {
-    min-height: 260px;
+    height: 300px;
   }
 }
 

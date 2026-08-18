@@ -256,10 +256,11 @@ p {
   border-radius: 12px;
   border: 1px solid var(--border-color);
   overflow: hidden;
+  width: 100%;
 }
 
 .tables-grid .table-container {
-  border: 1px solid #ffffff;
+  border: 1px solid rgba(34, 197, 94, 0.25);
 }
 
 .table-scroll {
@@ -585,8 +586,16 @@ p {
   margin: 0;
 }
 
+.tables-grid .mini-scroll table {
+  min-width: 0;
+  margin: 0;
+  width: 100%;
+  table-layout: fixed;
+}
+
 .mini-scroll .mat-mdc-cell {
-  padding: 0;
+  padding: 4px 8px;
+  text-align: center;
 }
 
 .mini-scroll th:first-child,
@@ -609,7 +618,7 @@ p {
   border-radius: 7px;
   font-size: 11px;
   font-weight: 600;
-  background-color: var(--bg-hover);
+  background-color: transparent;
   color: var(--text-secondary);
 }
 
@@ -617,19 +626,12 @@ p {
   background-color: var(--primary);
   border-color: var(--primary);
   color: #fff;
-  border-radius: 0;
-}
-
-.mini-rank.rank-top {
-  border-color: var(--primary);
-  color: var(--primary);
-  background: var(--primary-light);
-  border-radius: 0;
+  border-radius: 7px;
 }
 
 .tables-grid .table-container .mini-scroll {
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  border-radius: 12px;
+  border: none;
+  border-radius: 0;
 }
 
 .mini-name {
@@ -672,7 +674,7 @@ p {
 }
 
 .tables-grid .table-heading {
-  border-bottom: 1px solid #ffffff;
+  border-bottom: none;
 }
 
 /* ========== RESPONSIVE ========== */

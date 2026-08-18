@@ -56,7 +56,7 @@
                             <ng-container matColumnDef="rank">
                                 <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
                                 <td mat-cell *matCellDef="let row; let i = index">
-                                    <span class="mini-rank" [class.active]="i === 0" [class.rank-top]="i > 0 && i < 3">{{ row.rank }}</span>
+                                    <span class="mini-rank" [class.active]="i === 0">{{ row.rank }}</span>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="name">
@@ -96,7 +96,7 @@
                             <ng-container matColumnDef="rank">
                                 <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
                                 <td mat-cell *matCellDef="let row; let i = index">
-                                    <span class="mini-rank" [class.active]="i === 0" [class.rank-top]="i > 0 && i < 3">{{ row.rank }}</span>
+                                    <span class="mini-rank" [class.active]="i === 0">{{ row.rank }}</span>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="name">
@@ -136,7 +136,7 @@
                             <ng-container matColumnDef="rank">
                                 <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
                                 <td mat-cell *matCellDef="let row; let i = index">
-                                    <span class="mini-rank" [class.active]="i === 0" [class.rank-top]="i > 0 && i < 3">{{ row.rank }}</span>
+                                    <span class="mini-rank" [class.active]="i === 0">{{ row.rank }}</span>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="name">
@@ -176,7 +176,7 @@
                             <ng-container matColumnDef="rank">
                                 <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
                                 <td mat-cell *matCellDef="let row; let i = index">
-                                    <span class="mini-rank" [class.active]="i === 0" [class.rank-top]="i > 0 && i < 3">{{ i + 1 }}</span>
+                                    <span class="mini-rank" [class.active]="i === 0">{{ i + 1 }}</span>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="name">

@@ -102,7 +102,7 @@ describe('DashboardComponent – ranking CSS classes', () => {
       }
       if (secondRank) {
         expect(secondRank.classList.contains('active')).withContext('rank #2 should NOT have active class').toBe(false);
-        expect(secondRank.classList.contains('rank-top')).withContext('rank #2 should have rank-top class').toBe(true);
+        expect(secondRank.classList.contains('rank-top')).withContext('rank #2 should NOT have rank-top class').toBe(false);
       }
     }
   });
