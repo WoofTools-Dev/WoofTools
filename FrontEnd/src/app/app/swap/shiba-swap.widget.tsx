@@ -25,6 +25,7 @@ import TokenSecurityBanner from "./token-security-banner";
 interface ShibaSwapWidgetProps {
   provider: BrowserProvider | null;
   initialTokenSymbol?: string;
+  onTokenChange?: (address: string, symbol: string) => void;
 }
 
 const SHIBARIUM_CHAIN_ID = CHAINS.shibarium.chainId;
@@ -38,7 +39,7 @@ function getTokenByAddress(address: string): ShibaToken {
   return hit || WBONE;
 }
 
-export default function ShibaSwapWidget({ provider, initialTokenSymbol }: ShibaSwapWidgetProps) {
+export default function ShibaSwapWidget({ provider, initialTokenSymbol, onTokenChange }: ShibaSwapWidgetProps) {
   const [tokenIn, setTokenIn] = useState<ShibaToken>(SHIBARIUM_TOKENS[0]);
   const [tokenOut, setTokenOut] = useState<ShibaToken>(SHIBARIUM_TOKENS[4]);
   const [amountIn, setAmountIn] = useState("");
@@ -297,6 +298,7 @@ export default function ShibaSwapWidget({ provider, initialTokenSymbol }: ShibaS
     setTokenIn(tok);
     setAmountIn("");
     setAmountOut("");
+    onTokenChange?.(tok.address, tok.symbol);
   };
 
   const selectTokenOut = (symbol: string) => {

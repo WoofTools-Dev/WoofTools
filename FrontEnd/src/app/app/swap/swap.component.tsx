@@ -50,8 +50,9 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
   private routeSub: { unsubscribe: () => void } | null = null;
   private preselectToken: string | null = null;
   private preselectMeta: SwapTokenMeta | null = null;
-  private chartTokenAddress: string = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-  private chartTokenSymbol: string = "WETH";
+  private chartTokenAddress: string = "";
+  private chartTokenSymbol: string = "";
+  private hasSelectedToken = false;
   private tokenUnavailable = false;
   private checkingAvailability = false;
 
@@ -82,10 +83,9 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
       this.preselectMeta = null;
       this.tokenUnavailable = false;
       this.checkingAvailability = false;
-      this.chartTokenAddress = chain === "shibarium"
-        ? "0x2761723006d3Eb0d90B19B75654DbE543dcd974f"
-        : "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-      this.chartTokenSymbol = chain === "shibarium" ? "CHEWY" : "WETH";
+      this.hasSelectedToken = false;
+      this.chartTokenAddress = "";
+      this.chartTokenSymbol = "";
       this.render();
       this.syncWalletNetwork();
     });
@@ -125,8 +125,12 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     if (!network || !token) {
       this.preselectToken = null;
       this.preselectMeta = null;
+      this.hasSelectedToken = false;
+      this.chartTokenAddress = "";
+      this.chartTokenSymbol = "";
       this.tokenUnavailable = false;
       this.checkingAvailability = false;
+      this.render();
       return;
     }
 
@@ -147,6 +151,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
       this.preselectMeta = await getTokenMeta(network as SwapNetwork, token);
       this.chartTokenAddress = this.preselectMeta?.address ?? token;
       this.chartTokenSymbol = this.preselectMeta?.symbol || token.slice(0, 8);
+      this.hasSelectedToken = true;
     }
     this.render();
   }
@@ -203,6 +208,22 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     this.render();
   }
 
+  private handleSourceTokenChange = (token: { symbol: string; address: string; decimals: number }) => {
+    if (!token?.address || !/^0x[a-fA-F0-9]{40}$/.test(token.address)) return;
+    this.chartTokenAddress = token.address;
+    this.chartTokenSymbol = token.symbol;
+    this.hasSelectedToken = true;
+    this.render();
+  }
+
+  private handleShibaTokenChange = (address: string, symbol: string) => {
+    if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) return;
+    this.chartTokenAddress = address;
+    this.chartTokenSymbol = symbol;
+    this.hasSelectedToken = true;
+    this.render();
+  }
+
   private render() {
     if (!this.root) return;
 
@@ -237,12 +258,21 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     }
 
     const isSupportedChain = this.chainId === null || SUPPORTED_CHAINS.has(this.chainId);
+    const showChart = this.hasSelectedToken && this.chartTokenAddress;
+
+    const chartCol = showChart ? (
+      <div className="swap-chart-col">
+        <SwapChart
+          tokenAddress={this.chartTokenAddress}
+          tokenSymbol={this.chartTokenSymbol}
+          chain={this.activeChain}
+        />
+      </div>
+    ) : null;
 
     const content = this.connecting ? (
       <div className="swap-layout">
-        <div className="swap-chart-col">
-          <SwapChart tokenAddress={this.chartTokenAddress} tokenSymbol={this.chartTokenSymbol} chain={this.activeChain} />
-        </div>
+        {chartCol}
         <div className="swap-widget-col">
           <div style={{display: "flex", alignItems: "center", justifyContent: "center", padding: "40px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif", background: "var(--card-bg, #161616)", border: "1px solid #333", borderRadius: 12}}>
             <p>Connecting to MetaMask...</p>
@@ -251,9 +281,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
       </div>
     ) : !isSupportedChain ? (
       <div className="swap-layout">
-        <div className="swap-chart-col">
-          <SwapChart tokenAddress={this.chartTokenAddress} tokenSymbol={this.chartTokenSymbol} chain={this.activeChain} />
-        </div>
+        {chartCol}
         <div className="swap-widget-col">
           <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif", background: "var(--card-bg, #161616)", border: "1px solid #333", borderRadius: 12}}>
             <p>Red no soportada (chain ID: {this.chainId}).</p>
@@ -278,9 +306,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
       </div>
     ) : !this.provider || this.error ? (
       <div className="swap-layout">
-        <div className="swap-chart-col">
-          <SwapChart tokenAddress={this.chartTokenAddress} tokenSymbol={this.chartTokenSymbol} chain={this.activeChain} />
-        </div>
+        {chartCol}
         <div className="swap-widget-col">
           <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif", background: "var(--card-bg, #161616)", border: "1px solid #333", borderRadius: 12}}>
             <p>Conecta MetaMask para hacer swap en {this.activeChain === 'shibarium' ? 'Shibarium' : 'Ethereum'}</p>
@@ -305,29 +331,17 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
       </div>
     ) : this.activeChain === 'shibarium' ? (
       <div className="swap-layout">
-        <div className="swap-chart-col">
-          <SwapChart
-            tokenAddress={this.chartTokenAddress}
-            tokenSymbol={this.chartTokenSymbol}
-            chain="shibarium"
-          />
-        </div>
+        {chartCol}
         <div className="swap-widget-col">
           <WidgetErrorBoundary onError={this.handleWidgetError}>
-            <ShibaSwapWidget provider={this.provider} initialTokenSymbol={this.preselectToken ?? undefined} />
+            <ShibaSwapWidget provider={this.provider} initialTokenSymbol={this.preselectToken ?? undefined} onTokenChange={this.handleShibaTokenChange} />
             <SecurityPanel chainId={this.chainId!} mode="simulation" />
           </WidgetErrorBoundary>
         </div>
       </div>
     ) : (
       <div className="swap-layout">
-        <div className="swap-chart-col">
-          <SwapChart
-            tokenAddress={this.chartTokenAddress}
-            tokenSymbol={this.chartTokenSymbol}
-            chain="ethereum"
-          />
-        </div>
+        {chartCol}
         <div className="swap-widget-col">
           <WidgetErrorBoundary onError={this.handleWidgetError}>
             <SecurityPanel chainId={this.chainId!} />
@@ -338,6 +352,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
                 provider={this.provider}
                 title={<div>Swap</div>}
                 defaultTokenIn={this.preselectMeta?.symbol}
+                onSourceTokenChange={this.handleSourceTokenChange}
                 {...(environment.SWAP_FEE_BPS > 0 && environment.SWAP_FEE_RECEIVER ? {
                   feeSetting: {
                     feeAmount: environment.SWAP_FEE_BPS,
