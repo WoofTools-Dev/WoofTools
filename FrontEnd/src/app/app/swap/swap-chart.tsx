@@ -172,7 +172,12 @@ export default function SwapChart({ tokenAddress, tokenSymbol, chain }: SwapChar
         }
 
         const candles = pricesToCandles(res.data.prices, res.data.times);
-        if (cancelled || candles.length === 0) return;
+        if (cancelled) return;
+        if (candles.length === 0) {
+          setHasError(true);
+          setLoading(false);
+          return;
+        }
 
         const candleData = candles.map((c) => ({
           time: c.time as unknown as import("lightweight-charts").Time,

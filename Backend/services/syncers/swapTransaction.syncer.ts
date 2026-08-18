@@ -1,5 +1,5 @@
 import prisma from "../../configs/prisma.config";
-import { graphService } from "../providers";
+import { graphService, dexscreenerService } from "../providers";
 import { ChainKey } from "../../configs/blockchain.config";
 
 export interface SyncResult {
@@ -14,11 +14,25 @@ export async function syncSwapTransactions(chain: ChainKey): Promise<SyncResult>
   const chainId = chain === "ethereum" ? 1 : 109;
 
   try {
-    const pairs = await graphService.getTopPairs(5);
+    let pairs: { pairAddress: string; token0: string; token1: string; price: number; volume24h: number; liquidity: number; swaps: number; created: Date }[];
+
+    try {
+      pairs = await graphService.getTopPairs(5);
+    } catch (graphErr) {
+      console.warn(`syncSwapTransactions: Graph unavailable for ${chain}, using DexScreener pairs...`);
+      pairs = await dexscreenerService.getTopPairsFromDexScreener(chain, 5);
+    }
+
     const topPair = pairs[0];
     if (!topPair) return result;
 
-    const swaps = await graphService.getRecentSwaps(topPair.pairAddress, 50);
+    let swaps: { type: "BUY" | "SELL"; amountUSD: number; amount0: number; amount1: number; token0Symbol: string; token1Symbol: string; timestamp: Date }[];
+    try {
+      swaps = await graphService.getRecentSwaps(topPair.pairAddress, 50);
+    } catch {
+      console.warn(`syncSwapTransactions: swap history unavailable for ${chain} (${topPair.pairAddress}) — skipping`);
+      return result;
+    }
 
     for (const swap of swaps) {
       try {

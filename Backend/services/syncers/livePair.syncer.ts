@@ -1,5 +1,5 @@
 import prisma from "../../configs/prisma.config";
-import { graphService } from "../providers";
+import { graphService, dexscreenerService } from "../providers";
 import { ChainKey } from "../../configs/blockchain.config";
 
 export interface SyncResult {
@@ -14,7 +14,22 @@ export async function syncLivePairs(chain: ChainKey): Promise<SyncResult> {
   const chainId = chain === "ethereum" ? 1 : 109;
 
   try {
-    const newPairs = await graphService.getNewPairs(48, 20);
+    let newPairs: { pairAddress: string; token0: string; token1: string; createdAt: Date; initialLiquidity: number; currentLiquidity: number }[];
+
+    try {
+      newPairs = await graphService.getNewPairs(48, 20);
+    } catch (graphErr) {
+      console.warn(`syncLivePairs: Graph unavailable for ${chain}, trying DexScreener...`);
+      const topPairs = await dexscreenerService.getTopPairsFromDexScreener(chain, 20);
+      newPairs = topPairs.map((p) => ({
+        pairAddress: p.pairAddress,
+        token0: p.token0,
+        token1: p.token1,
+        createdAt: p.created,
+        initialLiquidity: p.liquidity,
+        currentLiquidity: p.liquidity,
+      }));
+    }
 
     for (const pair of newPairs) {
       try {

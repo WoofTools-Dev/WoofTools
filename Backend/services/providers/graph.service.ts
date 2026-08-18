@@ -56,12 +56,22 @@ async function queryGraph<T>(query: string, variables?: Record<string, any>): Pr
 
   await cache.waitForRateLimit("thegraph", RATE_LIMIT_FREE);
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ query, variables }),
-    signal: AbortSignal.timeout(10_000),
-  });
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, variables }),
+      signal: AbortSignal.timeout(10_000),
+    });
+  } catch (err) {
+    if (!graphWarningLogged) {
+      console.warn("graph: TheGraph API unreachable — falling back to DexScreener");
+      graphWarningLogged = true;
+    }
+    graphAvailable = false;
+    throw err;
+  }
 
   if (!res.ok) {
     if (!graphWarningLogged) {
@@ -74,6 +84,11 @@ async function queryGraph<T>(query: string, variables?: Record<string, any>): Pr
 
   const json = await res.json();
   if (json.errors?.length) {
+    if (!graphWarningLogged) {
+      console.warn("graph: TheGraph returned GraphQL errors — falling back to DexScreener");
+      graphWarningLogged = true;
+    }
+    graphAvailable = false;
     throw new Error(`Graph errors: ${json.errors[0].message}`);
   }
   return json.data as T;
