@@ -100,12 +100,10 @@ export default function ShibaSwapWidget({ provider, initialTokenSymbol }: ShibaS
     const address = tokenIn.isNative ? "" : tokenIn.address;
     if (!address) {
       setSecurityStatus("idle");
-      setTokenSecurity(null);
       setRiskSummary(null);
       return;
     }
     setSecurityStatus("unavailable");
-    setTokenSecurity(null);
     setRiskSummary(null);
   }, [tokenIn]);
 
