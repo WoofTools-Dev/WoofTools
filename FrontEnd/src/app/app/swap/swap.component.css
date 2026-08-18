@@ -1,5 +1,48 @@
 /* ===== KyberSwap Widget Dark Theme Override ===== */
 
+/* 2-column swap layout */
+.swap-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  justify-content: center;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.swap-chart-col {
+  flex: 1;
+  min-width: 0;
+  min-height: 320px;
+  background: #0d0e14;
+  border: 1px solid var(--border-color, #1e2d38);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.swap-widget-col {
+  flex: 0 0 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .swap-layout {
+    flex-direction: column;
+    align-items: stretch;
+    max-width: 440px;
+  }
+  .swap-widget-col {
+    flex: none;
+    width: 100%;
+  }
+  .swap-chart-col {
+    min-height: 260px;
+  }
+}
+
 /* Widget container - force dark theme font */
 .customReactComponentContainer {
   font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
@@ -18,7 +61,6 @@
 
 .customReactComponentContainer .swap-zone {
   width: 100%;
-  max-width: 440px;
 }
 
 /* Widget main container */

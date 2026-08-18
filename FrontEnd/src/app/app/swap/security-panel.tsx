@@ -103,16 +103,16 @@ export default function SecurityPanel({ chainId, mode = "full", style }: Securit
       {!open && (
         <button className="swap-security-fab" onClick={() => setOpen(true)}>
           <span className="material-icons" style={{ fontSize: 16 }}>shield</span>
-          <span>Seguridad</span>
+          <span>Go+ Security</span>
         </button>
       )}
 
       {open && (
         <>
           <div className="swap-security-backdrop" onClick={() => setOpen(false)} />
-          <div className="swap-security-drawer" role="dialog" aria-label="Seguridad (GoPlus)">
+          <div className="swap-security-drawer" role="dialog" aria-label="Go+ Security">
             <div className="swap-security-drawer-header">
-              <div style={{ fontWeight: 600, fontSize: 13 }}>Seguridad (GoPlus)</div>
+              <div style={{ fontWeight: 600, fontSize: 13 }}>Go+ Security</div>
               <button className="swap-security-close" onClick={() => setOpen(false)} aria-label="Cerrar panel">✕</button>
             </div>
 

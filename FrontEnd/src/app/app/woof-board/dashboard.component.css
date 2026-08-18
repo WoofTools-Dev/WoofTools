@@ -604,7 +604,8 @@ p {
   justify-content: center;
   min-width: 26px;
   height: 100%;
-  padding: 0 6px;
+  padding: 2px 8px;
+  border: 1.5px solid transparent;
   border-radius: 7px;
   font-size: 11px;
   font-weight: 600;
@@ -614,8 +615,21 @@ p {
 
 .mini-rank.active {
   background-color: var(--primary);
+  border-color: var(--primary);
   color: #fff;
   border-radius: 0;
+}
+
+.mini-rank.rank-top {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+  border-radius: 0;
+}
+
+.tables-grid .table-container .mini-scroll {
+  border: 1px solid rgba(34, 197, 94, 0.3);
+  border-radius: 12px;
 }
 
 .mini-name {

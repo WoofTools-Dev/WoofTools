@@ -1,14 +1,14 @@
 .myReactComponentContainer {
   display: flex;
   justify-content: center;
-  align-items: center;
   width: 100%;
   min-height: calc(100vh - 180px);
-  padding: 24px;
+  padding: 24px 16px;
   font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif;
 }
 
 .myReactComponentContainer app-swap-wrapper {
   display: block;
   width: 100%;
+  max-width: 920px;
 }

@@ -13,6 +13,8 @@ import livePairRoutes from "./routes/livePair.routes";
 import swapTransactionRoutes from "./routes/swapTransaction.routes";
 import goplusRoutes from "./routes/goplus.routes";
 import likeRoutes from "./routes/like.routes";
+import priceHistoryRoutes from "./routes/priceHistory.routes";
+import syncRoutes from "./routes/sync.routes";
 
 import swaggerFile from "./swagger/swagger.json";
 
@@ -36,6 +38,8 @@ app.use("/api", livePairRoutes);
 app.use("/api", swapTransactionRoutes);
 app.use("/api", goplusRoutes);
 app.use("/api", likeRoutes);
+app.use("/api", priceHistoryRoutes);
+app.use("/api", syncRoutes);
 
 app.get("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 

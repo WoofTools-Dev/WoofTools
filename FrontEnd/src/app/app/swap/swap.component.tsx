@@ -13,6 +13,8 @@ import {
   isTokenAvailable,
 } from "src/app/Service/swap-availability";
 import ShibaSwapWidget from "./shiba-swap.widget";
+import SwapChart from "./swap-chart";
+import { environment } from "src/environments/environment";
 import SecurityPanel from "./security-panel";
 
 const containerElementRef = "customReactComponentContainer";
@@ -48,6 +50,8 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
   private routeSub: { unsubscribe: () => void } | null = null;
   private preselectToken: string | null = null;
   private preselectMeta: SwapTokenMeta | null = null;
+  private chartTokenAddress: string = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+  private chartTokenSymbol: string = "WETH";
   private tokenUnavailable = false;
   private checkingAvailability = false;
 
@@ -131,6 +135,8 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     this.tokenUnavailable = available === false;
     if (available) {
       this.preselectMeta = await getTokenMeta(network as SwapNetwork, token);
+      this.chartTokenAddress = token;
+      this.chartTokenSymbol = this.preselectMeta?.symbol || token.slice(0, 8);
     }
     this.render();
   }
@@ -258,31 +264,51 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
         </>
       </div>
     ) : this.activeChain === 'shibarium' ? (
-      <div style={{display : "flex" , alignContent: "center" , justifyContent:"center", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif", paddingTop: 16}}>
-        <WidgetErrorBoundary onError={this.handleWidgetError}>
-          <ShibaSwapWidget provider={this.provider} initialTokenSymbol={this.preselectToken ?? undefined} />
-          <SecurityPanel chainId={this.chainId!} mode="simulation" />
-        </WidgetErrorBoundary>
+      <div className="swap-layout">
+        <div className="swap-chart-col">
+          <SwapChart
+            tokenAddress={this.chartTokenAddress}
+            tokenSymbol={this.chartTokenSymbol}
+            chain="shibarium"
+          />
+        </div>
+        <div className="swap-widget-col">
+          <WidgetErrorBoundary onError={this.handleWidgetError}>
+            <ShibaSwapWidget provider={this.provider} initialTokenSymbol={this.preselectToken ?? undefined} />
+            <SecurityPanel chainId={this.chainId!} mode="simulation" />
+          </WidgetErrorBoundary>
+        </div>
       </div>
     ) : (
-      <div style={{display : "flex" , flexDirection: "column", alignContent: "center" , justifyContent:"center", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
-        <WidgetErrorBoundary onError={this.handleWidgetError}>
-          <SecurityPanel chainId={this.chainId!} />
-          <Widget
-              client="WoofTools"
-              enableRoute={true}
-              enableDexes="kyberswap-elastic,uniswapv3,uniswap"
-              provider={this.provider}
-              title={<div>Swap</div>}
-              defaultTokenIn={this.preselectMeta?.symbol}
-              feeSetting={{
-                feeAmount: 100,
-                feeReceiver: "0x635C13080E1fF5B04C8FdFdE474a0346Fd06ed32",
-                chargeFeeBy: "currency_in",
-                isInBps: true,
-            }}
+      <div className="swap-layout">
+        <div className="swap-chart-col">
+          <SwapChart
+            tokenAddress={this.chartTokenAddress}
+            tokenSymbol={this.chartTokenSymbol}
+            chain="ethereum"
           />
-        </WidgetErrorBoundary>
+        </div>
+        <div className="swap-widget-col">
+          <WidgetErrorBoundary onError={this.handleWidgetError}>
+            <SecurityPanel chainId={this.chainId!} />
+            <Widget
+                client="WoofTools"
+                enableRoute={true}
+                enableDexes="kyberswap-elastic,uniswapv3,uniswap"
+                provider={this.provider}
+                title={<div>Swap</div>}
+                defaultTokenIn={this.preselectMeta?.symbol}
+                {...(environment.SWAP_FEE_BPS > 0 && environment.SWAP_FEE_RECEIVER ? {
+                  feeSetting: {
+                    feeAmount: environment.SWAP_FEE_BPS,
+                    feeReceiver: environment.SWAP_FEE_RECEIVER,
+                    chargeFeeBy: "currency_in",
+                    isInBps: true,
+                  }
+                } : {})}
+            />
+          </WidgetErrorBoundary>
+        </div>
       </div>
     );
 
