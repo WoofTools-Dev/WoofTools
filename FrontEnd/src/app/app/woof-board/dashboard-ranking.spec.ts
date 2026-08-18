@@ -63,10 +63,11 @@ describe('DashboardComponent – ranking CSS classes', () => {
     apiService.getLikeStatus.and.returnValue(of(null as any));
 
     TestBed.configureTestingModule({
-      declarations: [DashboardComponent, TokenChartComponent, CandlestickChartComponent],
+      declarations: [DashboardComponent, TokenChartComponent],
       imports: [
         HttpClientTestingModule, MatPaginatorModule, MatSortModule,
         MatTableModule, NoopAnimationsModule, NgChartsModule,
+        CandlestickChartComponent,
       ],
       providers: [
         { provide: ApiService, useValue: apiService },
