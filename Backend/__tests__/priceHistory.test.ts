@@ -1,24 +1,29 @@
-import * as PriceHistoryService from "../services/priceHistory.service";
+let PriceHistoryService: typeof import("../services/priceHistory.service");
+let mockGetCoinGeckoHistory: jest.Mock;
+let mockGetOHLCV: jest.Mock;
 
-jest.mock("../configs/prisma.config", () => ({
-  __esModule: true,
-  default: {
-    dashboardData: {
-      findMany: jest.fn(),
+beforeEach(async () => {
+  jest.resetModules();
+
+  mockGetCoinGeckoHistory = jest.fn();
+  mockGetOHLCV = jest.fn();
+
+  jest.doMock("../services/providers", () => ({
+    get coingeckoService() {
+      return { getPriceHistory: mockGetCoinGeckoHistory };
     },
-  },
-}));
+    get geckoterminalService() {
+      return { getOHLCV: mockGetOHLCV, findPool: jest.fn() };
+    },
+  }));
 
-const prisma = require("../configs/prisma.config").default;
+  PriceHistoryService = await import("../services/priceHistory.service");
+});
 
 describe("PriceHistoryService", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   describe("getPriceHistory", () => {
-    it("should return fallback history when no DB records exist", async () => {
-      (prisma.dashboardData.findMany as jest.Mock).mockResolvedValue([]);
+    it("should return empty when CoinGecko fails for ethereum", async () => {
+      mockGetCoinGeckoHistory.mockRejectedValue(new Error("API error"));
 
       const result = await PriceHistoryService.getPriceHistory(
         "ethereum",
@@ -26,97 +31,84 @@ describe("PriceHistoryService", () => {
         7
       );
 
-      expect(result).toHaveProperty("prices");
-      expect(result).toHaveProperty("times");
-      expect(result).toHaveProperty("tokenAddress");
-      expect(result).toHaveProperty("chain");
+      expect(result.prices).toEqual([]);
+      expect(result.times).toEqual([]);
       expect(result.chain).toBe("ethereum");
-      expect(result.prices.length).toBeGreaterThan(0);
-      expect(result.times.length).toBe(result.prices.length);
     });
 
-    it("should generate fallback data with correct chain", async () => {
-      (prisma.dashboardData.findMany as jest.Mock).mockResolvedValue([]);
+    it("should return CoinGecko data for known ethereum token", async () => {
+      mockGetCoinGeckoHistory.mockResolvedValue({
+        prices: [3400, 3450, 3500, 3512],
+        times: [1719000000, 1719086400, 1719172800, 1719259200],
+      });
+
+      const result = await PriceHistoryService.getPriceHistory(
+        "ethereum",
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        7
+      );
+
+      expect(result.prices).toEqual([3400, 3450, 3500, 3512]);
+      expect(result.times).toEqual([1719000000, 1719086400, 1719172800, 1719259200]);
+      expect(result.chain).toBe("ethereum");
+      expect(result.tokenAddress).toBe("0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2");
+    });
+
+    it("should return empty when CoinGecko returns insufficient data", async () => {
+      mockGetCoinGeckoHistory.mockResolvedValue({
+        prices: [100],
+        times: [1719000000],
+      });
+
+      const result = await PriceHistoryService.getPriceHistory(
+        "ethereum",
+        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        7
+      );
+
+      expect(result.prices).toEqual([]);
+    });
+
+    it("should return GeckoTerminal data for shibarium token", async () => {
+      mockGetOHLCV.mockResolvedValue({
+        prices: [0.025, 0.026, 0.027, 0.0285],
+        times: [1719000000, 1719086400, 1719172800, 1719259200],
+      });
 
       const result = await PriceHistoryService.getPriceHistory(
         "shibarium",
-        "0x1234567890abcdef1234567890abcdef12345678",
-        1
+        "0x2761723006d3Eb0d90B19B75654DbE543dcd974f",
+        7
       );
 
+      expect(result.prices).toEqual([0.025, 0.026, 0.027, 0.0285]);
+      expect(result.times).toEqual([1719000000, 1719086400, 1719172800, 1719259200]);
       expect(result.chain).toBe("shibarium");
-      expect(result.tokenAddress).toBe("0x1234567890abcdef1234567890abcdef12345678");
     });
 
-    it("should respect days parameter for interval", async () => {
-      (prisma.dashboardData.findMany as jest.Mock).mockResolvedValue([]);
+    it("should return empty when GeckoTerminal fails", async () => {
+      mockGetOHLCV.mockRejectedValue(new Error("API error"));
 
-      const result1 = await PriceHistoryService.getPriceHistory(
+      const result = await PriceHistoryService.getPriceHistory(
+        "shibarium",
+        "0x2761723006d3Eb0d90B19B75654DbE543dcd974f",
+        7
+      );
+
+      expect(result.prices).toEqual([]);
+      expect(result.times).toEqual([]);
+    });
+
+    it("should return empty for unknown ethereum token", async () => {
+      mockGetCoinGeckoHistory.mockResolvedValue(null);
+
+      const result = await PriceHistoryService.getPriceHistory(
         "ethereum",
         "0x1234567890abcdef1234567890abcdef12345678",
-        1
-      );
-
-      const result7 = await PriceHistoryService.getPriceHistory(
-        "ethereum",
-        "0xabcdef1234567890abcdef1234567890abcdef12",
         7
       );
 
-      // 1-day should have hourly data (up to 48 points), 7-day should have hourly (up to 168)
-      expect(result1.prices.length).toBeLessThanOrEqual(48);
-      expect(result7.prices.length).toBeLessThanOrEqual(168);
-    });
-
-    it("should return consistent fallback data for same inputs", async () => {
-      (prisma.dashboardData.findMany as jest.Mock).mockResolvedValue([]);
-
-      const r1 = await PriceHistoryService.getPriceHistory(
-        "ethereum",
-        "0xaaaa111122223333444455556666777788889999",
-        7
-      );
-      const r2 = await PriceHistoryService.getPriceHistory(
-        "ethereum",
-        "0xaaaa111122223333444455556666777788889999",
-        7
-      );
-
-      expect(r1.chain).toBe(r2.chain);
-      expect(r1.tokenAddress).toBe(r2.tokenAddress);
-    });
-
-    it("should return DB data when records exist", async () => {
-      const now = Date.now();
-      (prisma.dashboardData.findMany as jest.Mock).mockResolvedValue([
-        { price: 100, createdAt: new Date(now - 3600_000) },
-        { price: 105, createdAt: new Date(now - 1800_000) },
-        { price: 110, createdAt: new Date(now) },
-      ]);
-
-      const result = await PriceHistoryService.getPriceHistory(
-        "ethereum",
-        "0xBBBB111122223333444455556666777788889999",
-        7
-      );
-
-      expect(result.prices).toEqual([100, 105, 110]);
-      expect(result.times.length).toBe(3);
-    });
-
-    it("should fall back to generated data if DB records have no price", async () => {
-      (prisma.dashboardData.findMany as jest.Mock).mockResolvedValue([
-        { price: 0, createdAt: new Date() },
-      ]);
-
-      const result = await PriceHistoryService.getPriceHistory(
-        "ethereum",
-        "0xCCCC111122223333444455556666777788889999",
-        7
-      );
-
-      // price=0 means no valid data, should fall back to generated
-      expect(result.prices.length).toBeGreaterThan(0);
+      expect(result.prices).toEqual([]);
     });
   });
 });

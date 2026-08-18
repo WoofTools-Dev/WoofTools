@@ -9,7 +9,7 @@ export const getPriceHistory = async (req: Request, res: Response) => {
   try {
     const chain = String(req.query.chain || "").toLowerCase();
     const token = String(req.query.token || "");
-    const days = Math.min(Math.max(parseInt(String(req.query.days || "7"), 10) || 7, 1), 90);
+    const days = Math.min(Math.max(parseInt(String(req.query.days || "30"), 10) || 30, 1), 90);
 
     if (!VALID_CHAINS.has(chain)) {
       return wrappedResponse(res, "chain must be 'ethereum' or 'shibarium'", 400, null);

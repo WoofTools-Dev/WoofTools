@@ -159,7 +159,7 @@ export default function SwapChart({ tokenAddress, tokenSymbol, chain }: SwapChar
     setHasError(false);
 
     fetch(
-      `${environment.apiUrl}/api/price-history?chain=${chain}&token=${tokenAddress}&days=7`
+      `${environment.apiUrl}/api/price-history?chain=${chain}&token=${tokenAddress}&days=30`
     )
       .then((r) => r.json() as Promise<PriceHistoryResponse>)
       .then((res) => {

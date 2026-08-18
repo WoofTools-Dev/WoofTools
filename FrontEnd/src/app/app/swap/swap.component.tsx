@@ -78,6 +78,14 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     this.chainSub = this.chainService.chain$.subscribe((chain) => {
       this.activeChain = chain;
       this.error = false;
+      this.preselectToken = null;
+      this.preselectMeta = null;
+      this.tokenUnavailable = false;
+      this.checkingAvailability = false;
+      this.chartTokenAddress = chain === "shibarium"
+        ? "0x2761723006d3Eb0d90B19B75654DbE543dcd974f"
+        : "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+      this.chartTokenSymbol = chain === "shibarium" ? "CHEWY" : "WETH";
       this.render();
       this.syncWalletNetwork();
     });

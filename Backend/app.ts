@@ -16,6 +16,8 @@ import likeRoutes from "./routes/like.routes";
 import priceHistoryRoutes from "./routes/priceHistory.routes";
 import syncRoutes from "./routes/sync.routes";
 
+import { startScheduler } from "./scheduler";
+
 import swaggerFile from "./swagger/swagger.json";
 
 dotenv.config();
@@ -40,6 +42,8 @@ app.use("/api", goplusRoutes);
 app.use("/api", likeRoutes);
 app.use("/api", priceHistoryRoutes);
 app.use("/api", syncRoutes);
+
+startScheduler();
 
 app.get("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 

@@ -39,7 +39,14 @@ interface GraphSwap {
   };
 }
 
+let graphAvailable = true;
+let graphWarningLogged = false;
+
 async function queryGraph<T>(query: string, variables?: Record<string, any>): Promise<T> {
+  if (!graphAvailable) {
+    throw new Error("TheGraph free API is deprecated/unavailable — skipping Graph query");
+  }
+
   const url = theGraphConfig.apiKey
     ? theGraphConfig.uniswapV3Url.replace(
         "gateway.thegraph.com/api/",
@@ -53,10 +60,17 @@ async function queryGraph<T>(query: string, variables?: Record<string, any>): Pr
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query, variables }),
-    signal: AbortSignal.timeout(15_000),
+    signal: AbortSignal.timeout(10_000),
   });
 
-  if (!res.ok) throw new Error(`The Graph HTTP ${res.status}`);
+  if (!res.ok) {
+    if (!graphWarningLogged) {
+      console.warn("graph: TheGraph API unavailable (HTTP " + res.status + ") — falling back to DexScreener");
+      graphWarningLogged = true;
+    }
+    graphAvailable = false;
+    throw new Error(`The Graph HTTP ${res.status}`);
+  }
 
   const json = await res.json();
   if (json.errors?.length) {

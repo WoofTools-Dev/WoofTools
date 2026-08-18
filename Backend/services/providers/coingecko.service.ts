@@ -84,7 +84,7 @@ export async function getPriceHistory(
   if (cached) return cached;
 
   const data = await cgFetch<CGMarketChart>(
-    `/coins/${tokenId}/market_chart?vs_currency=usd&days=${days}&interval=daily`
+    `/coins/${tokenId}/market_chart?vs_currency=usd&days=${days}`
   );
 
   const result = {

@@ -1,5 +1,5 @@
 import prisma from "../../configs/prisma.config";
-import { graphService, coingeckoService } from "../providers";
+import { graphService, dexscreenerService } from "../providers";
 import { ChainKey } from "../../configs/blockchain.config";
 
 export interface SyncResult {
@@ -14,7 +14,13 @@ export async function syncDashboardData(chain: ChainKey): Promise<SyncResult> {
   const chainId = chain === "ethereum" ? 1 : 109;
 
   try {
-    const pairs = await graphService.getTopPairs(30);
+    let pairs: { pairAddress: string; token0: string; token1: string; price: number; volume24h: number; liquidity: number; swaps: number; created: Date }[];
+
+    try {
+      pairs = await graphService.getTopPairs(30);
+    } catch {
+      pairs = await dexscreenerService.getTopPairsFromDexScreener(chain, 30);
+    }
 
     for (const pair of pairs) {
       try {

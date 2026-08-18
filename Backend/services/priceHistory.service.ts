@@ -1,4 +1,5 @@
-import prisma from "../configs/prisma.config";
+import { coingeckoService, geckoterminalService } from "./providers";
+import { getCoinGeckoId } from "../configs/token-map";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const cache = new Map<string, { data: PriceHistoryResult; ts: number }>();
@@ -13,7 +14,7 @@ export interface PriceHistoryResult {
 export async function getPriceHistory(
   chain: string,
   tokenAddress: string,
-  days: number = 7
+  days: number = 30
 ): Promise<PriceHistoryResult> {
   const key = `${chain}:${tokenAddress.toLowerCase()}:${days}`;
   const cached = cache.get(key);
@@ -21,59 +22,51 @@ export async function getPriceHistory(
     return cached.data;
   }
 
-  const records = await prisma.dashboardData.findMany({
-    where: {
-      chain,
-      isVisible: true,
-    },
-    orderBy: { createdAt: "asc" },
-    take: 200,
-  });
+  let result: PriceHistoryResult | null = null;
 
-  if (records.length > 0) {
-    const prices: number[] = [];
-    const times: number[] = [];
-
-    for (const r of records) {
-      if (r.price > 0) {
-        prices.push(r.price);
-        times.push(Math.floor(r.createdAt.getTime() / 1000));
-      }
-    }
-
-    if (prices.length >= 2) {
-      const result: PriceHistoryResult = { prices, times, tokenAddress, chain };
-      cache.set(key, { data: result, ts: Date.now() });
-      return result;
-    }
+  if (chain === "ethereum") {
+    result = await fetchFromCoinGecko(tokenAddress, chain, days);
+  } else if (chain === "shibarium") {
+    result = await fetchFromGeckoTerminal(tokenAddress, chain, days);
   }
 
-  return generateFallbackHistory(tokenAddress, chain, days);
+  if (!result) {
+    result = { prices: [], times: [], tokenAddress, chain };
+  }
+
+  cache.set(key, { data: result, ts: Date.now() });
+  return result;
 }
 
-function generateFallbackHistory(
+async function fetchFromCoinGecko(
   tokenAddress: string,
   chain: string,
   days: number
-): PriceHistoryResult {
-  const now = Math.floor(Date.now() / 1000);
-  const interval = days <= 1 ? 300 : days <= 7 ? 3600 : 86400;
-  const count = Math.min(days * (days <= 1 ? 48 : days <= 7 ? 24 : 1), 200);
+): Promise<PriceHistoryResult | null> {
+  const coinGeckoId = getCoinGeckoId(tokenAddress);
+  if (!coinGeckoId) return null;
 
-  const seed = parseInt(tokenAddress.slice(2, 10), 16);
-  let price = 0.001 + (seed % 10000) / 100000;
-  const prices: number[] = [];
-  const times: number[] = [];
-
-  for (let i = 0; i < count; i++) {
-    const t = now - (count - 1 - i) * interval;
-    const noise =
-      Math.sin(seed * 0.1 + i * 0.7) * 0.03 * price +
-      Math.cos(i * 0.3) * 0.02 * price;
-    price = Math.max(0.000001, price + noise);
-    prices.push(price);
-    times.push(t);
+  try {
+    const data = await coingeckoService.getPriceHistory(coinGeckoId, days);
+    if (!data.prices || data.prices.length < 2) return null;
+    return { prices: data.prices, times: data.times, tokenAddress, chain };
+  } catch (err) {
+    console.error(`priceHistory: CoinGecko failed for ${coinGeckoId}:`, err);
+    return null;
   }
+}
 
-  return { prices, times, tokenAddress, chain };
+async function fetchFromGeckoTerminal(
+  tokenAddress: string,
+  chain: string,
+  days: number
+): Promise<PriceHistoryResult | null> {
+  try {
+    const data = await geckoterminalService.getOHLCV(tokenAddress, chain, days);
+    if (!data || !data.prices || data.prices.length < 2) return null;
+    return { prices: data.prices, times: data.times, tokenAddress, chain };
+  } catch (err) {
+    console.error(`priceHistory: GeckoTerminal failed for ${tokenAddress}:`, err);
+    return null;
+  }
 }
