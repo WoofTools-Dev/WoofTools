@@ -12,7 +12,6 @@ import {
 import { CHAINS } from "src/app/Service/chain.constants";
 import {
   getApprovalSecurity,
-  getTokenSecurity,
   simulateTransaction,
 } from "src/app/Service/goplus-api";
 import {
@@ -20,7 +19,6 @@ import {
   getSimulationReceived,
   GoPlusRiskSummary,
   GoPlusSimulationResult,
-  GoPlusTokenSecurity,
 } from "src/app/Interface/goplus.interface";
 import TokenSecurityBanner from "./token-security-banner";
 
@@ -52,7 +50,6 @@ export default function ShibaSwapWidget({ provider, initialTokenSymbol }: ShibaS
   const [success, setSuccess] = useState<string | null>(null);
 
   const [securityStatus, setSecurityStatus] = useState<"idle" | "loading" | "available" | "unavailable">("idle");
-  const [tokenSecurity, setTokenSecurity] = useState<GoPlusTokenSecurity | null>(null);
   const [riskSummary, setRiskSummary] = useState<GoPlusRiskSummary | null>(null);
 
   const [simResult, setSimResult] = useState<GoPlusSimulationResult | null>(null);
@@ -107,17 +104,9 @@ export default function ShibaSwapWidget({ provider, initialTokenSymbol }: ShibaS
       setRiskSummary(null);
       return;
     }
-    setSecurityStatus("loading");
-    const result = await getTokenSecurity(SHIBARIUM_CHAIN_ID, address);
-    if (result) {
-      setTokenSecurity(result);
-      setRiskSummary(evaluateTokenRisk(result));
-      setSecurityStatus("available");
-    } else {
-      setTokenSecurity(null);
-      setRiskSummary(null);
-      setSecurityStatus("unavailable");
-    }
+    setSecurityStatus("unavailable");
+    setTokenSecurity(null);
+    setRiskSummary(null);
   }, [tokenIn]);
 
   useEffect(() => {
@@ -414,7 +403,7 @@ export default function ShibaSwapWidget({ provider, initialTokenSymbol }: ShibaS
       {securityStatus === "available" && (
         <TokenSecurityBanner
           status={securityStatus}
-          data={tokenSecurity}
+          data={null}
           summary={riskSummary}
           tokenSymbol={tokenIn.symbol}
         />

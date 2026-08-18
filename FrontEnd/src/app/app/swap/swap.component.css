@@ -3,49 +3,66 @@
 /* 2-column swap layout */
 .swap-layout {
   display: flex;
-  gap: 20px;
-  align-items: flex-start;
+  gap: 16px;
+  align-items: stretch;
   justify-content: center;
-  max-width: 900px;
+  max-width: 1100px;
+  width: 100%;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 12px;
 }
 
 .swap-chart-col {
   flex: 1 1 0;
   min-width: 0;
-  height: 420px;
+  min-height: 440px;
   background: #0d0e14;
   border: 1px solid var(--border-color, #1e2d38);
   border-radius: 12px;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .swap-widget-col {
-  flex: 0 0 420px;
+  flex: 0 0 400px;
+  max-width: 400px;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  gap: 12px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .swap-layout {
     flex-direction: column;
     align-items: stretch;
-    max-width: 440px;
+    max-width: 420px;
   }
   .swap-widget-col {
     flex: none;
     width: 100%;
+    max-width: none;
+    order: -1;
   }
   .swap-chart-col {
-    height: 300px;
+    min-height: 320px;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1100px) {
+  .swap-layout {
+    max-width: 900px;
+  }
+  .swap-widget-col {
+    flex: 0 0 380px;
+    max-width: 380px;
   }
 }
 
 /* Widget container - force dark theme font */
 .customReactComponentContainer {
   font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif !important;
+  width: 100%;
 }
 
 .customReactComponentContainer * {
@@ -61,6 +78,8 @@
 
 .customReactComponentContainer .swap-zone {
   width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Widget main container */
@@ -189,10 +208,6 @@
 }
 
 .swap-security-fab {
-  position: fixed;
-  top: 72px;
-  right: 16px;
-  z-index: 60;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -206,6 +221,7 @@
   font-size: 13px;
   cursor: pointer;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  margin: 0 auto 4px auto;
 }
 
 .swap-security-fab:hover {

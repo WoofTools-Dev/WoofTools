@@ -96,8 +96,10 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
         this.chainId = parseInt(hexId, 16);
         this.provider = null;
         this.error = false;
+        if (this.wallet.isWalletConnected()) {
+          this.provider = new BrowserProvider(eth);
+        }
         this.render();
-        this.connectWallet();
       });
     }
     this.routeSub = this.route.queryParams.subscribe((params) => {
@@ -151,10 +153,18 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
 
   private async syncWalletNetwork() {
     if (!this.wallet.isWalletConnected()) return;
-    const meta = this.chainService.getChainMeta(this.activeChain);
-    const currentChainId = await this.wallet.getChainId();
-    if (currentChainId !== meta.chainId) {
-      await this.wallet.ensureNetwork(meta.chainId);
+    try {
+      const eth = (window as any).ethereum;
+      if (!eth) return;
+      const hexChainId = await eth.request({ method: 'eth_chainId' });
+      const currentChainId = parseInt(hexChainId, 16);
+      this.chainId = currentChainId;
+      const meta = this.chainService.getChainMeta(this.activeChain);
+      if (currentChainId !== meta.chainId) {
+        await this.wallet.ensureNetwork(meta.chainId);
+      }
+    } catch {
+      // ignore — MetaMask may be rate-limiting
     }
   }
 
@@ -175,7 +185,10 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
         const hexChainId = await eth.request({ method: 'eth_chainId' });
         this.chainId = parseInt(hexChainId, 16);
         this.provider = new BrowserProvider(eth);
-        this.syncWalletNetwork();
+        const meta = this.chainService.getChainMeta(this.activeChain);
+        if (this.chainId !== meta.chainId) {
+          await this.wallet.ensureNetwork(meta.chainId);
+        }
       }
     } catch (e) {
       console.warn('MetaMask connection failed or rejected', e);
@@ -226,50 +239,69 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     const isSupportedChain = this.chainId === null || SUPPORTED_CHAINS.has(this.chainId);
 
     const content = this.connecting ? (
-      <div style={{display: "flex", alignItems: "center", justifyContent: "center", padding: "40px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
-        <p>Connecting to MetaMask...</p>
+      <div className="swap-layout">
+        <div className="swap-chart-col">
+          <SwapChart tokenAddress={this.chartTokenAddress} tokenSymbol={this.chartTokenSymbol} chain={this.activeChain} />
+        </div>
+        <div className="swap-widget-col">
+          <div style={{display: "flex", alignItems: "center", justifyContent: "center", padding: "40px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif", background: "var(--card-bg, #161616)", border: "1px solid #333", borderRadius: 12}}>
+            <p>Connecting to MetaMask...</p>
+          </div>
+        </div>
       </div>
     ) : !isSupportedChain ? (
-      <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
-        <p>Unsupported network (chain ID: {this.chainId}).</p>
-        <button
-          onClick={() => this.syncWalletNetwork()}
-          className="swap-connect-btn"
-          style={{
-            padding: "12px 24px",
-            background: "var(--primary, #ea801e)",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            fontSize: "16px",
-            fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"
-          }}
-        >
-          Switch to {this.activeChain === 'shibarium' ? 'Shibarium' : 'Ethereum'}
-        </button>
+      <div className="swap-layout">
+        <div className="swap-chart-col">
+          <SwapChart tokenAddress={this.chartTokenAddress} tokenSymbol={this.chartTokenSymbol} chain={this.activeChain} />
+        </div>
+        <div className="swap-widget-col">
+          <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif", background: "var(--card-bg, #161616)", border: "1px solid #333", borderRadius: 12}}>
+            <p>Red no soportada (chain ID: {this.chainId}).</p>
+            <button
+              onClick={() => this.syncWalletNetwork()}
+              className="swap-connect-btn"
+              style={{
+                padding: "12px 24px",
+                background: "var(--primary, #ea801e)",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"
+              }}
+            >
+              Switch to {this.activeChain === 'shibarium' ? 'Shibarium' : 'Ethereum'}
+            </button>
+          </div>
+        </div>
       </div>
     ) : !this.provider || this.error ? (
-      <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"}}>
-        <>
-          <p>Connect MetaMask to swap on {this.activeChain === 'shibarium' ? 'Shibarium' : 'Ethereum'}</p>
-          <button
-            onClick={() => this.connectWallet()}
-            className="swap-connect-btn"
-            style={{
-              padding: "12px 24px",
-              background: "var(--primary, #ea801e)",
-              color: "white",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              fontSize: "16px",
-              fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"
-            }}
-          >
-            Connect Wallet
-          </button>
-        </>
+      <div className="swap-layout">
+        <div className="swap-chart-col">
+          <SwapChart tokenAddress={this.chartTokenAddress} tokenSymbol={this.chartTokenSymbol} chain={this.activeChain} />
+        </div>
+        <div className="swap-widget-col">
+          <div style={{display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px", gap: "16px", color: "var(--text-primary, #ffffff)", fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif", background: "var(--card-bg, #161616)", border: "1px solid #333", borderRadius: 12}}>
+            <p>Conecta MetaMask para hacer swap en {this.activeChain === 'shibarium' ? 'Shibarium' : 'Ethereum'}</p>
+            <button
+              onClick={() => this.connectWallet()}
+              className="swap-connect-btn"
+              style={{
+                padding: "12px 24px",
+                background: "var(--primary, #ea801e)",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontFamily: "'Inter', 'Poppins', Roboto, Arial, sans-serif"
+              }}
+            >
+              Conectar Wallet
+            </button>
+          </div>
+        </div>
       </div>
     ) : this.activeChain === 'shibarium' ? (
       <div className="swap-layout">
