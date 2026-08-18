@@ -360,7 +360,7 @@ async function main() {
   await prisma.dailyWinner.deleteMany();
   await prisma.dailyLoser.deleteMany();
   await prisma.updatedRRSS.deleteMany();
-  await prisma.user.deleteMany();
+  await prisma.entityLike.deleteMany();
 
   const dashboardEth = ethereumDashboard.map((d) => ({
     ...d,
@@ -411,17 +411,6 @@ async function main() {
   await prisma.updatedRRSS.createMany({ data: [...ethereumUpdated, ...shibariumUpdated].map((d) => ({ ...d, previousTimes: generateTimes(d.previousPrices.length), chainId: chainIdFor(d.chain) })) });
   console.log(`  ✓ UpdatedRRSS (${ethereumUpdated.length + shibariumUpdated.length} profiles)`);
 
-  await prisma.user.createMany({
-    data: [
-      { username: "admin", email: "admin@wooftools.com", password: "$2b$10$8K1p/a0dL1LXMIgoEDFrwOfMQkfAqYfKmWnoW1YbRgk5eUmKFr8uS" },
-      { username: "cryptowhale", email: "whale@wooftools.com", password: "$2b$10$8K1p/a0dL1LXMIgoEDFrwOfMQkfAqYfKmWnoW1YbRgk5eUmKFr8uS" },
-      { username: "defiking", email: "defi@wooftools.com", password: "$2b$10$8K1p/a0dL1LXMIgoEDFrwOfMQkfAqYfKmWnoW1YbRgk5eUmKFr8uS" },
-      { username: "tokenmaster", email: "token@wooftools.com", password: "$2b$10$8K1p/a0dL1LXMIgoEDFrwOfMQkfAqYfKmWnoW1YbRgk5eUmKFr8uS" },
-      { username: "trader", email: "trader@wooftools.com", password: "$2b$10$8K1p/a0dL1LXMIgoEDFrwOfMQkfAqYfKmWnoW1YbRgk5eUmKFr8uS" },
-    ],
-  });
-  console.log("  ✓ User (5 users)");
-
   console.log("Seeded successfully!");
   console.log("Total records inserted:");
   console.log(`  • DashboardData: ${dashboardEth.length + dashboardShib.length}`);
@@ -431,7 +420,6 @@ async function main() {
   console.log(`  • DailyWinner: ${ethereumWinner.length + shibariumWinner.length}`);
   console.log(`  • DailyLoser: ${ethereumLoser.length + shibariumLoser.length}`);
   console.log(`  • UpdatedRRSS: ${ethereumUpdated.length + shibariumUpdated.length}`);
-  console.log("  • User: 5");
 }
 
 main()
