@@ -135,7 +135,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     this.tokenUnavailable = available === false;
     if (available) {
       this.preselectMeta = await getTokenMeta(network as SwapNetwork, token);
-      this.chartTokenAddress = token;
+      this.chartTokenAddress = this.preselectMeta?.address ?? token;
       this.chartTokenSymbol = this.preselectMeta?.symbol || token.slice(0, 8);
     }
     this.render();
