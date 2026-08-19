@@ -5,6 +5,7 @@ import { Widget } from "@kyberswap/widgets";
 import { ActivatedRoute } from "@angular/router";
 import { WalletService } from "src/app/provider/walletprovider";
 import { BrowserProvider } from "ethers";
+import { Web3Provider as Web3ProviderV5 } from "@ethersproject/providers";
 import { ChainService } from "src/app/Service/chain.service";
 import {
   SwapNetwork,
@@ -42,6 +43,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
 
   private root: Root | null = null;
   private provider: any = null;
+  private rawProvider: any = null;
   private chainId: number | null = null;
   private connecting = false;
   private error = false;
@@ -55,6 +57,8 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
   private hasSelectedToken = false;
   private tokenUnavailable = false;
   private checkingAvailability = false;
+  private lastSyncTime = 0;
+  private chainChangedTimer: any = null;
 
   @ViewChild(containerElementRef, { static: true }) containerRef!: ElementRef;
 
@@ -94,12 +98,19 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     if (eth && eth.on) {
       eth.on('chainChanged', (hexId: string) => {
         this.chainId = parseInt(hexId, 16);
-        this.provider = null;
         this.error = false;
-        if (this.wallet.isWalletConnected()) {
-          this.provider = new BrowserProvider(eth);
-        }
-        this.render();
+        if (this.chainChangedTimer) clearTimeout(this.chainChangedTimer);
+        this.chainChangedTimer = setTimeout(() => {
+          if (this.wallet.isWalletConnected()) {
+            const e = (window as any).ethereum;
+            this.rawProvider = new Web3ProviderV5(e);
+            this.provider = new BrowserProvider(e);
+          } else {
+            this.rawProvider = null;
+            this.provider = null;
+          }
+          this.render();
+        }, 300);
       });
     }
     this.routeSub = this.route.queryParams.subscribe((params) => {
@@ -111,11 +122,13 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
   ngOnDestroy() {
     this.chainSub?.unsubscribe();
     this.routeSub?.unsubscribe();
+    if (this.chainChangedTimer) clearTimeout(this.chainChangedTimer);
     if (this.root) {
       this.root.unmount();
       this.root = null;
     }
     this.provider = null;
+    this.rawProvider = null;
   }
 
   private async handleRouteParams(params: Record<string, any>) {
@@ -147,7 +160,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     const available = await isTokenAvailable(network as SwapNetwork, token);
     this.checkingAvailability = false;
     this.tokenUnavailable = available === false;
-    if (available) {
+    if (available !== false) {
       this.preselectMeta = await getTokenMeta(network as SwapNetwork, token);
       this.chartTokenAddress = this.preselectMeta?.address ?? token;
       this.chartTokenSymbol = this.preselectMeta?.symbol || token.slice(0, 8);
@@ -158,6 +171,9 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
 
   private async syncWalletNetwork() {
     if (!this.wallet.isWalletConnected()) return;
+    const now = Date.now();
+    if (now - this.lastSyncTime < 30000) return;
+    this.lastSyncTime = now;
     try {
       const eth = (window as any).ethereum;
       if (!eth) return;
@@ -189,6 +205,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
         const eth = (window as any).ethereum;
         const hexChainId = await eth.request({ method: 'eth_chainId' });
         this.chainId = parseInt(hexChainId, 16);
+        this.rawProvider = new Web3ProviderV5(eth);
         this.provider = new BrowserProvider(eth);
         const meta = this.chainService.getChainMeta(this.activeChain);
         if (this.chainId !== meta.chainId) {
@@ -198,6 +215,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     } catch (e) {
       console.warn('MetaMask connection failed or rejected', e);
       this.provider = null;
+      this.rawProvider = null;
     }
     this.connecting = false;
     this.render();
@@ -213,7 +231,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     this.chartTokenAddress = token.address;
     this.chartTokenSymbol = token.symbol;
     this.hasSelectedToken = true;
-    this.render();
+    setTimeout(() => this.render(), 0);
   }
 
   private handleShibaTokenChange = (address: string, symbol: string) => {
@@ -221,7 +239,7 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     this.chartTokenAddress = address;
     this.chartTokenSymbol = symbol;
     this.hasSelectedToken = true;
-    this.render();
+    setTimeout(() => this.render(), 0);
   }
 
   private render() {
@@ -260,9 +278,12 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
     const isSupportedChain = this.chainId === null || SUPPORTED_CHAINS.has(this.chainId);
     const showChart = this.hasSelectedToken && this.chartTokenAddress;
 
+    const chartKey = `${this.activeChain}-${this.chartTokenAddress}`;
+
     const chartCol = showChart ? (
       <div className="swap-chart-col">
         <SwapChart
+          key={chartKey}
           tokenAddress={this.chartTokenAddress}
           tokenSymbol={this.chartTokenSymbol}
           chain={this.activeChain}
@@ -349,9 +370,9 @@ export class SwapComponent implements OnChanges, OnDestroy, AfterViewInit {
                 client="WoofTools"
                 enableRoute={true}
                 enableDexes="kyberswap-elastic,uniswapv3,uniswap"
-                provider={this.provider}
+                provider={this.rawProvider}
                 title={<div>Swap</div>}
-                defaultTokenIn={this.preselectMeta?.symbol}
+                defaultTokenIn={this.preselectMeta?.address}
                 onSourceTokenChange={this.handleSourceTokenChange}
                 {...(environment.SWAP_FEE_BPS > 0 && environment.SWAP_FEE_RECEIVER ? {
                   feeSetting: {

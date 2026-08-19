@@ -33,17 +33,27 @@ interface SwapChartProps {
 
 function pricesToCandles(prices: number[], times: number[]): PricePoint[] {
   if (prices.length < 2) return [];
+
+  const pairs = times.map((t, i) => ({ t, p: prices[i] }));
+  pairs.sort((a, b) => a.t - b.t);
+  const deduped: { t: number; p: number }[] = [];
+  for (const pair of pairs) {
+    if (deduped.length > 0 && deduped[deduped.length - 1].t === pair.t) continue;
+    deduped.push(pair);
+  }
+  if (deduped.length < 2) return [];
+
   const candles: PricePoint[] = [];
-  for (let i = 0; i < prices.length; i++) {
-    const price = prices[i];
-    const nextPrice = i < prices.length - 1 ? prices[i + 1] : price;
+  for (let i = 0; i < deduped.length; i++) {
+    const price = deduped[i].p;
+    const nextPrice = i < deduped.length - 1 ? deduped[i + 1].p : price;
     const volatility = Math.abs(nextPrice - price) * 0.3 || price * 0.01;
     const open = price;
     const close = nextPrice;
     const high = Math.max(open, close) + volatility;
     const low = Math.min(open, close) - volatility * 0.5;
     candles.push({
-      time: times[i] as UTCTimestamp,
+      time: deduped[i].t as UTCTimestamp,
       open,
       high: Math.max(high, open, close),
       low: Math.min(low, open, close),
