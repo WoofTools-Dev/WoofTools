@@ -46,7 +46,10 @@
                         <span class="pop-bar"><span class="pop-fill" [style.width.%]="Math.min(card.metric ?? 0, 100)"></span></span>
                         <span class="pop-value">{{ card.metric }}</span>
                     </div>
-                    <button class="swap-btn" (click)="swapCard(card)">Swap</button>
+                    <div class="swap-tokens">
+                        <button class="swap-btn" (click)="swapToken(card, card.token0)">Swap {{ card.token0 }}</button>
+                        <button class="swap-btn" (click)="swapToken(card, card.token1)">Swap {{ card.token1 }}</button>
+                    </div>
                 </div>
             </div>
 

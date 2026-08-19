@@ -155,9 +155,9 @@ describe('MultiChartComponent', () => {
   it('should navigate to swap with the token query params', () => {
     const router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     component.addCard(findOption('BONE/WETH'));
-    component.swapCard(component.cards[0]);
+    component.swapToken(component.cards[0], component.cards[0].token0);
     expect(router.navigate).toHaveBeenCalledWith(['/multiswap'], {
-      queryParams: { network: component.activeChain, token: 'BONE', pair: 'BONE/WETH' },
+      queryParams: { network: component.activeChain, token: 'BONE' },
     });
   });
 

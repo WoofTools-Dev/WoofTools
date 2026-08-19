@@ -269,8 +269,13 @@
   color: #fff;
 }
 
+.swap-tokens {
+  display: flex;
+  gap: 8px;
+}
+
 .swap-btn {
-  width: 100%;
+  flex: 1;
   padding: 10px;
   border: none;
   border-radius: 10px;
@@ -278,7 +283,7 @@
   color: #fff;
   font-family: 'Inter', 'Poppins', Roboto, Arial, sans-serif;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   cursor: pointer;
   transition: filter 0.15s ease;
 }

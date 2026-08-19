@@ -262,9 +262,9 @@ export class MultiChartComponent implements OnInit, OnDestroy {
     this.persist();
   }
 
-  swapCard(card: ChartCard): void {
+  swapToken(card: ChartCard, tokenSymbol: string): void {
     this.router.navigate(['/multiswap'], {
-      queryParams: { network: this.activeChain, token: card.token0, pair: card.name },
+      queryParams: { network: this.activeChain, token: tokenSymbol },
     });
   }
 
