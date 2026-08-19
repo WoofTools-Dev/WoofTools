@@ -1,3 +1,29 @@
+const NATIVE_TOKEN = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
+const SHIBARIUM_PRECOMPILE = "0x0000000000000000000000000000000000001010";
+
+export const NATIVE_TOKEN_MAP: Record<string, { coinGeckoId?: string; wrappedAddress?: string }> = {
+  ethereum: { coinGeckoId: "ethereum", wrappedAddress: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2" },
+  shibarium: { coinGeckoId: "bone-shibaswap", wrappedAddress: "0xC76F4c819D820369Fb2d7C1531aB3Bb18e6fE8d8" },
+};
+
+const NATIVE_ADDRESSES = new Set([
+  NATIVE_TOKEN.toLowerCase(),
+  SHIBARIUM_PRECOMPILE.toLowerCase(),
+]);
+
+export function isNativeToken(address: string): boolean {
+  return NATIVE_ADDRESSES.has(address.toLowerCase());
+}
+
+export function resolveTokenForChain(address: string, chain: string): { coinGeckoId: string | null; queryAddress: string } {
+  if (!isNativeToken(address)) {
+    return { coinGeckoId: getCoinGeckoId(address), queryAddress: address };
+  }
+  const native = NATIVE_TOKEN_MAP[chain];
+  if (!native) return { coinGeckoId: null, queryAddress: address };
+  return { coinGeckoId: native.coinGeckoId ?? null, queryAddress: native.wrappedAddress ?? address };
+}
+
 export const TOKEN_COINGECKO_MAP: Record<string, string> = {
   // Ethereum mainnet tokens
   "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2": "weth",
@@ -56,14 +82,19 @@ export const TOKEN_COINGECKO_MAP: Record<string, string> = {
   "0xBd2c3Df0C2CdeD2B269e62A532Fcb901aAeC01f7": "wombat-exchange",
   "0xe80eAafE63dB0Dc36132880ced70668550331826": "connext",
 
-  // Shibarium tokens
+  // Shibarium tokens (only tokens with valid CoinGecko IDs)
+  "0x0000000000000000000000000000000000001010": "bone-shibaswap",
   "0xC76F4c819D820369Fb2d7C1531aB3Bb18e6fE8d8": "wrapped-bone",
   "0x495eea66B0f8b636D441dC6a98d8F5C3D455C4c0": "shiba-inu",
-  "0x65218A41Fb92637254B4f8c97448d3dF343A3064": "doge-killer",
-  "0x506d8d2d9c715Eb34F514cc3EF48C7aBD19e2bc7": "treat",
-  "0x2761723006d3Eb0d90B19B75654DbE543dcd974f": "chewy",
+  "0x65218A41Fb92637254B4f8c97448d3dF343A3064": "leash",
+  "0xf010f12dcA0b96D2d6685bf4dB3dbB4Ad500B6Ad": "usd-coin",
+  "0xaB082b8ad96c7f47ED70ED971Ce2116469954cFB": "tether",
+  "0x0726959d22361B79e4D50A5D157b044A83eC870d": "dai",
+  "0xE984D89fb00D0B44E798A55dc41EA598B0b0899d": "wrapped-bitcoin",
+  // TREAT (0x506d...) and CHEWY (0x2761...) do NOT exist on CoinGecko - use GeckoTerminal fallback
 };
 
 export function getCoinGeckoId(address: string): string | null {
-  return TOKEN_COINGECKO_MAP[address] || null;
+  const key = Object.keys(TOKEN_COINGECKO_MAP).find(k => k.toLowerCase() === address.toLowerCase());
+  return key ? TOKEN_COINGECKO_MAP[key] : null;
 }

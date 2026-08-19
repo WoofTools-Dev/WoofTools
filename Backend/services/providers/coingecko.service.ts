@@ -17,7 +17,7 @@ function headers(): Record<string, string> {
   return h;
 }
 
-async function cgFetch<T>(path: string): Promise<T> {
+async function cgFetch<T>(path: string, retries = 0): Promise<T> {
   await cache.waitForRateLimit("coingecko", RATE_LIMIT);
   const url = `${coingeckoConfig.baseUrl}${path}`;
   const res = await fetch(url, {
@@ -26,8 +26,9 @@ async function cgFetch<T>(path: string): Promise<T> {
   });
 
   if (res.status === 429) {
-    await new Promise((r) => setTimeout(r, 2000));
-    return cgFetch<T>(path);
+    if (retries >= 3) throw new Error(`Coingecko rate limited after ${retries} retries`);
+    await new Promise((r) => setTimeout(r, 2000 * (retries + 1)));
+    return await cgFetch<T>(path, retries + 1);
   }
 
   if (!res.ok) throw new Error(`Coingecko HTTP ${res.status}`);
@@ -152,4 +153,34 @@ export async function getTopCoinsByMarketCap(
 
   cache.set(cacheKey, results, CACHE_TTL_PRICES);
   return results;
+}
+
+export async function resolveCoinGeckoIdByAddress(
+  chain: string,
+  tokenAddress: string
+): Promise<string | null> {
+  const cacheKey = `cg:resolve:${chain}:${tokenAddress.toLowerCase()}`;
+  const cached = cache.get<string | null>(cacheKey);
+  if (cached !== undefined) return cached;
+
+  const chainMap: Record<string, string> = {
+    ethereum: "ethereum",
+  };
+  const cgChain = chainMap[chain];
+  if (!cgChain) return null;
+
+  try {
+    const data = await cgFetch<{ id: string }>(
+      `/coins/${cgChain}/contract/${tokenAddress}`
+    );
+    const id = data?.id || null;
+    cache.set(cacheKey, id, CACHE_TTL_HISTORY);
+    return id;
+  } catch (err: any) {
+    const msg = err?.message || "";
+    if (msg.includes("404")) {
+      cache.set(cacheKey, null, CACHE_TTL_HISTORY);
+    }
+    return null;
+  }
 }

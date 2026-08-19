@@ -1,8 +1,10 @@
 import { coingeckoService, geckoterminalService } from "./providers";
-import { getCoinGeckoId } from "../configs/token-map";
+import { getCoinGeckoId, resolveTokenForChain } from "../configs/token-map";
+import { resolveCoinGeckoIdByAddress } from "./providers/coingecko.service";
 
 const CACHE_TTL_MS = 5 * 60 * 1000;
 const cache = new Map<string, { data: PriceHistoryResult; ts: number }>();
+const inflight = new Map<string, Promise<PriceHistoryResult>>();
 
 export interface PriceHistoryResult {
   prices: number[];
@@ -22,20 +24,40 @@ export async function getPriceHistory(
     return cached.data;
   }
 
+  const existing = inflight.get(key);
+  if (existing) return existing;
+
+  const promise = fetchAndCache(chain, tokenAddress, days, key);
+  inflight.set(key, promise);
+  try {
+    return await promise;
+  } finally {
+    inflight.delete(key);
+  }
+}
+
+async function fetchAndCache(
+  chain: string,
+  tokenAddress: string,
+  days: number,
+  key: string
+): Promise<PriceHistoryResult> {
   let result: PriceHistoryResult | null = null;
 
-  if (chain === "ethereum") {
+  if (chain === "ethereum" || chain === "shibarium") {
     result = await fetchFromCoinGecko(tokenAddress, chain, days);
-  } else if (chain === "shibarium") {
-    result = await fetchFromGeckoTerminal(tokenAddress, chain, days);
+    if (!result) {
+      result = await fetchFromGeckoTerminal(tokenAddress, chain, days);
+    }
   }
 
-  if (!result) {
-    result = { prices: [], times: [], tokenAddress, chain };
+  if (result) {
+    cache.set(key, { data: result, ts: Date.now() });
+    return result;
   }
 
-  cache.set(key, { data: result, ts: Date.now() });
-  return result;
+  const empty: PriceHistoryResult = { prices: [], times: [], tokenAddress, chain };
+  return empty;
 }
 
 async function fetchFromCoinGecko(
@@ -43,7 +65,12 @@ async function fetchFromCoinGecko(
   chain: string,
   days: number
 ): Promise<PriceHistoryResult | null> {
-  const coinGeckoId = getCoinGeckoId(tokenAddress);
+  const resolved = resolveTokenForChain(tokenAddress, chain);
+  let coinGeckoId = resolved.coinGeckoId ?? getCoinGeckoId(resolved.queryAddress);
+
+  if (!coinGeckoId) {
+    coinGeckoId = await resolveCoinGeckoIdByAddress(chain, tokenAddress);
+  }
   if (!coinGeckoId) return null;
 
   try {
@@ -61,8 +88,9 @@ async function fetchFromGeckoTerminal(
   chain: string,
   days: number
 ): Promise<PriceHistoryResult | null> {
+  const resolved = resolveTokenForChain(tokenAddress, chain);
   try {
-    const data = await geckoterminalService.getOHLCV(tokenAddress, chain, days);
+    const data = await geckoterminalService.getOHLCV(resolved.queryAddress, chain, days);
     if (!data || !data.prices || data.prices.length < 2) return null;
     return { prices: data.prices, times: data.times, tokenAddress, chain };
   } catch (err) {

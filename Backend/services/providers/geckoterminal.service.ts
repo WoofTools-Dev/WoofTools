@@ -75,13 +75,23 @@ export async function findPool(
   );
 
   if (!res.ok) {
-    poolCache.set(cacheKey, { value: null, ts: Date.now() });
     return null;
   }
 
   const data: GeckoPoolsResponse = await res.json();
   const pools = data.data || [];
-  const poolId = pools.length > 0 ? pools[0].id.split("_")[1] || pools[0].attributes.address : null;
+  if (pools.length === 0) {
+    poolCache.set(cacheKey, { value: null, ts: Date.now() });
+    return null;
+  }
+
+  const best = pools.reduce((a, b) => {
+    const liqA = parseFloat(a.attributes.liquidity_usd || "0");
+    const liqB = parseFloat(b.attributes.liquidity_usd || "0");
+    return liqB > liqA ? b : a;
+  });
+
+  const poolId = best.id.split("_")[1] || best.attributes.address;
 
   poolCache.set(cacheKey, { value: poolId, ts: Date.now() });
   return poolId;
@@ -114,14 +124,20 @@ export async function getOHLCV(
 
   if (ohlcvList.length === 0) return null;
 
+  const seen = new Set<number>();
   const prices: number[] = [];
   const times: number[] = [];
 
   for (const point of ohlcvList) {
     const [timestamp, open, high, low, close, volume] = point;
+    const t = Math.floor(timestamp);
+    if (seen.has(t)) continue;
+    seen.add(t);
     prices.push(close || open || 0);
-    times.push(Math.floor(timestamp));
+    times.push(t);
   }
+
+  if (prices.length < 2) return null;
 
   const result = { prices, times };
   cache.set(cacheKey, result, CACHE_TTL);
