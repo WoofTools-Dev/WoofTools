@@ -10,31 +10,32 @@
 WoofTools is a web application that brings together, in one place, tools for traders and anyone with an interest in the ecosystem:
 :
 
-- **Woofboard**: panel de análisis con la tabla de tokens, ganadores/perdedores del día, pares actualizados y hot pairs, con gráficos de velas (candlestick) y filtros/sorting por datos.
-- **Swap**: swap de tokens (KyberSwap / ShibaSwap) con selección previa de token y aviso de disponibilidad.
-- **MultiChart**: compara hasta 2 pares seleccionados en tarjetas con gráficos del mismo tipo que el resto de la app.
-- **Pair Explorer**: explorador de pares listados con navegación al explorador de la cadena.
-- **Seguridad**: análisis del contrato del token (GoPlus Security).
+- **Woofboard**: analytics dashboard featuring the token table, the day’s winners and losers, updated pairs and hot pairs, with candlestick charts and filters/sorting options based on data.
+- **Swap**: token swaps (KyberSwap / ShibaSwap) with pre-selection of tokens and availability notificationsff.
+- **MultiChart**: Compare up to two selected pairs on cards with graphics in the same style as the rest of the app.
+- **Pair Explorer**: Listed pair explorer with navigation to the string explorer.
+- **Seguridad**: analysis of the token contract (GoPlus Security).
+
 
 ## Estructura
 
 ```
 ├── Backend/   → API REST (Node.js + Express + Prisma + PostgreSQL)
-├── FrontEnd/  → Aplicación web (Angular 16 + Angular Material)
-├── pgadmin/   → Configuración de PgAdmin
+├── FrontEnd/  → Aplication web (Angular 16 + Angular Material)
+├── pgadmin/   → Configuration de PgAdmin
 └── docker-compose.yml
 ```
 
-## Tecnologías
+## Tecnology
 
 - **Frontend**: Angular 16, Angular Material, Chart.js (chartjs-chart-financial), KyberSwap Widgets.
 - **Backend**: Node.js, Express, TypeScript, Prisma ORM.
-- **Base de datos**: PostgreSQL (dockerizado).
-- **Seguridad**: GoPlus Security API.
+- **Database**: PostgreSQL (dockerized).
+- **Security**: GoPlus Security API.
 
-## Puesta en marcha
+## Commissioning 
 
-### 1. Base de datos
+### 1. DataBasee
 
 ```bash
 docker-compose up -d
@@ -61,6 +62,6 @@ npm install
 ng serve              # app en http://localhost:4200
 ```
 
-## Licencia
+## Licence
 
-Distribuido bajo la [Licencia MIT](LICENSE).
+Distribuited down the [Licence MIT](LICENSE).
