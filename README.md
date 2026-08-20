@@ -17,7 +17,7 @@ WoofTools is a web application that brings together, in one place, tools for tra
 - **Seguridad**: analysis of the token contract (GoPlus Security).
 
 
-## Estructura
+## Structure
 
 ```
 ├── Backend/   → API REST (Node.js + Express + Prisma + PostgreSQL)
