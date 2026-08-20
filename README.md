@@ -2,11 +2,13 @@
 
 ![WoofTools](FrontEnd/src/assets/WoofTools-LogoText.png)
 
-> Plataforma de análisis y herramientas para pares de tokens en cadenas como Shibarium y Ethereum.
 
-## Descripción
+> An analytics platform and tools for token pairs on blockchains such as Shibarium and Ethereum.
 
-WoofTools es una aplicación web que agrupa en un solo lugar herramientas para traders y curiosos del ecosistema:
+## Description
+
+WoofTools is a web application that brings together, in one place, tools for traders and anyone with an interest in the ecosystem:
+:
 
 - **Woofboard**: panel de análisis con la tabla de tokens, ganadores/perdedores del día, pares actualizados y hot pairs, con gráficos de velas (candlestick) y filtros/sorting por datos.
 - **Swap**: swap de tokens (KyberSwap / ShibaSwap) con selección previa de token y aviso de disponibilidad.
